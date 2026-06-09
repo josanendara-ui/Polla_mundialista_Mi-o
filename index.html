@@ -423,7 +423,7 @@
                 <input type="text" id="txtGoleador" class="input-field" placeholder="Escribe el nombre del jugador" onchange="APP.saveSpecial('goleador_mundial', this.value)">
             </div>
             
-            <button class="btn" style="margin-top:4px;" onclick="APP.saveAndGoFaseFinal()">💾 Guardar e ir a Fase Final</button>
+            <button id="btnGuardarIrFF" class="btn" style="margin-top:4px;" onclick="APP.saveAndGoFaseFinal()">💾 Guardar e ir a Fase Final</button>
             <button class="btn secondary" onclick="APP.goToScreen('screenPredictions')">Volver a Fase de Grupos</button>
         </div>
 
@@ -819,18 +819,54 @@
             if (id === 'screenLogin') populateExistingUsers();
             if (id === 'screenAdmin' && STATE.adminConnected) { adminLoadResults(); loadApiKeyToInput(); }
             
-            // FASE FINAL AHORA SIEMPRE ACCESIBLE EN EL FLUJO
-            if (id === 'screenFaseFinal') renderFaseFinal();
+            // Fase Final: redirigir al menú si está deshabilitada
+            if (id === 'screenFaseFinal') {
+                if (!STATE.faseFinalEnabled) { goToScreen('screenMenu'); return; }
+                renderFaseFinal();
+            }
 
             const ub = DOM.get('userBadge'); if (ub) ub.textContent = STATE.currentUser ? `👤 ${STATE.currentUser.nombre_apodo}` : '👤 Sin sesión';
             const cw = DOM.get('closureWarning'); if (cw && id === 'screenWelcome') cw.textContent = STATE.status === 'closed' ? '🔒 LA POLLA MUNDIALISTA ESTÁ TOTALMENTE CERRADA' : '';
 
-            // Asegurar que navs y botones estén correctos
-            const btnFF = DOM.get('btnFaseFinalMenu'); if (btnFF) btnFF.style.display = 'inline-flex';
+            // Nav inferior: Predicciones solo cuando está en esa pantalla
             const navPred = DOM.get('navItemPredictions'); if (navPred) navPred.style.display = id === 'screenPredictions' ? 'flex' : 'none';
-            const navFF = DOM.get('navItemFaseFinal'); if (navFF) navFF.style.display = (id === 'screenFaseFinal') ? 'flex' : 'none';
+
+            // Aplicar visibilidad de Fase Final en todos los puntos de la UI
+            applyFaseFinalVisibility();
 
             if (!['screenWelcome','screenLogin','screenRegister'].includes(id) && !STATE.currentUser) goToScreen('screenWelcome');
+        }
+
+        function applyFaseFinalVisibility() {
+            const enabled = STATE.faseFinalEnabled;
+            const activeId = document.querySelector('.screen.active')?.id;
+
+            // 1. Botón en menú principal
+            const btnFF = DOM.get('btnFaseFinalMenu');
+            if (btnFF) btnFF.style.display = enabled ? 'flex' : 'none';
+
+            // 2. Botón en nav inferior (solo visible si habilitado Y estás en esa pantalla)
+            const navFF = DOM.get('navItemFaseFinal');
+            if (navFF) navFF.style.display = (enabled && activeId === 'screenFaseFinal') ? 'flex' : 'none';
+
+            // 3. Tab "Fase final" dentro de Tablas
+            const tabBracket = DOM.get('tabBracketView');
+            if (tabBracket) {
+                tabBracket.style.display = enabled ? '' : 'none';
+                if (!enabled && STATE.currentTablesView === 'bracket') {
+                    STATE.currentTablesView = 'groups';
+                    DOM.get('tabGroupsView')?.classList.add('active');
+                    tabBracket.classList.remove('active');
+                    const gb = DOM.get('tablesGroupsBlock'); const bb = DOM.get('tablesBracketBlock');
+                    if (gb) gb.style.display = 'block'; if (bb) bb.style.display = 'none';
+                }
+            }
+
+            // 4. Botón "Guardar e ir a Fase Final" en Comodines
+            const btnGoFF = DOM.get('btnGuardarIrFF');
+            if (btnGoFF) {
+                btnGoFF.textContent = enabled ? '💾 Guardar e ir a Fase Final' : '💾 Guardar y volver al Menú';
+            }
         }
 
         function registerUser() {
@@ -1418,7 +1454,14 @@
         }
 
         function toggleFaseFinal(enable) {
-            db.ref('fase_final_enabled').set(!!enable).then(() => { triggerToast(enable ? 'Fase Final habilitada' : 'Fase Final deshabilitada'); });
+            STATE.faseFinalEnabled = !!enable;
+            applyFaseFinalVisibility();
+            // Si alguien está en screenFaseFinal y se deshabilita, mandarlo al menú
+            const activeId = document.querySelector('.screen.active')?.id;
+            if (!enable && activeId === 'screenFaseFinal') goToScreen('screenMenu');
+            db.ref('fase_final_enabled').set(!!enable).then(() => {
+                triggerToast(enable ? '✅ Fase Final habilitada' : '🔒 Fase Final deshabilitada');
+            });
         }
 
         function saveOfficialKnockoutBatch(map) {
@@ -1565,7 +1608,7 @@
                 });
                 Promise.all(promises).then(() => { 
                     triggerToast('Comodines guardados'); 
-                    goToScreen('screenFaseFinal'); 
+                    goToScreen(STATE.faseFinalEnabled ? 'screenFaseFinal' : 'screenMenu'); 
                 }).catch(err => { console.error(err); triggerToast('❌ Error'); });
             }
         };
@@ -1589,7 +1632,7 @@
             const ub = DOM.get('userBadge'); if (ub) ub.textContent = STATE.currentUser ? `👤 ${STATE.currentUser.nombre_apodo}` : '👤 Sin sesión';
             const activeScreen = document.querySelector('.screen.active');
             const navPred2 = DOM.get('navItemPredictions'); if (navPred2) navPred2.style.display = (activeScreen && activeScreen.id === 'screenPredictions') ? 'flex' : 'none';
-            const navFF = DOM.get('navItemFaseFinal'); if (navFF) navFF.style.display = (activeScreen && activeScreen.id === 'screenFaseFinal') ? 'flex' : 'none';
+            applyFaseFinalVisibility();
             if (STATE.adminConnected) renderAdminUsers();
         }
 
