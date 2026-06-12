@@ -261,7 +261,7 @@
 
                 <p id="closureWarning" style="color:#EF4444; font-weight:bold; font-size:0.9rem; margin-bottom:12px;"></p>
 
-                <button class="btn" onclick="APP.goToScreen('screenRegister')" style="max-width:340px;">🎯 Crear Mi Usuario</button>
+                <button id="btnCrearUsuario" class="btn" onclick="APP.goToScreen('screenRegister')" style="max-width:340px;">🎯 Crear Mi Usuario</button>
                 <button class="btn secondary" onclick="APP.goToScreen('screenLogin')" style="max-width:340px;">Ya tengo usuario</button>
 
                 <div style="width:100%; max-width:340px; margin-top:20px; background:linear-gradient(135deg,rgba(30,41,59,0.85),rgba(15,23,42,0.8)); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:14px; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
@@ -475,9 +475,14 @@
                     <button class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinal(false)">❌ Deshabilitar Fase Final</button>
                 </div>
 
-                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <div style="display:flex; gap:10px; margin-bottom:12px;">
                     <button class="btn secondary" style="flex:1;" onclick="APP.toggleGruposLock(false)">🔓 Abrir Pronósticos Grupos</button>
                     <button class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.toggleGruposLock(true)">🔒 Cerrar Pronósticos Grupos</button>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <button class="btn secondary" style="flex:1;" onclick="APP.toggleRegistros(false)">🔓 Abrir Registros</button>
+                    <button class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.toggleRegistros(true)">🔒 Cerrar Registros</button>
                 </div>
 
                 <button class="btn gold" style="margin-bottom:20px;" onclick="APP.adminExportCSV()">📥 Exportar datos a Excel (CSV)</button>
@@ -750,7 +755,7 @@
             knockoutPreds: {}, officialKnockout: {}, officialKnockoutMatches: {}, status: 'open',
             myId: localStorage.getItem('polla_myId'), currentUser: null, currentSelectedGroup: 'A',
             currentTablesView: 'groups', adminConnected: sessionStorage.getItem('p26adm') === '1',
-            faseFinalEnabled: false, gruposLock: false
+            faseFinalEnabled: false, gruposLock: false, registrosLock: false
         };
 
         let toastTimeout;
@@ -769,6 +774,7 @@
             STATE.status = data.status || 'open';
             STATE.faseFinalEnabled = !!data.fase_final_enabled;
             STATE.gruposLock = !!data.grupos_lock;
+            STATE.registrosLock = !!data.registros_lock;
 
             if (STATE.myId && STATE.users[STATE.myId]) {
                 STATE.currentUser = STATE.users[STATE.myId];
@@ -877,6 +883,7 @@
         }
 
         function registerUser() {
+            if (STATE.registrosLock) { alert('Los registros están cerrados. Ya no se puede crear nuevos usuarios.'); return; }
             if (STATE.status === 'closed' && !STATE.adminConnected) { alert('La Polla Mundialista está cerrada.'); return; }
             const nick = DOM.get('inputNickname').value.trim(); if (!nick) { alert('Ingresa un apodo familiar.'); return; }
             if (Object.values(STATE.users).some(u => u.nombre_apodo.toLowerCase() === nick.toLowerCase())) { alert('Este nombre ya existe.'); return; }
@@ -1479,6 +1486,15 @@
             });
         }
 
+        function toggleRegistros(lock) {
+            STATE.registrosLock = !!lock;
+            const btn = DOM.get('btnCrearUsuario');
+            if (btn) btn.style.display = lock ? 'none' : '';
+            db.ref('registros_lock').set(!!lock).then(() => {
+                triggerToast(lock ? '🔒 Registros cerrados' : '🔓 Registros abiertos');
+            });
+        }
+
         function saveOfficialKnockoutBatch(map) {
             db.ref('official_knockout').update(map).then(() => triggerToast('Resultados fase final guardados')).catch(err => console.error(err));
         }
@@ -1608,7 +1624,7 @@
                 const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `Polla_Familiar_2026_Master_${new Date().toISOString().slice(0,10)}.csv`; link.click();
             },
-            adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials, toggleFaseFinal, toggleGruposLock,
+            adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials, toggleFaseFinal, toggleGruposLock, toggleRegistros,
             adminDeleteUser, adminResetUser, saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch, saveApiKey, syncFromAPI, toggleAutoSync,
             
             // Función nueva de navegación desde Especiales a Fase Final
@@ -1647,6 +1663,7 @@
             const ub = DOM.get('userBadge'); if (ub) ub.textContent = STATE.currentUser ? `👤 ${STATE.currentUser.nombre_apodo}` : '👤 Sin sesión';
             const activeScreen = document.querySelector('.screen.active');
             const navPred2 = DOM.get('navItemPredictions'); if (navPred2) navPred2.style.display = (activeScreen && activeScreen.id === 'screenPredictions') ? 'flex' : 'none';
+            const btnCrear = DOM.get('btnCrearUsuario'); if (btnCrear) btnCrear.style.display = STATE.registrosLock ? 'none' : '';
             applyFaseFinalVisibility();
             if (STATE.adminConnected) renderAdminUsers();
         }
