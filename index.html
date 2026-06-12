@@ -475,6 +475,11 @@
                     <button class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinal(false)">❌ Deshabilitar Fase Final</button>
                 </div>
 
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <button class="btn secondary" style="flex:1;" onclick="APP.toggleGruposLock(false)">🔓 Editar Resultados Grupos</button>
+                    <button class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.toggleGruposLock(true)">🔒 Bloquear Resultados Grupos</button>
+                </div>
+
                 <button class="btn gold" style="margin-bottom:20px;" onclick="APP.adminExportCSV()">📥 Exportar datos a Excel (CSV)</button>
                 <button class="btn danger" style="width:100%; margin-bottom: 20px;" onclick="APP.adminResetMundial()">♻️ Reiniciar Resultados Oficiales</button>
 
@@ -745,7 +750,7 @@
             knockoutPreds: {}, officialKnockout: {}, officialKnockoutMatches: {}, status: 'open',
             myId: localStorage.getItem('polla_myId'), currentUser: null, currentSelectedGroup: 'A',
             currentTablesView: 'groups', adminConnected: sessionStorage.getItem('p26adm') === '1',
-            faseFinalEnabled: false
+            faseFinalEnabled: false, gruposLock: false
         };
 
         let toastTimeout;
@@ -763,6 +768,7 @@
             STATE.officialKnockoutMatches = data.official_knockout_matches || {};
             STATE.status = data.status || 'open';
             STATE.faseFinalEnabled = !!data.fase_final_enabled;
+            STATE.gruposLock = !!data.grupos_lock;
 
             if (STATE.myId && STATE.users[STATE.myId]) {
                 STATE.currentUser = STATE.users[STATE.myId];
@@ -1302,24 +1308,33 @@
         }
 
         function adminLoadResults() {
-            let html = '';
+            const locked = STATE.gruposLock;
+            const disAttr = locked ? 'disabled' : '';
+            const lockedBanner = locked
+                ? `<div style="background:#EF444422; border:1px solid #EF4444; border-radius:10px; padding:10px 14px; margin-bottom:12px; color:#EF4444; font-size:0.9rem;">
+                     🔒 <strong>Resultados de grupos bloqueados.</strong> Desbloquea desde el panel de arriba para editar.
+                   </div>`
+                : '';
+            let html = lockedBanner;
             ALL_MATCHES.forEach(m => {
                 const r = STATE.officialResults[m.id] || { gl: '', gv: '' };
                 html += `
-                <div class="match-row" style="background:var(--bg-input); margin-bottom:8px;">
+                <div class="match-row" style="background:var(--bg-input); margin-bottom:8px; ${locked ? 'opacity:0.65;' : ''}">
                     <div class="match-date">📅 Encuentro N°${m.id} — ${m.fechaStr} (Grupo ${m.grupo})</div>
                     <div class="match-teams">
                         <div class="team" style="font-size:0.85rem;">${m.local}</div>
                         <div class="score-inputs">
-                            <input type="number" inputmode="numeric" class="score-box adm-gl" data-mid="${m.id}" value="${r.gl !== undefined && r.gl !== null ? r.gl : ''}">
+                            <input type="number" inputmode="numeric" class="score-box adm-gl" data-mid="${m.id}" value="${r.gl !== undefined && r.gl !== null ? r.gl : ''}" ${disAttr}>
                             <span class="divider">-</span>
-                            <input type="number" inputmode="numeric" class="score-box adm-gv" data-mid="${m.id}" value="${r.gv !== undefined && r.gv !== null ? r.gv : ''}">
+                            <input type="number" inputmode="numeric" class="score-box adm-gv" data-mid="${m.id}" value="${r.gv !== undefined && r.gv !== null ? r.gv : ''}" ${disAttr}>
                         </div>
                         <div class="team right" style="font-size:0.85rem;">${m.visitante}</div>
                     </div>
                 </div>`;
             });
-            html += `<button class="btn" style="margin-top:12px;" onclick="APP.saveAdmMatchesCloud()">💾 Guardar Resultados Oficiales</button>`;
+            html += `<button class="btn" style="margin-top:12px;" onclick="APP.saveAdmMatchesCloud()" ${disAttr}>
+                       ${locked ? '🔒 Resultados bloqueados' : '💾 Guardar Resultados Oficiales'}
+                     </button>`;
             DOM.get('adminContent').innerHTML = html;
 
             let htmlK = '';
@@ -1347,6 +1362,7 @@
         }
 
         function saveAdmMatchesCloud() {
+            if (STATE.gruposLock) { triggerToast('🔒 Resultados bloqueados. Desbloquea primero.'); return; }
             const matrix = {};
             DOM.qAll('.adm-gl').forEach(el => { if(!matrix[el.dataset.mid]) matrix[el.dataset.mid]={}; matrix[el.dataset.mid].gl = el.value === '' ? null : parseInt(el.value); });
             DOM.qAll('.adm-gv').forEach(el => { if(!matrix[el.dataset.mid]) matrix[el.dataset.mid]={}; matrix[el.dataset.mid].gv = el.value === '' ? null : parseInt(el.value); });
@@ -1464,6 +1480,14 @@
             });
         }
 
+        function toggleGruposLock(lock) {
+            STATE.gruposLock = !!lock;
+            if (STATE.adminConnected) adminLoadResults();
+            db.ref('grupos_lock').set(!!lock).then(() => {
+                triggerToast(lock ? '🔒 Resultados de grupos bloqueados' : '🔓 Resultados de grupos desbloqueados');
+            });
+        }
+
         function saveOfficialKnockoutBatch(map) {
             db.ref('official_knockout').update(map).then(() => triggerToast('Resultados fase final guardados')).catch(err => console.error(err));
         }
@@ -1521,7 +1545,8 @@
                 });
 
                 const promises = [];
-                if (groupCount > 0) promises.push(db.ref('official_results').update(groupUpdates));
+                if (groupCount > 0 && !STATE.gruposLock) promises.push(db.ref('official_results').update(groupUpdates));
+                else if (groupCount > 0 && STATE.gruposLock) { setSyncStatus('⚠️ Grupos bloqueados — solo se sincronizan eliminatorios', 'var(--gold)'); groupCount = 0; }
                 if (koCount > 0) promises.push(db.ref('official_knockout').update(koWinnerUpdates));
                 await Promise.all(promises);
 
@@ -1550,7 +1575,8 @@
                         const reversed = ourMatch.local === away; groupUpdates[ourMatch.id] = { gl: reversed ? fts.away : fts.home, gv: reversed ? fts.home : fts.away }; groupCount++;
                     }
                 });
-                if (groupCount > 0) { await db.ref('official_results').update(groupUpdates); generateOfficialBracketAndSave(); }
+                if (groupCount > 0 && !STATE.gruposLock) { await db.ref('official_results').update(groupUpdates); generateOfficialBracketAndSave(); }
+                else if (groupCount > 0 && STATE.gruposLock) { setSyncStatus('⚠️ Sync de grupos bloqueado. Desbloquea para actualizar resultados de grupos.', 'var(--gold)'); return; }
                 const now = new Date().toLocaleString('es-EC', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short' }); localStorage.setItem('fd_last_sync', now);
                 setSyncStatus(`✅ ${groupCount} partidos sincronizados · ${now}`, groupCount > 0 ? 'var(--green)' : 'var(--text-muted)'); triggerToast(groupCount > 0 ? `✅ ${groupCount} resultados actualizados` : 'ℹ️ Sin resultados nuevos');
             } catch (err) { console.error(err); setSyncStatus('❌ Error de conexión', 'var(--error)'); }
@@ -1593,7 +1619,7 @@
                 const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `Polla_Familiar_2026_Master_${new Date().toISOString().slice(0,10)}.csv`; link.click();
             },
-            adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials, toggleFaseFinal,
+            adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials, toggleFaseFinal, toggleGruposLock,
             adminDeleteUser, adminResetUser, saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch, saveApiKey, syncFromAPI, toggleAutoSync,
             
             // Función nueva de navegación desde Especiales a Fase Final
