@@ -688,7 +688,7 @@
             { id: 60, grupo: "D", local: "Paraguay", visitante: "Australia", kickoff: "2026-06-25T22:00:00-04:00", fechaStr: "Jue 25 Jun 22:00" },
             { id: 61, grupo: "I", local: "Noruega", visitante: "Francia", kickoff: "2026-06-26T15:00:00-04:00", fechaStr: "Vie 26 Jun 15:00" },
             { id: 62, grupo: "I", local: "Senegal", visitante: "Irak", kickoff: "2026-06-26T15:00:00-04:00", fechaStr: "Vie 26 Jun 15:00" },
-            { id: 63, grupo: "H", local: "Cabo Verde", visitante: "Arabia Saudita", kickoff: "2026-06-26T20:00:00-04:00", fechaStr: "Vie 26 Jun 20:00" },
+            { id: 63, group: "H", local: "Cabo Verde", visitante: "Arabia Saudita", kickoff: "2026-06-26T20:00:00-04:00", fechaStr: "Vie 26 Jun 20:00" },
             { id: 64, grupo: "H", local: "Uruguay", visitante: "España", kickoff: "2026-06-26T20:00:00-04:00", fechaStr: "Vie 26 Jun 20:00" },
             { id: 65, grupo: "G", local: "Egipto", visitante: "Irán", kickoff: "2026-06-26T23:00:00-04:00", fechaStr: "Vie 26 Jun 23:00" },
             { id: 66, grupo: "G", local: "Nueva Zelanda", visitante: "Bélgica", kickoff: "2026-06-26T23:00:00-04:00", fechaStr: "Vie 26 Jun 23:00" },
@@ -795,6 +795,7 @@
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => t.classList.remove('show'), 1500);
         }
+
         function isMatchClosed(matchId) {
             if (STATE.adminConnected) return false; 
             if (STATE.status === 'closed') return true;
@@ -826,7 +827,15 @@
             const limite = tiempoDeKickoff - (15 * 60 * 1000);
             return new Date().getTime() >= limite;
         }
-                    const pct = Math.round((count / 72) * 100);
+
+        function updateProgress() {
+            if (!STATE.myId) return;
+            const userPreds = STATE.predictions[STATE.myId] || {}; let count = 0;
+            ALL_MATCHES.forEach(m => {
+                const p = userPreds[m.id];
+                if (p && p.gl !== '' && p.gv !== '' && p.gl !== undefined && p.gv !== undefined && p.gl !== null && p.gv !== null && !isNaN(p.gl) && !isNaN(p.gv)) count++;
+            });
+            const pct = Math.round((count / 72) * 100);
             const pText = DOM.get('progressText'); const pBar = DOM.get('progressBar');
             if (pText) pText.textContent = `Pronósticos completados: ${count} / 72 partidos`;
             if (pBar) pBar.style.width = `${pct}%`;
@@ -1260,7 +1269,7 @@
             btn.dataset.matchId = matchId; btn.dataset.team = teamName;
             
             const isPlaceholder = teamName.startsWith('Ganador') || teamName.startsWith('Perdedor') || teamName.startsWith('Por definir') || teamName.startsWith('Mejor');
-            const flagIcon = isPlaceholder ? '🏴‍☠️' : (FLAGS[teamName] || '🏳️');
+            const flagIcon = isPlaceholder ? '🏴\u200D☠️' : (FLAGS[teamName] || '🏳️');
             
             btn.innerHTML = `<span class="team-left"><span class="flag">${flagIcon}</span><span class="team-name">${teamName}</span></span><span class="ko-icon">✅</span>`;
             return btn;
@@ -1479,6 +1488,7 @@
                 }
             });
         }
+
         function populateAdminSpecialsOptions() {
             const selOpts = ALL_TEAMS.map(t => `<option value="${t}">${(FLAGS[t] || '🏳️')} ${t}</option>`).join('');
             const elRev = DOM.get('officialRevelacion'); if (elRev) elRev.innerHTML = '<option value="">--</option>' + selOpts;
@@ -1496,7 +1506,6 @@
         function toggleFaseFinal(enable) {
             STATE.faseFinalEnabled = !!enable;
             applyFaseFinalVisibility();
-            // Si alguien está en screenFaseFinal y se deshabilita, mandarlo al menú
             const activeId = document.querySelector('.screen.active')?.id;
             if (!enable && activeId === 'screenFaseFinal') goToScreen('screenMenu');
             db.ref('fase_final_enabled').set(!!enable).then(() => {
@@ -1621,13 +1630,13 @@
         window.APP = {
             goToScreen, registerUser, loginExistingUser, logout, saveScoreCloud, setTableGroupActive,
             saveSpecial: function(field, val) {
-            if (areSpecialsClosed()) {
-                triggerToast('⚠️ Los comodines ya están cerrados');
-                populateSpecials(); 
-                return;
-            }
-            if (STATE.status === 'closed') return;
-            db.ref(`specials/${STATE.myId}/${field}`).set(val).then(() => triggerToast('✅ Guardado')).catch(err => { console.error(err); triggerToast('❌ Error'); });
+                if (areSpecialsClosed()) {
+                    triggerToast('⚠️ Los comodines ya están cerrados');
+                    populateSpecials(); 
+                    return;
+                }
+                if (STATE.status === 'closed') return;
+                db.ref(`specials/${STATE.myId}/${field}`).set(val).then(() => triggerToast('✅ Guardado')).catch(err => { console.error(err); triggerToast('❌ Error'); });
             },
             saveKo, saveAllKoDrafts, setTablesView,
             adminLogin: function() {
@@ -1658,25 +1667,25 @@
             adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials, toggleFaseFinal, toggleGruposLock, toggleRegistros,
             adminDeleteUser, adminResetUser, saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch, saveApiKey, syncFromAPI, toggleAutoSync,
             
-            // Función nueva de navegación desde Especiales a Fase Final
             saveAndGoFaseFinal: function() {
-            if (areSpecialsClosed()) {
-                goToScreen(STATE.faseFinalEnabled ? 'screenFaseFinal' : 'screenMenu'); 
-                return;
-            }
+                if (areSpecialsClosed()) {
+                    goToScreen(STATE.faseFinalEnabled ? 'screenFaseFinal' : 'screenMenu'); 
+                    return;
+                }
 
-            const fields = [
-                { id: 'selRevelacion', key: 'seleccion_revelacion' }, { id: 'selDecepcion', key: 'seleccion_decepcion' },
-                { id: 'selEcuadorPos', key: 'posicion_ecuador' }, { id: 'selCampeon', key: 'campeon_mundial' }, { id: 'txtGoleador', key: 'goleador_mundial' },
-            ];
-            const promises = fields.map(f => {
-                const el = DOM.get(f.id); if (!el || !el.value.trim()) return Promise.resolve();
-                return db.ref(`specials/${STATE.myId}/${f.key}`).set(el.value.trim());
-            });
-            Promise.all(promises).then(() => { 
-                triggerToast('Comodines guardados'); 
-                goToScreen(STATE.faseFinalEnabled ? 'screenFaseFinal' : 'screenMenu'); 
-            }).catch(err => { console.error(err); triggerToast('❌ Error'); });
+                const fields = [
+                    { id: 'selRevelacion', key: 'seleccion_revelacion' }, { id: 'selDecepcion', key: 'seleccion_decepcion' },
+                    { id: 'selEcuadorPos', key: 'posicion_ecuador' }, { id: 'selCampeon', key: 'campeon_mundial' }, { id: 'txtGoleador', key: 'goleador_mundial' },
+                ];
+                const promises = fields.map(f => {
+                    const el = DOM.get(f.id); if (!el || !el.value.trim()) return Promise.resolve();
+                    return db.ref(`specials/${STATE.myId}/${f.key}`).set(el.value.trim());
+                });
+                Promise.all(promises).then(() => { 
+                    triggerToast('Comodines guardados'); 
+                    goToScreen(STATE.faseFinalEnabled ? 'screenFaseFinal' : 'screenMenu'); 
+                }).catch(err => { console.error(err); triggerToast('❌ Error'); });
+            }
         };
 
         window.APP.setTableGroupActive = setTableGroupActive;
