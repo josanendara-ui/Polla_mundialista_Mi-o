@@ -795,30 +795,38 @@
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => t.classList.remove('show'), 1500);
         }
-
         function isMatchClosed(matchId) {
             if (STATE.adminConnected) return false; 
             if (STATE.status === 'closed') return true;
-            if (STATE.gruposLock && matchId <= 72) return true; // bloqueo manual
-            
+            if (STATE.gruposLock && matchId <= 72) return true; 
+        
             const match = ALL_MATCHES.find(m => m.id === matchId);
-            if (!match) return false;
+            if (!match || !match.kickoff) return false;
         
-            // Restamos 15 minutos (15 mins * 60 segs * 1000 milisegundos) a la hora del partido
-            const tiempoDeCierre = new Date(match.kickoff).getTime() - (15 * 60 * 1000);
+            const MINUTOS_ANTES_DEL_CIERRE = 15;
+            const tiempoDeKickoff = new Date(match.kickoff).getTime();
+            
+            if (isNaN(tiempoDeKickoff)) return false; 
         
-            // Comparamos la hora actual con el nuevo tiempo de cierre
-            return new Date().getTime() > tiempoDeCierre;
+            const tiempoLimiteCierre = tiempoDeKickoff - (MINUTOS_ANTES_DEL_CIERRE * 60 * 1000);
+            return new Date().getTime() >= tiempoLimiteCierre;
         }
-
-        function updateProgress() {
-            if (!STATE.myId) return;
-            const userPreds = STATE.predictions[STATE.myId] || {}; let count = 0;
-            ALL_MATCHES.forEach(m => {
-                const p = userPreds[m.id];
-                if (p && p.gl !== '' && p.gv !== '' && p.gl !== undefined && p.gv !== undefined && p.gl !== null && p.gv !== null && !isNaN(p.gl) && !isNaN(p.gv)) count++;
-            });
-            const pct = Math.round((count / 72) * 100);
+        
+        function areSpecialsClosed() {
+            if (STATE.adminConnected) return false; 
+            if (STATE.status === 'closed') return true; 
+            if (STATE.gruposLock) return true; 
+        
+            const primerPartido = ALL_MATCHES[0]; 
+            if (!primerPartido || !primerPartido.kickoff) return false;
+        
+            const tiempoDeKickoff = new Date(primerPartido.kickoff).getTime();
+            if (isNaN(tiempoDeKickoff)) return false;
+        
+            const limite = tiempoDeKickoff - (15 * 60 * 1000);
+            return new Date().getTime() >= limite;
+        }
+                    const pct = Math.round((count / 72) * 100);
             const pText = DOM.get('progressText'); const pBar = DOM.get('progressBar');
             if (pText) pText.textContent = `Pronósticos completados: ${count} / 72 partidos`;
             if (pBar) pBar.style.width = `${pct}%`;
