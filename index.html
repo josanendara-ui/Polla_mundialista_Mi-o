@@ -1,3 +1,13 @@
+s JavaScript adaptadas a tu estructura de datos (gl/gv y STATE), y renderRanking() reemplazado.
+
+
+Create the integrated HTML file with all changes
+Create the integrated HTML file with all changes
+
+Create the integrated HTML file with all changes
+bash
+
+cat > /mnt/user-data/outputs/polla-mundialista-2026.html << 'ENDOFFILE'
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -26,26 +36,21 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background: radial-gradient(circle at top left, rgba(45, 212, 191, 0.16), transparent 34%), radial-gradient(circle at 85% 0%, rgba(247, 201, 72, 0.12), transparent 28%), var(--bg-body); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; -webkit-tap-highlight-color: transparent; }
         .app-container { width: 100%; max-width: 720px; background: rgba(16, 24, 38, 0.93); box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 28px 80px rgba(0,0,0,0.34); display: flex; flex-direction: column; height: 100vh; position: relative; }
-
         /* CABECERA */
         .header { background: rgba(23, 32, 51, 0.94); backdrop-filter: blur(16px); padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 30; }
         .header h1 { font-size: 1rem; color: var(--text-main); font-weight: 800; cursor: pointer; line-height: 1.2; }
         .user-tag { background: rgba(45, 212, 191, 0.12); border-color: rgba(45, 212, 191, 0.3); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: var(--green); border: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
-
         /* PANTALLAS */
         .screen { display: none; flex-direction: column; padding: 16px; flex: 1; overflow-y: auto; padding-bottom: 90px; }
         .screen.active { display: flex; animation: fade .2s ease-in-out; }
         @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
         @keyframes welcomeFloat { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
-
         /* TARJETAS E INPUTS */
         .card { background: linear-gradient(180deg, rgba(31,42,63,0.96), rgba(23,32,51,0.96)); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.09); box-shadow: var(--shadow); }
         .input-field, select { width: 100%; padding: 14px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg-input); color: #fff; font-size: 16px; margin-bottom: 12px; outline: none; transition: border 0.2s, box-shadow 0.2s, background 0.2s; }
         .input-field:focus, select:focus { box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.12); background: #111C2E; border-color: var(--green); }
-        /* Estilos para inputs y selects deshabilitados cuando la quiniela está cerrada */
         .input-field:disabled, select:disabled, .score-box:disabled { opacity: 0.4; background: #000; color: #64748b; border-color: #1e293b; cursor: not-allowed; }
-
         .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius); font-weight: 800; font-size: 1rem; cursor: pointer; text-align: center; background: linear-gradient(135deg, var(--green-dark), var(--green)); color: #06201C; margin-bottom: 10px; box-shadow: 0 10px 24px rgba(45, 212, 191, 0.18); transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.2s; }
         .btn:hover { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(45, 212, 191, 0.24); }
         .btn:active { transform: translateY(0); opacity: 0.85; }
@@ -53,13 +58,11 @@
         .btn.secondary { background: rgba(255,255,255,0.035); color: var(--text-main); box-shadow: none; border: 1px solid var(--border); }
         .btn.gold { background: linear-gradient(135deg, #F59E0B, var(--gold)); color: #1F1300; }
         .btn.danger { background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
-
         /* PROGRESS */
         .progress-container { background: linear-gradient(180deg, rgba(31,42,63,0.96), rgba(23,32,51,0.96)); padding: 14px; border-radius: var(--radius); margin-bottom: 16px; border: 1px solid var(--border); box-shadow: var(--shadow); }
         .progress-header { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
         .progress-bar-bg { width: 100%; height: 8px; background: var(--bg-input); border-radius: 4px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--gold)); transition: width 0.3s ease; width: 0%; }
-
         /* MATCHES */
         .match-row { background: linear-gradient(180deg, rgba(31,42,63,0.96), rgba(23,32,51,0.96)); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; display: flex; flex-direction: column; box-shadow: var(--shadow); }
         .match-date { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 10px; text-align: left; letter-spacing: 0.5px; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; }
@@ -70,127 +73,54 @@
         .team span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .team.right { flex-direction: row-reverse; text-align: right; }
         .flag { font-size: 1.4rem; }
-
         /* SCORE BOXES */
         .score-inputs { display: flex; align-items: center; gap: 6px; margin: 0 12px; }
         .score-box { width: 44px; height: 44px; text-align: center; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: #fff; font-size: 16px; font-weight: 700; outline: none; transition: border 0.2s; -moz-appearance: textfield; }
         .score-box::-webkit-outer-spin-button, .score-box::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .score-box:focus { border-color: var(--gold); background: #172554; box-shadow: 0 0 0 4px rgba(247, 201, 72, 0.12); }
-
         /* TABS */
         .group-nav { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 12px; scrollbar-width: none; }
         .group-nav::-webkit-scrollbar { display: none; }
         .group-tab { padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); border-radius: 20px; font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
         .group-tab.active { background: var(--green); color: #06201C; border-color: var(--green); box-shadow: 0 8px 18px rgba(45, 212, 191, 0.16); font-weight: 900; }
-
-        /* STANDINGS - Orden FIFA actualizado */
+        /* STANDINGS */
         .standings-container { overflow-x: auto; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 20px; box-shadow: var(--shadow); }
         .standings { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 500px; }
         .standings th { background: rgba(0,0,0,0.2); color: var(--text-muted); padding: 10px 6px; font-weight: 700; text-align: center; font-size: 0.7rem; text-transform: uppercase; }
         .standings td { padding: 10px 6px; text-align: center; border-bottom: 1px solid var(--border); }
         .st-team { text-align: left !important; display: flex; align-items: center; gap: 6px; font-weight: 600; }
-
-        /* Colores de clasificación (CAMBIO 7) */
-        .standings tr.row-qualified { background: rgba(16, 185, 129, 0.18); }  /* Primer y segundo lugar */
-        .standings tr.row-best-third { background: rgba(251, 191, 36, 0.15); } /* Tercer lugar */
-        /* Cuarto lugar sin color especial */
-
+        .standings tr.row-qualified { background: rgba(16, 185, 129, 0.18); }
+        .standings tr.row-best-third { background: rgba(251, 191, 36, 0.15); }
         /* RANKING */
         .ranking-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         .ranking-table th { color: var(--text-muted); padding: 12px 8px; text-align: center; font-weight: 700; border-bottom: 2px solid var(--border); text-transform: uppercase; font-size: 0.7rem; }
         .ranking-table td { padding: 14px 8px; text-align: center; border-bottom: 1px solid var(--border); font-weight: 600; }
         .ranking-table tr.highlight { background: rgba(16, 185, 129, 0.12) !important; border-left: 4px solid var(--green); }
-
+        /* ── NUEVO: Filas de ranking interactivas ── */
+        .ranking-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.18s; }
+        .ranking-row:hover { background: rgba(255,255,255,0.04); }
+        .ranking-row.mi-fila { background: rgba(45,212,191,0.08); border-left: 3px solid var(--green); }
+        .ranking-row:last-child { border-bottom: none; }
         /* BOTTOM NAV */
         .bottom-nav { display: flex; background: rgba(23, 32, 51, 0.94); backdrop-filter: blur(16px); border-top: 1px solid var(--border); position: fixed; bottom: 0; width: 100%; max-width: 720px; padding-bottom: env(safe-area-inset-bottom); z-index: 30; }
         .nav-item { flex: 1; padding: 14px 0; background: none; border: none; color: var(--text-muted); font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; cursor: pointer; font-weight: 700; gap: 4px; transition: color 0.2s ease; }
         .nav-item.active { color: var(--green); }
         .nav-item .icon { font-size: 1.2rem; }
-
         /* TOAST */
         .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--green); color: #06201C; padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 0.85rem; z-index: 1000; opacity: 0; transition: 0.3s; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* ==========================================================================
-           BRACKET FASE FINAL: Matemáticamente Dinámico y Responsivo
-           ========================================================================== */
-        .bracket-panel {
-            overflow-x: auto; 
-            overflow-y: visible; 
-            background: rgba(13,20,34,0.72);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 24px 0;
-            box-shadow: var(--shadow);
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .bracket {
-            display: flex;
-            min-width: 1200px; 
-        }
-
-        .round {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            position: relative;
-        }
-
-        .round-title {
-            text-align: center; font-size: 0.75rem; color: var(--gold);
-            font-weight: 800; text-transform: uppercase; margin-bottom: 24px;
-            letter-spacing: 0.5px;
-        }
-
-        .match-slot {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 0 16px;
-            min-height: 86px; 
-        }
-
-        .match {
-            width: 100%;
-            background: linear-gradient(180deg, rgba(31,42,63,0.98), rgba(17,24,39,0.96));
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px;
-            position: relative;
-            z-index: 2;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-            display: flex; flex-direction: column; gap: 6px;
-        }
-        
+        /* BRACKET */
+        .bracket-panel { overflow-x: auto; overflow-y: visible; background: rgba(13,20,34,0.72); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 0; box-shadow: var(--shadow); -webkit-overflow-scrolling: touch; }
+        .bracket { display: flex; min-width: 1200px; }
+        .round { display: flex; flex-direction: column; flex: 1; position: relative; }
+        .round-title { text-align: center; font-size: 0.75rem; color: var(--gold); font-weight: 800; text-transform: uppercase; margin-bottom: 24px; letter-spacing: 0.5px; }
+        .match-slot { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; padding: 0 16px; min-height: 86px; }
+        .match { width: 100%; background: linear-gradient(180deg, rgba(31,42,63,0.98), rgba(17,24,39,0.96)); border: 1px solid var(--border); border-radius: 8px; padding: 8px; position: relative; z-index: 2; box-shadow: 0 6px 16px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 6px; }
         .match.bracket-champion { border-color: rgba(247,201,72,0.5); box-shadow: 0 0 20px rgba(247, 201, 72, 0.15); }
-
-        .round:not(:last-child) .match::after {
-            content: ""; position: absolute; right: -17px; top: 50%;
-            width: 16px; height: 2px; background: rgba(45,212,191,0.4);
-            z-index: 1;
-        }
-
-        .round:not(:first-child) .match-slot::before {
-            content: ""; position: absolute; left: 0; top: 25%;
-            width: 16px; height: 50%; 
-            border: 2px solid rgba(45,212,191,0.4);
-            border-right: none; border-radius: 4px 0 0 4px;
-            box-sizing: border-box; z-index: 1;
-        }
-
-        .round:not(:first-child) .match-slot::after {
-            content: ""; position: absolute; left: 16px; top: 50%;
-            width: 16px; height: 2px; background: rgba(45,212,191,0.4);
-            z-index: 1;
-        }
-
-        .match-third-container {
-            position: absolute; bottom: 0; left: 16px; right: 16px; z-index: 5;
-        }
-
+        .round:not(:last-child) .match::after { content: ""; position: absolute; right: -17px; top: 50%; width: 16px; height: 2px; background: rgba(45,212,191,0.4); z-index: 1; }
+        .round:not(:first-child) .match-slot::before { content: ""; position: absolute; left: 0; top: 25%; width: 16px; height: 50%; border: 2px solid rgba(45,212,191,0.4); border-right: none; border-radius: 4px 0 0 4px; box-sizing: border-box; z-index: 1; }
+        .round:not(:first-child) .match-slot::after { content: ""; position: absolute; left: 16px; top: 50%; width: 16px; height: 2px; background: rgba(45,212,191,0.4); z-index: 1; }
+        .match-third-container { position: absolute; bottom: 0; left: 16px; right: 16px; z-index: 5; }
         .ko-team-btn { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 7px; min-height: 42px; background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border); font-weight: 800; cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease; width: 100%; text-align: left; }
         .ko-team-btn .team-left { display: flex; gap: 10px; align-items: center; }
         .ko-team-btn .flag { font-size: 1.25rem; }
@@ -200,15 +130,8 @@
         .ko-team-btn.selected { background: linear-gradient(90deg, rgba(45,212,191,0.18), rgba(247,201,72,0.08)); border-color: var(--green); color: #fff; box-shadow: 0 8px 22px rgba(45,212,191,0.14); }
         .ko-team-btn .ko-icon { font-size: 1.1rem; color: var(--green); opacity: 0; transition: opacity 0.12s ease, transform 0.12s ease; }
         .ko-team-btn.selected .ko-icon { opacity: 1; transform: scale(1.05); }
-        
         .match-meta { display: flex; justify-content: space-between; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; }
-
-        @media (max-width: 860px) {
-            .app-container { max-width: 100%; }
-            .team { font-size: 0.86rem; }
-            .score-box { width: 38px; height: 42px; }
-        }
-
+        @media (max-width: 860px) { .app-container { max-width: 100%; } .team { font-size: 0.86rem; } .score-box { width: 38px; height: 42px; } }
         /* utilities */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .grid-full { grid-column: span 2; }
@@ -224,83 +147,58 @@
         .tables-switch button { flex:1; border:0; border-radius:999px; padding:10px 12px; background:transparent; color:var(--text-muted); font-weight:900; cursor:pointer; }
         .tables-switch button.active { background:var(--green); color:#06201C; }
         .bracket-help { display:flex; justify-content:space-between; gap:12px; align-items:center; color:var(--text-muted); font-size:0.82rem; margin-bottom:10px; }
-
-        /* NUEVO: Estilos para el modal de reglas del ranking (CAMBIO 3) */
-        .modal-overlay {
-            position: fixed; inset: 0; z-index: 10000;
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-            animation: fadeIn 0.2s ease;
-        }
+        /* Modal reglas ranking */
+        .modal-overlay { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .modal-card {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border: 2px solid var(--gold);
-            border-radius: 20px;
-            padding: 28px 24px;
-            max-width: 380px; width: 90%;
-            box-shadow: 0 0 60px rgba(251,191,36,0.4);
-            text-align: left;
-            max-height: 80vh; overflow-y: auto;
-        }
-        .modal-card h3 {
-            text-align: center; font-size: 1.2rem; color: var(--gold); margin-bottom: 16px;
-            font-weight: 900;
-        }
-        .modal-card ul {
-            list-style: none; padding: 0;
-        }
-        .modal-card li {
-            padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
-            display: flex; align-items: center; gap: 10px;
-            font-size: 0.9rem; color: var(--text-main);
-        }
-        .modal-card li .pts {
-            margin-left: auto; font-weight: 900; color: var(--green);
-        }
-        .modal-close-btn {
-            margin-top: 20px; width: 100%;
-            padding: 12px; border: none; border-radius: 12px;
-            background: var(--green); color: #06201C;
-            font-weight: 800; font-size: 1rem; cursor: pointer;
-        }
-
-        /* NUEVO: Selector de tipo de tabla (CAMBIO 4) */
-        .table-source-switch {
-            display: flex; gap: 6px; padding: 4px;
-            border: 1px solid var(--border);
-            background: rgba(255,255,255,0.035);
-            border-radius: 999px; margin-bottom: 14px;
-        }
-        .table-source-switch button {
-            flex: 1; border: 0; border-radius: 999px;
-            padding: 10px 12px; background: transparent;
-            color: var(--text-muted); font-weight: 900; cursor: pointer;
-            font-size: 0.85rem;
-        }
-        .table-source-switch button.active {
-            background: var(--gold); color: #1F1300;
-        }
-
-        /* NUEVO: Botón de reglas del ranking (CAMBIO 3) */
-        .btn-rules {
-            background: rgba(247, 201, 72, 0.12);
-            border: 1px solid rgba(247, 201, 72, 0.35);
-            color: var(--gold);
-            width: 100%; padding: 14px; border-radius: var(--radius);
-            font-weight: 800; font-size: 0.95rem; cursor: pointer;
-            margin-top: 16px; transition: background 0.2s;
-        }
+        .modal-card { background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px solid var(--gold); border-radius: 20px; padding: 28px 24px; max-width: 380px; width: 90%; box-shadow: 0 0 60px rgba(251,191,36,0.4); text-align: left; max-height: 80vh; overflow-y: auto; }
+        .modal-card h3 { text-align: center; font-size: 1.2rem; color: var(--gold); margin-bottom: 16px; font-weight: 900; }
+        .modal-card ul { list-style: none; padding: 0; }
+        .modal-card li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-main); }
+        .modal-card li .pts { margin-left: auto; font-weight: 900; color: var(--green); }
+        .modal-close-btn { margin-top: 20px; width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--green); color: #06201C; font-weight: 800; font-size: 1rem; cursor: pointer; }
+        /* Selector fuente tabla */
+        .table-source-switch { display: flex; gap: 6px; padding: 4px; border: 1px solid var(--border); background: rgba(255,255,255,0.035); border-radius: 999px; margin-bottom: 14px; }
+        .table-source-switch button { flex: 1; border: 0; border-radius: 999px; padding: 10px 12px; background: transparent; color: var(--text-muted); font-weight: 900; cursor: pointer; font-size: 0.85rem; }
+        .table-source-switch button.active { background: var(--gold); color: #1F1300; }
+        /* Botón reglas ranking */
+        .btn-rules { background: rgba(247, 201, 72, 0.12); border: 1px solid rgba(247, 201, 72, 0.35); color: var(--gold); width: 100%; padding: 14px; border-radius: var(--radius); font-weight: 800; font-size: 0.95rem; cursor: pointer; margin-top: 16px; transition: background 0.2s; }
         .btn-rules:hover { background: rgba(247, 201, 72, 0.22); }
+        /* Banner cierre */
+        .closure-banner { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); color: #EF4444; padding: 12px 16px; border-radius: var(--radius); font-weight: 800; text-align: center; margin-bottom: 16px; font-size: 0.9rem; }
 
-        /* Mensaje de quiniela cerrada */
-        .closure-banner {
-            background: rgba(239, 68, 68, 0.12);
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            color: #EF4444;
-            padding: 12px 16px; border-radius: var(--radius);
-            font-weight: 800; text-align: center;
-            margin-bottom: 16px; font-size: 0.9rem;
+        /* ══════════════════════════════════════════════════════
+           NUEVO: Modal de Desglose de Puntos
+           ══════════════════════════════════════════════════════ */
+        #modalDesglose { display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
+        .desglose-inner { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); width: 92%; max-width: 540px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow); }
+        .desglose-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-card-soft); flex-shrink: 0; }
+        .desglose-body { padding: 14px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 9px; }
+        .desglose-item { background: var(--bg-card-soft); padding: 11px 13px; border-radius: 7px; display: flex; flex-direction: column; gap: 5px; }
+        .desglose-match-name { font-size: 0.82rem; color: var(--text-muted); }
+        .desglose-scores { display: flex; gap: 18px; font-size: 0.9rem; flex-wrap: wrap; }
+        .desglose-score-label { color: var(--text-muted); font-size: 0.78rem; }
+        .desglose-score-val { font-family: monospace; font-weight: 800; font-size: 1rem; }
+        .desglose-motivo { font-size: 0.8rem; font-weight: 700; }
+
+        /* ══════════════════════════════════════════════════════
+           NUEVO: Barra Flotante "Mi Posición" sobre el nav
+           ══════════════════════════════════════════════════════ */
+        #miPosicionSticky {
+            display: none;
+            position: fixed;
+            bottom: 65px; /* justo encima del bottom-nav */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 720px;
+            background: linear-gradient(to top, #172033 80%, rgba(23,32,51,0.92));
+            border-top: 2px solid var(--gold);
+            padding: 10px 20px;
+            box-shadow: 0 -8px 24px rgba(0,0,0,0.45);
+            z-index: 29; /* debajo del nav (30) pero sobre el contenido */
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -310,15 +208,12 @@
             <h1 onclick="APP.goToScreen('screenWelcome')">🏆 POLLA FAMILIAR 2026</h1>
             <span class="user-tag" id="userBadge">Conectando...</span>
         </div>
-
         <div id="toast" class="toast">Sincronizado con la Nube</div>
-
         <div class="screen active" id="screenWelcome" style="padding-bottom:24px;">
             <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
                 <div style="font-size:4.8rem; margin-bottom:8px; filter:drop-shadow(0 8px 20px rgba(251,191,36,0.45)); animation:welcomeFloat 3s ease-in-out infinite;">🏆</div>
                 <h2 style="font-size:1.65rem; font-weight:900; margin-bottom:4px; background:linear-gradient(135deg,#ffd84d,#FBBF24,#c99a00); -webkit-background-clip:text; background-clip:text; color:transparent;">Oráculo Mundialista</h2>
                 <p style="color:var(--text-muted); text-align:center; font-size:0.9rem; margin-bottom:14px; padding:0 10px;">Demuestra cuánto sabes de fútbol y compite por ser el <span style="color:var(--gold);font-weight:700;">Oráculo Futbolero</span> de la Familia.</p>
-
                 <div style="width:100%; max-width:340px; background:linear-gradient(135deg,rgba(30,41,59,0.9),rgba(15,23,42,0.85)); backdrop-filter:blur(16px); border:1px solid rgba(251,191,36,0.35); border-left:4px solid var(--gold); border-radius:14px; padding:14px 16px; margin-bottom:16px; box-shadow:0 4px 20px rgba(251,191,36,0.12);">
                     <p style="font-size:0.85rem; color:var(--text-main); display:flex; align-items:flex-start; gap:8px; margin-bottom:10px;">
                         <span style="font-size:1.3rem; line-height:1;">⚠️</span>
@@ -343,63 +238,30 @@
                         </div>
                     </div>
                 </div>
-
                 <p id="closureWarning" style="color:#EF4444; font-weight:bold; font-size:0.9rem; margin-bottom:12px;"></p>
-
                 <button id="btnCrearUsuario" class="btn" onclick="APP.goToScreen('screenRegister')" style="max-width:340px;">🎯 Crear Mi Usuario</button>
                 <button class="btn secondary" onclick="APP.goToScreen('screenLogin')" style="max-width:340px;">Ya tengo usuario</button>
-
                 <div style="width:100%; max-width:340px; margin-top:20px; background:linear-gradient(135deg,rgba(30,41,59,0.85),rgba(15,23,42,0.8)); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:14px; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
                     <p style="text-align:center; font-weight:800; font-size:0.9rem; color:var(--gold); margin-bottom:12px; letter-spacing:0.3px;">💎 Sistema de Puntos</p>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center;">
-                            <div style="font-size:1.5rem;">🎯</div>
-                            <div style="font-weight:800; color:var(--green); font-size:1rem; margin:2px 0;">+3 pts</div>
-                            <div style="font-size:0.7rem; color:var(--text-muted);">Marcador exacto</div>
-                        </div>
-                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center;">
-                            <div style="font-size:1.5rem;">✅</div>
-                            <div style="font-weight:800; color:var(--green); font-size:1rem; margin:2px 0;">+1 pt</div>
-                            <div style="font-size:0.7rem; color:var(--text-muted);">Ganador correcto</div>
-                        </div>
-                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center;">
-                            <div style="font-size:1.5rem;">🌟</div>
-                            <div style="font-weight:800; color:var(--gold); font-size:1rem; margin:2px 0;">+5 pts</div>
-                            <div style="font-size:0.7rem; color:var(--text-muted);">Selec. revelación</div>
-                        </div>
-                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center;">
-                            <div style="font-size:1.5rem;">😱</div>
-                            <div style="font-weight:800; color:var(--gold); font-size:1rem; margin:2px 0;">+5 pts</div>
-                            <div style="font-size:0.7rem; color:var(--text-muted);">Mayor decepción</div>
-                        </div>
-                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center;">
-                            <div style="font-size:1.5rem;">🇪🇨</div>
-                            <div style="font-weight:800; color:var(--gold); font-size:1rem; margin:2px 0;">+10 pts</div>
-                            <div style="font-size:0.7rem; color:var(--text-muted);">Ecuador</div>
-                        </div>
-                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center;">
-                            <div style="font-size:1.5rem;">👑</div>
-                            <div style="font-weight:800; color:var(--gold); font-size:1rem; margin:2px 0;">+10 pts</div>
-                            <div style="font-size:0.7rem; color:var(--text-muted);">Campeón</div>
-                        </div>
-                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center; grid-column:1/-1;">
-                            <div style="font-size:1.5rem;">⚽</div>
-                            <div style="font-weight:800; color:var(--gold); font-size:1rem; margin:2px 0;">+10 pts</div>
-                            <div style="font-size:0.7rem; color:var(--text-muted);">Máximo goleador</div>
-                        </div>
+                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center;"><div style="font-size:1.5rem;">🎯</div><div style="font-weight:800; color:var(--green); font-size:1rem; margin:2px 0;">+3 pts</div><div style="font-size:0.7rem; color:var(--text-muted);">Marcador exacto</div></div>
+                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center;"><div style="font-size:1.5rem;">✅</div><div style="font-weight:800; color:var(--green); font-size:1rem; margin:2px 0;">+1 pt</div><div style="font-size:0.7rem; color:var(--text-muted);">Ganador correcto</div></div>
+                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center;"><div style="font-size:1.5rem;">🌟</div><div style="font-weight:800; color:var(--gold); font-size:1rem; margin:2px 0;">+5 pts</div><div style="font-size:0.7rem; color:var(--text-muted);">Selec. revelación</div></div>
+                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center;"><div style="font-size:1.5rem;">😱</div><div style="font-weight:800; color:var(--gold); font-size:1rem; margin:2px 0;">+5 pts</div><div style="font-size:0.7rem; color:var(--text-muted);">Mayor decepción</div></div>
+                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center;"><div style="font-size:1.5rem;">🇪🇨</div><div style="font-weight:800; color:var(--gold); font-size:1rem; margin:2px 0;">+10 pts</div><div style="font-size:0.7rem; color:var(--text-muted);">Ecuador</div></div>
+                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center;"><div style="font-size:1.5rem;">👑</div><div style="font-weight:800; color:var(--gold); font-size:1rem; margin:2px 0;">+10 pts</div><div style="font-size:0.7rem; color:var(--text-muted);">Campeón</div></div>
+                        <div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px; text-align:center; grid-column:1/-1;"><div style="font-size:1.5rem;">⚽</div><div style="font-weight:800; color:var(--gold); font-size:1rem; margin:2px 0;">+10 pts</div><div style="font-size:0.7rem; color:var(--text-muted);">Máximo goleador</div></div>
                     </div>
                     <p style="text-align:center; font-size:0.72rem; color:var(--text-muted); font-style:italic; margin-top:10px;">No se vale llorar si perdieron 😉</p>
                 </div>
             </div>
         </div>
-
         <div class="screen" id="screenLogin">
             <h3 style="margin-bottom:16px; font-size:1.2rem;">Selecciona tu Perfil</h3>
             <select id="selectExistingUser" class="input-field" style="padding:16px;"></select>
             <button class="btn" onclick="APP.loginExistingUser()">Ingresar al Tablero</button>
             <button class="btn secondary" onclick="APP.goToScreen('screenWelcome')">Volver</button>
         </div>
-
         <div class="screen" id="screenRegister">
             <h3 style="margin-bottom:16px; font-size:1.2rem;">Registro Sencillo</h3>
             <div class="card">
@@ -409,7 +271,6 @@
             <button class="btn" onclick="APP.registerUser()">Registrarme</button>
             <button class="btn secondary" onclick="APP.goToScreen('screenWelcome')">Volver</button>
         </div>
-
         <div class="screen" id="screenInstructions">
             <h3 style="margin-bottom:16px; font-size:1.2rem;">Reglas de la Polla</h3>
             <div class="card" style="padding:0; overflow:hidden;">
@@ -425,14 +286,10 @@
                     <tr><td style="padding:12px 16px;">👑 Campeón / ⚽ Goleador</td><td style="text-align:right; padding:12px 16px; font-weight:bold; color:var(--gold);">+10 pts c/u</td></tr>
                 </table>
             </div>
-
             <div class="card" style="margin-top:16px; background:rgba(247, 201, 72, 0.08); border-color:rgba(247, 201, 72, 0.4);">
                 <p style="font-weight:900; font-size:0.95rem; color:var(--gold); margin-bottom:8px;">🌟 Puntos de Comodines</p>
-                <p style="font-size:0.85rem; color:var(--text-main); line-height:1.5;">
-                    ¡No olvides llenar la sección de <strong>Comodines Especiales</strong>! Acertar el Campeón del Mundo, el Goleador o cuál será la selección revelación te dará una lluvia de puntos extra que puede cambiar por completo la tabla de posiciones al final del torneo.
-                </p>
+                <p style="font-size:0.85rem; color:var(--text-main); line-height:1.5;">¡No olvides llenar la sección de <strong>Comodines Especiales</strong>! Acertar el Campeón del Mundo, el Goleador o cuál será la selección revelación te dará una lluvia de puntos extra que puede cambiar por completo la tabla de posiciones al final del torneo.</p>
             </div>
-
             <p style="font-weight:800; font-size:0.9rem; color:var(--text-main); margin-top:16px; margin-bottom:8px;">Reglas de Desempate (Leaderboard):</p>
             <ol style="font-size:0.8rem; color:var(--text-muted); margin-left:20px; margin-bottom:24px; line-height:1.8;">
                 <li>Puntos totales</li>
@@ -441,38 +298,28 @@
                 <li>Mayor cantidad de aciertos en Fase Final</li>
                 <li>Orden de registro (quien se inscribió primero)</li>
             </ol>
-
             <p style="text-align:center; font-size:1.1rem; color:var(--gold); font-weight:900; margin-bottom:20px;">🍀 ¡Mucha suerte y que gane el mejor!</p>
-
             <button class="btn" onclick="APP.goToScreen('screenPredictions')">Empezar Pronósticos</button>
         </div>
-
         <div class="screen" id="screenPredictions">
             <div class="progress-container">
                 <div class="progress-header">
                     <span>Pronósticos completados</span>
                     <span id="progressText">0 / 72 partidos</span>
                 </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" id="progressBar"></div>
-                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar"></div></div>
             </div>
-            <!-- NUEVO: Banner de quiniela cerrada (CAMBIO 1) -->
             <div id="closureBannerPredictions" class="closure-banner" style="display:none;">🔒 La quiniela está cerrada</div>
             <div id="matchesContainer"></div>
             <button class="btn gold" onclick="APP.goToScreen('screenSpecial')" style="margin-top:8px;">Siguiente: Comodines Especiales 🌟</button>
         </div>
-
         <div class="screen" id="screenTables">
             <h3 style="margin-bottom:8px; font-size:1.15rem;">Tablas del Mundial</h3>
             <p class="small" style="margin-bottom:12px;">Revisa la clasificación de grupos y la llave final.</p>
-            
-            <!-- NUEVO: Selector de tipo de tabla (CAMBIO 4) -->
             <div class="table-source-switch" role="tablist" aria-label="Fuente de datos de la tabla">
                 <button id="tabSourceSimulated" class="active" type="button" onclick="APP.setTableSource('simulated')">📊 Tabla Simulada</button>
                 <button id="tabSourceReal" type="button" onclick="APP.setTableSource('real')">🏆 Tabla Real</button>
             </div>
-            
             <div class="tables-switch" role="tablist" aria-label="Vista de tablas">
                 <button id="tabGroupsView" class="active" type="button" onclick="APP.setTablesView('groups')">Grupos</button>
                 <button id="tabBracketView" type="button" onclick="APP.setTablesView('bracket')">Fase final</button>
@@ -486,78 +333,61 @@
                 <div class="bracket-panel"><div id="tablesBracketRoot" class="bracket" role="region" aria-label="Diagrama de fase final"></div></div>
             </div>
         </div>
-
         <div class="screen" id="screenRanking">
             <h3 style="margin-bottom:16px; font-size:1.2rem; text-align:center;">Clasificación General</h3>
+            <!-- Hint de interactividad -->
+            <p style="font-size:0.78rem; color:var(--text-muted); text-align:center; margin-bottom:12px; margin-top:-8px;">Toca cualquier jugador para ver su desglose de puntos 👆</p>
             <div class="card" style="padding:0; overflow:hidden; border-color:var(--border);">
                 <div id="rankingContent"></div>
             </div>
-            <!-- NUEVO: Botón de reglas del ranking (CAMBIO 3) -->
             <button class="btn-rules" onclick="APP.showRankingRulesModal()">📜 ¿Cómo se ganan los puntos?</button>
         </div>
-
         <div class="screen" id="screenSpecial">
             <h3 style="margin-bottom:16px; font-size:1.2rem;">Comodines Especiales 🌟</h3>
-            <!-- NUEVO: Banner de quiniela cerrada (CAMBIO 1) -->
             <div id="closureBannerSpecial" class="closure-banner" style="display:none;">🔒 La quiniela está cerrada</div>
             <div class="card">
                 <label style="font-size:0.85rem; color:var(--text-muted); font-weight:700; display:block; margin-bottom:4px;">🌟 Selección revelación</label>
                 <select id="selRevelacion" class="input-field" onchange="APP.saveSpecial('seleccion_revelacion', this.value)"></select>
-                
                 <label style="font-size:0.85rem; color:var(--text-muted); font-weight:700; display:block; margin-top:10px; margin-bottom:4px;">😱 Mayor decepción</label>
                 <select id="selDecepcion" class="input-field" onchange="APP.saveSpecial('seleccion_decepcion', this.value)"></select>
-                
                 <label style="font-size:0.85rem; color:var(--text-muted); font-weight:700; display:block; margin-top:10px; margin-bottom:4px;">🇪🇨 ¿Hasta dónde llegará Ecuador?</label>
                 <select id="selEcuadorPos" class="input-field" onchange="APP.saveSpecial('posicion_ecuador', this.value)">
                     <option value="">Selecciona etapa...</option>
                     <option>Fase de grupos</option><option>Dieciseisavos</option><option>Octavos</option>
                     <option>Cuartos</option><option>Semifinal</option><option>Final</option><option>Campeón</option>
                 </select>
-                
                 <label style="font-size:0.85rem; color:var(--text-muted); font-weight:700; display:block; margin-top:10px; margin-bottom:4px;">👑 Campeón del Mundial</label>
                 <select id="selCampeon" class="input-field" onchange="APP.saveSpecial('campeon_mundial', this.value)"></select>
-                
                 <label style="font-size:0.85rem; color:var(--text-muted); font-weight:700; display:block; margin-top:10px; margin-bottom:4px;">⚽ Máximo goleador</label>
                 <input type="text" id="txtGoleador" class="input-field" placeholder="Escribe el nombre del jugador" onchange="APP.saveSpecial('goleador_mundial', this.value)">
             </div>
-            
             <button id="btnGuardarIrFF" class="btn" style="margin-top:4px;" onclick="APP.saveAndGoFaseFinal()">💾 Guardar e ir a Fase Final</button>
             <button class="btn secondary" onclick="APP.goToScreen('screenPredictions')">Volver a Fase de Grupos</button>
         </div>
-
         <div class="screen" id="screenFaseFinal" aria-live="polite" aria-label="Fase Final del Mundial">
           <h3 style="margin-bottom:8px; font-size:1.2rem;">🔥 Fase Final</h3>
-          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
-            Selecciona el ganador de cada cruce. Los emparejamientos se actualizan automáticamente según tus tablas de grupos.
-          </p>
-          <!-- NUEVO: Banner de quiniela cerrada (CAMBIO 1) -->
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">Selecciona el ganador de cada cruce. Los emparejamientos se actualizan automáticamente según tus tablas de grupos.</p>
           <div id="closureBannerFaseFinal" class="closure-banner" style="display:none;">🔒 La quiniela está cerrada</div>
-
           <div class="bracket-panel">
               <div id="bracketRoot" class="bracket" role="region" aria-label="Llave eliminatoria"></div>
           </div>
-
           <div style="display:flex; gap:8px; margin-top:12px;">
             <button class="btn secondary" onclick="APP.goToScreen('screenMenu')">Volver al Menú</button>
             <button class="btn" id="btnConfirmAll" style="flex:1;" onclick="APP.saveAllKoDrafts()">Guardar todas mis selecciones</button>
           </div>
         </div>
-
         <div class="screen" id="screenMenu">
             <h3 style="margin-bottom:20px; font-size:1.2rem; text-align:center;">Panel de Control</h3>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <button class="btn secondary" style="padding:24px 0; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="APP.goToScreen('screenPredictions')"><span style="font-size:1.6rem;">⚽</span><span style="font-size:0.85rem;">Pronósticos</span></button>
                 <button class="btn secondary" style="padding:24px 0; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="APP.goToScreen('screenTables')"><span style="font-size:1.6rem;">📊</span><span style="font-size:0.85rem;">Tablas Grupos</span></button>
                 <button class="btn secondary" style="padding:24px 0; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="APP.goToScreen('screenRanking')"><span style="font-size:1.6rem;">🏆</span><span style="font-size:0.85rem;">Leaderboard</span></button>
-                
                 <button id="btnFaseFinalMenu" class="btn secondary" style="padding:24px 0; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="APP.goToScreen('screenFaseFinal')"><span style="font-size:1.6rem;">🔥</span><span style="font-size:0.85rem;">Fase Final</span></button>
-                
                 <button class="btn secondary" style="padding:24px 0; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="APP.goToScreen('screenSpecial')"><span style="font-size:1.6rem;">🌟</span><span style="font-size:0.85rem;">Comodines</span></button>
                 <button class="btn secondary grid-full" style="font-size:0.85rem;" onclick="APP.goToScreen('screenAdmin')">🔧 Panel de Administrador</button>
             </div>
             <button class="btn danger" style="margin-top:24px;" onclick="APP.logout()">Cerrar Sesión</button>
         </div>
-
         <div class="screen" id="screenAdmin">
             <h3 style="margin-bottom:16px; font-size:1.2rem;">Panel de Administrator</h3>
             <div id="adminLoginForm">
@@ -569,36 +399,26 @@
                     <button class="btn secondary" style="flex:1;" onclick="APP.adminSetStatus('open')">🔓 Abrir Quiniela</button>
                     <button class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.adminSetStatus('closed')">🔒 Forzar Cierre</button>
                 </div>
-
                 <div style="display:flex; gap:10px; margin-bottom:12px;">
                     <button class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinal(true)">✅ Habilitar Fase Final</button>
                     <button class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinal(false)">❌ Deshabilitar Fase Final</button>
                 </div>
-
                 <div style="display:flex; gap:10px; margin-bottom:12px;">
                     <button class="btn secondary" style="flex:1;" onclick="APP.toggleGruposLock(false)">🔓 Abrir Pronósticos Grupos</button>
                     <button class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.toggleGruposLock(true)">🔒 Cerrar Pronósticos Grupos</button>
                 </div>
-
                 <div style="display:flex; gap:10px; margin-bottom:20px;">
                     <button class="btn secondary" style="flex:1;" onclick="APP.toggleRegistros(false)">🔓 Abrir Registros</button>
                     <button class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.toggleRegistros(true)">🔒 Cerrar Registros</button>
                 </div>
-
                 <button class="btn gold" style="margin-bottom:20px;" onclick="APP.adminExportCSV()">📥 Exportar datos a Excel (CSV)</button>
                 <button class="btn danger" style="width:100%; margin-bottom: 20px;" onclick="APP.adminResetMundial()">♻️ Reiniciar Resultados Oficiales</button>
-
                 <h4 style="font-size:0.95rem; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; font-weight:800;">Gestión de Usuarios</h4>
-                <div class="card" style="margin-bottom:12px;">
-                    <div id="adminUsersList" class="admin-users"></div>
-                </div>
-
+                <div class="card" style="margin-bottom:12px;"><div id="adminUsersList" class="admin-users"></div></div>
                 <h4 style="font-size:0.95rem; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; font-weight:800;">Registrar Resultados Oficiales - Fase de Grupos</h4>
                 <div id="adminContent" style="margin-bottom:12px;"></div>
-
                 <h4 style="font-size:0.95rem; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; font-weight:800;">Registrar Resultados Oficiales - Fase Final</h4>
                 <div id="adminKnockoutContent" style="margin-bottom:12px;"></div>
-
                 <h4 style="font-size:0.95rem; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; font-weight:800;">Resultados Especiales Oficiales</h4>
                 <div class="card" style="margin-bottom:12px;">
                     <label class="small">Selección revelación (oficial)</label>
@@ -620,7 +440,6 @@
                         <button class="btn secondary" onclick="APP.loadOfficialSpecials()">Cargar desde Nube</button>
                     </div>
                 </div>
-
                 <h4 style="font-size:0.95rem; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; font-weight:800;">🔌 Sincronización Automática</h4>
                 <div class="card" style="margin-bottom:12px;">
                     <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Conecta con <strong style="color:var(--gold);">football-data.org</strong> para cargar resultados automáticamente. <a href="https://www.football-data.org/client/register" target="_blank" style="color:var(--green);">Regístrate gratis aquí</a> y pega tu API Key.</p>
@@ -638,7 +457,6 @@
                 </div>
             </div>
         </div>
-
         <div class="bottom-nav">
             <button class="nav-item" onclick="APP.goToScreen('screenMenu')"><span class="icon">🏠</span>Inicio</button>
             <button id="navItemPredictions" class="nav-item" onclick="APP.goToScreen('screenPredictions')"><span class="icon">⚽</span>Pronósticos</button>
@@ -648,13 +466,38 @@
         </div>
     </div>
 
-    <!-- NUEVO: Contenedor para modales dinámicos -->
+    <!-- ══════════════════════════════════════════════════════
+         NUEVO: Modal Desglose de Puntos por Partido
+         ══════════════════════════════════════════════════════ -->
+    <div id="modalDesglose">
+        <div class="desglose-inner">
+            <div class="desglose-header">
+                <h3 id="modalDesgloseTitulo" style="margin:0; color:var(--gold); font-size:1.1rem; font-weight:900;">Detalle de Puntos</h3>
+                <button onclick="APP.cerrarDesglose()" style="background:transparent; border:none; color:var(--text-muted); font-size:1.6rem; cursor:pointer; line-height:1; padding:0 4px;">&times;</button>
+            </div>
+            <div id="modalDesgloseCuerpo" class="desglose-body"></div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         NUEVO: Barra Flotante "Mi Posición"
+         ══════════════════════════════════════════════════════ -->
+    <div id="miPosicionSticky">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span id="stickyMiRango" style="background:var(--gold); color:var(--bg-body); border-radius:6px; padding:3px 10px; font-size:0.95rem; font-weight:800;">#0</span>
+            <span style="color:var(--text-main); font-size:0.95rem;">Tu posición actual</span>
+        </div>
+        <div>
+            <span id="stickyMiPuntos" style="color:var(--green); font-size:1.15rem; font-weight:800;">0 pts</span>
+        </div>
+    </div>
+
+    <!-- Contenedor modales dinámicos -->
     <div id="dynamicModalContainer"></div>
 
     <script>
     (function() {
         'use strict';
-
         // === Firebase config ===
         firebase.initializeApp({
             apiKey: "AIzaSyBfNHaQUBTRydtClhbaEAYqotZuWq8vmzI",
@@ -682,7 +525,6 @@
             K: ['Portugal', 'República Democrática del Congo', 'Uzbekistán', 'Colombia'],
             L: ['Inglaterra', 'Croacia', 'Ghana', 'Panamá']
         };
-
         const FLAGS = {
             'México': '🇲🇽', 'Sudáfrica': '🇿🇦', 'Corea del Sur': '🇰🇷', 'Chequia': '🇨🇿',
             'Canadá': '🇨🇦', 'Bosnia y Herzegovina': '🇧🇦', 'Catar': '🇶🇦', 'Suiza': '🇨🇭',
@@ -697,9 +539,7 @@
             'Portugal': '🇵🇹', 'República Democrática del Congo': '🇨🇩', 'Uzbekistán': '🇺🇿', 'Colombia': '🇨🇴',
             'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Croacia': '🇭🇷', 'Ghana': '🇬🇭', 'Panamá': '🇵🇦'
         };
-
         const ALL_TEAMS = Object.values(GROUPS).flat();
-
         const API_TO_SPANISH = {
             'Mexico': 'México', 'South Africa': 'Sudáfrica', 'Korea Republic': 'Corea del Sur',
             'Czechia': 'Chequia', 'Czech Republic': 'Chequia', 'Canada': 'Canadá',
@@ -720,14 +560,12 @@
             'Uzbekistan': 'Uzbekistán', 'Colombia': 'Colombia', 'England': 'Inglaterra',
             'Croatia': 'Croacia', 'Ghana': 'Ghana', 'Panama': 'Panamá'
         };
-
         const API_STAGE_TO_ROUND = {
             'ROUND_OF_32': 'dieciseisavos', 'LAST_32': 'dieciseisavos',
             'ROUND_OF_16': 'octavos', 'LAST_16': 'octavos',
             'QUARTER_FINALS': 'cuartos', 'SEMI_FINALS': 'semis',
             'THIRD_PLACE': 'tercero', 'FINAL': 'final'
         };
-
         const ALL_MATCHES = [
             { id: 1, grupo: "A", local: "México", visitante: "Sudáfrica", kickoff: "2026-06-11T15:00:00-04:00", fechaStr: "Jue 11 Jun 15:00" },
             { id: 2, grupo: "A", local: "Corea del Sur", visitante: "Chequia", kickoff: "2026-06-11T22:00:00-04:00", fechaStr: "Jue 11 Jun 22:00" },
@@ -802,7 +640,6 @@
             { id: 71, grupo: "J", local: "Argelia", visitante: "Austria", kickoff: "2026-06-27T22:00:00-04:00", fechaStr: "Sáb 27 Jun 22:00" },
             { id: 72, grupo: "J", local: "Jordania", visitante: "Argentina", kickoff: "2026-06-27T22:00:00-04:00", fechaStr: "Sáb 27 Jun 22:00" }
         ];
-
         const KNOCKOUT_DEFS = [
             { id: 73, round: 'dieciseisavos', local: '2A', visitor: '2B' },
             { id: 74, round: 'dieciseisavos', local: '1E', visitor: 'Best3' },
@@ -820,7 +657,6 @@
             { id: 86, round: 'dieciseisavos', local: '1J', visitor: '2H' },
             { id: 87, round: 'dieciseisavos', local: '1K', visitor: 'Best3' },
             { id: 88, round: 'dieciseisavos', local: '2D', visitor: '2G' },
-            
             { id: 89, round: 'octavos', local: 'Winner74', visitor: 'Winner77' },
             { id: 90, round: 'octavos', local: 'Winner73', visitor: 'Winner75' },
             { id: 91, round: 'octavos', local: 'Winner76', visitor: 'Winner78' },
@@ -829,28 +665,22 @@
             { id: 94, round: 'octavos', local: 'Winner81', visitor: 'Winner82' },
             { id: 95, round: 'octavos', local: 'Winner86', visitor: 'Winner88' },
             { id: 96, round: 'octavos', local: 'Winner85', visitor: 'Winner87' },
-            
             { id: 97, round: 'cuartos', local: 'Winner89', visitor: 'Winner90' },
             { id: 98, round: 'cuartos', local: 'Winner93', visitor: 'Winner94' },
             { id: 99, round: 'cuartos', local: 'Winner91', visitor: 'Winner92' },
             { id: 100, round: 'cuartos', local: 'Winner95', visitor: 'Winner96' },
-            
             { id: 101, round: 'semis', local: 'Winner97', visitor: 'Winner98' },
             { id: 102, round: 'semis', local: 'Winner99', visitor: 'Winner100' },
-            
             { id: 103, round: 'tercero', local: 'Losers101', visitor: 'Losers102' },
             { id: 104, round: 'final', local: 'Winner101', visitor: 'Winner102' }
         ];
-
-        /* ORDEN LÓGICO DEL MUNDIAL PARA RENDERIZAR */
         const BRACKET_LAYOUT = [
             { round: 'dieciseisavos', title: 'Dieciseisavos', matches: [74, 77, 73, 75, 83, 84, 81, 82, 76, 78, 79, 80, 86, 88, 85, 87] },
             { round: 'octavos', title: 'Octavos', matches: [89, 90, 93, 94, 91, 92, 95, 96] },
             { round: 'cuartos', title: 'Cuartos', matches: [97, 98, 99, 100] },
             { round: 'semis', title: 'Semifinales', matches: [101, 102] },
-            { round: 'final', title: 'Fase Final', matches: [104] } // El 3er puesto (103) se inyecta suelto abajo
+            { round: 'final', title: 'Fase Final', matches: [104] }
         ];
-
         const KO_POINTS = { dieciseisavos: 1, octavos: 2, cuartos: 3, semis: 4, final: 5, tercero: 2 };
 
         // === ESTADO GLOBAL ===
@@ -860,16 +690,12 @@
             myId: localStorage.getItem('polla_myId'), currentUser: null, currentSelectedGroup: 'A',
             currentTablesView: 'groups', adminConnected: sessionStorage.getItem('p26adm') === '1',
             faseFinalEnabled: false, gruposLock: false, registrosLock: false,
-            // NUEVO (CAMBIO 1): Variable global de bloqueo unificado
             settings: { predictionsLocked: false },
-            // NUEVO (CAMBIO 4): Fuente de datos para las tablas ('simulated' o 'real')
             tableSource: 'simulated'
         };
-
         let toastTimeout;
         const DOM = { get: id => document.getElementById(id), q: sel => document.querySelector(sel), qAll: sel => document.querySelectorAll(sel) };
 
-        // NUEVO (CAMBIO 1): Función para verificar si la quiniela está totalmente cerrada
         function isQuinielaClosed() {
             return STATE.settings.predictionsLocked || STATE.status === 'closed';
         }
@@ -888,16 +714,11 @@
             STATE.faseFinalEnabled = !!data.fase_final_enabled;
             STATE.gruposLock = !!data.grupos_lock;
             STATE.registrosLock = !!data.registros_lock;
-            
-            // NUEVO (CAMBIO 1): Sincronizar settings.predictionsLocked desde Firebase
             STATE.settings.predictionsLocked = !!(data.settings && data.settings.predictionsLocked);
-
             if (STATE.myId && STATE.users[STATE.myId]) {
                 STATE.currentUser = STATE.users[STATE.myId];
             }
-
             calculatePointsEngine(); updateProgress(); refreshUIAfterData();
-
             const activeScreenId = document.querySelector('.screen.active')?.id || 'screenWelcome';
             goToScreen(activeScreenId);
         }, error => {
@@ -912,33 +733,21 @@
             toastTimeout = setTimeout(() => t.classList.remove('show'), 1500);
         }
 
-        // NUEVO (CAMBIO 1): Función para actualizar el estado de bloqueo visual de toda la UI
         function updateUIForLockState() {
             const closed = isQuinielaClosed();
-
-            // Banners de cierre — siempre se actualizan en ambas direcciones
             const banners = ['closureBannerPredictions', 'closureBannerSpecial', 'closureBannerFaseFinal'];
-            banners.forEach(id => {
-                const el = DOM.get(id);
-                if (el) el.style.display = closed ? 'block' : 'none';
-            });
-
+            banners.forEach(id => { const el = DOM.get(id); if (el) el.style.display = closed ? 'block' : 'none'; });
             if (closed) {
-                // Deshabilitar inputs y selects en pantallas de predicciones
                 document.querySelectorAll('#matchesContainer .score-box').forEach(inp => inp.disabled = true);
                 document.querySelectorAll('#screenSpecial select, #screenSpecial input').forEach(el => el.disabled = true);
-                document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => {
-                    btn.disabled = true; btn.classList.add('disabled');
-                });
+                document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => { btn.disabled = true; btn.classList.add('disabled'); });
             } else {
-                // Re-habilitar — respetar el cierre individual por kickoff
                 document.querySelectorAll('#matchesContainer .score-box').forEach(inp => {
                     const mid = parseInt(inp.dataset.mid);
                     inp.disabled = mid ? isMatchClosed(mid) : false;
                 });
                 document.querySelectorAll('#screenSpecial select, #screenSpecial input').forEach(el => el.disabled = false);
                 document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => {
-                    // Solo re-habilitar si el texto no es placeholder
                     const isPlaceholder = ['Ganador', 'Mejor', 'Perdedor', 'Por definir'].some(p => btn.dataset.team?.startsWith(p));
                     if (!isPlaceholder) { btn.disabled = false; btn.classList.remove('disabled'); }
                 });
@@ -946,18 +755,12 @@
         }
 
         function isMatchClosed(matchId) {
-            if (STATE.adminConnected) return false; 
-            // NUEVO (CAMBIO 1): Verificar bloqueo global primero
+            if (STATE.adminConnected) return false;
             if (isQuinielaClosed()) return true;
-            if (STATE.gruposLock && matchId <= 72) return true; // bloqueo manual
-            
+            if (STATE.gruposLock && matchId <= 72) return true;
             const match = ALL_MATCHES.find(m => m.id === matchId);
             if (!match) return false;
-        
-            // Restamos 15 minutos (15 mins * 60 segs * 1000 milisegundos) a la hora del partido
             const tiempoDeCierre = new Date(match.kickoff).getTime() - (15 * 60 * 1000);
-        
-            // Comparamos la hora actual con el nuevo tiempo de cierre
             return new Date().getTime() > tiempoDeCierre;
         }
 
@@ -974,53 +777,234 @@
             if (pBar) pBar.style.width = `${pct}%`;
         }
 
+        // ══════════════════════════════════════════════════════
+        //  NUEVO: Motor de Cálculo de Ranking y Desglose
+        // ══════════════════════════════════════════════════════
+
+        /** Caché de desglose para no pasar JSON gigante como atributo HTML */
+        const _desgloseCache = {};
+
+        /** Reglas de puntos para la fase de grupos */
+        const REGLAS_POLLA = { PUNTOS_EXACTO: 3, PUNTOS_TENDENCIA: 1, PUNTOS_NADA: 0 };
+
+        /**
+         * Evalúa puntos de un partido.
+         * pred y real en formato { goles_local, goles_visitante }
+         */
+        function evaluarPuntosPartido(pred, real) {
+            if (!real || real.goles_local === undefined || real.goles_visitante === undefined ||
+                real.goles_local === null || real.goles_visitante === null ||
+                real.goles_local === '' || real.goles_visitante === '') {
+                return { puntos: REGLAS_POLLA.PUNTOS_NADA, motivo: 'Sin resultado oficial', tipo: 'pendiente' };
+            }
+            if (!pred || pred.goles_local === undefined || pred.goles_visitante === undefined ||
+                pred.goles_local === null || pred.goles_visitante === null ||
+                pred.goles_local === '' || pred.goles_visitante === '') {
+                return { puntos: REGLAS_POLLA.PUNTOS_NADA, motivo: 'No pronosticado', tipo: 'no_pronosticado' };
+            }
+            const pL = parseInt(pred.goles_local, 10);
+            const pV = parseInt(pred.goles_visitante, 10);
+            const rL = parseInt(real.goles_local, 10);
+            const rV = parseInt(real.goles_visitante, 10);
+            if (isNaN(pL) || isNaN(pV) || isNaN(rL) || isNaN(rV)) {
+                return { puntos: REGLAS_POLLA.PUNTOS_NADA, motivo: 'Dato inválido', tipo: 'pendiente' };
+            }
+            if (pL === rL && pV === rV) {
+                return { puntos: REGLAS_POLLA.PUNTOS_EXACTO, motivo: `Marcador exacto (+${REGLAS_POLLA.PUNTOS_EXACTO} pts)`, tipo: 'exacto' };
+            }
+            if (Math.sign(pL - pV) === Math.sign(rL - rV)) {
+                return { puntos: REGLAS_POLLA.PUNTOS_TENDENCIA, motivo: `Ganador/empate correcto (+${REGLAS_POLLA.PUNTOS_TENDENCIA} pt)`, tipo: 'tendencia' };
+            }
+            return { puntos: REGLAS_POLLA.PUNTOS_NADA, motivo: 'Pronóstico incorrecto (0 pts)', tipo: 'incorrecto' };
+        }
+
+        /**
+         * Calcula el ranking completo con desglose por partido.
+         * Usa STATE.officialResults para los resultados reales y
+         * STATE.users[uid].total_puntos (calculado por calculatePointsEngine) como puntaje final.
+         */
+        function calcularRankingGeneral(usuariosArray) {
+            if (!usuariosArray || !Array.isArray(usuariosArray)) return [];
+
+            const ranking = usuariosArray.map(usuario => {
+                const uid = usuario.id || usuario.uid;
+                const prediccionesUsuario = STATE.predictions[uid] || {};
+                let exactosContador = 0;
+                const desgloseHistorial = [];
+
+                ALL_MATCHES.forEach(partido => {
+                    const resultadoOficial = STATE.officialResults[partido.id];
+                    const prediccionRaw = prediccionesUsuario[partido.id];
+
+                    // Adaptar formato {gl, gv} → {goles_local, goles_visitante}
+                    const predAdapted = (prediccionRaw && prediccionRaw.gl !== undefined)
+                        ? { goles_local: prediccionRaw.gl, goles_visitante: prediccionRaw.gv }
+                        : null;
+                    const realAdapted = (resultadoOficial && resultadoOficial.gl !== undefined)
+                        ? { goles_local: resultadoOficial.gl, goles_visitante: resultadoOficial.gv }
+                        : null;
+
+                    const evaluacion = evaluarPuntosPartido(predAdapted, realAdapted);
+                    if (evaluacion.tipo === 'exacto') exactosContador++;
+
+                    // Solo incluir en desglose partidos relevantes (no pendientes sin predicción)
+                    if (evaluacion.tipo !== 'pendiente' || predAdapted !== null) {
+                        desgloseHistorial.push({
+                            partidoId: partido.id,
+                            infoPartido: partido,           // {local, visitante, fechaStr, grupo}
+                            prediccion: predAdapted,         // {goles_local, goles_visitante} o null
+                            resultadoReal: realAdapted,      // {goles_local, goles_visitante} o null
+                            evaluacion: evaluacion
+                        });
+                    }
+                });
+
+                return {
+                    id: uid,
+                    nombre: usuario.nombre_apodo || 'Usuario Anónimo',
+                    // total_puntos viene de calculatePointsEngine (incluye grupos + especiales + KO)
+                    puntos: usuario.total_puntos || 0,
+                    exactos: exactosContador,
+                    desglose: desgloseHistorial
+                };
+            });
+
+            // Ordenación estable: pts desc → exactos desc → alfabético asc
+            ranking.sort((a, b) => {
+                if (b.puntos !== a.puntos) return b.puntos - a.puntos;
+                if (b.exactos !== a.exactos) return b.exactos - a.exactos;
+                return a.nombre.localeCompare(b.nombre);
+            });
+
+            // Inyectar posición contemplando empates absolutos
+            let rangoActual = 1;
+            return ranking.map((item, index, arr) => {
+                if (index > 0 && (item.puntos !== arr[index - 1].puntos || item.exactos !== arr[index - 1].exactos)) {
+                    rangoActual = index + 1;
+                }
+                return { posicion: rangoActual, ...item };
+            });
+        }
+
+        /**
+         * Abre el modal de desglose para un usuario.
+         * Recibe el array de desglose directamente (no JSON, evita atributos enormes).
+         */
+        function abrirModalDesglose(desglose, nombreParticipante) {
+            const cuerpo = DOM.get('modalDesgloseCuerpo');
+            const titulo = DOM.get('modalDesgloseTitulo');
+            const modal  = DOM.get('modalDesglose');
+            if (!cuerpo || !titulo || !modal) return;
+
+            titulo.textContent = `Puntos de: ${nombreParticipante}`;
+            cuerpo.innerHTML = '';
+
+            const itemsVisibles = desglose.filter(item =>
+                item.evaluacion.tipo !== 'pendiente' || item.prediccion !== null
+            );
+
+            if (itemsVisibles.length === 0) {
+                cuerpo.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:24px;">
+                    Este participante no tiene pronósticos registrados aún.</p>`;
+            } else {
+                // Ordenar: primero con resultado, luego pendientes
+                const ordenados = [...itemsVisibles].sort((a, b) => {
+                    const tieneResultA = a.resultadoReal ? 0 : 1;
+                    const tieneResultB = b.resultadoReal ? 0 : 1;
+                    if (tieneResultA !== tieneResultB) return tieneResultA - tieneResultB;
+                    return a.partidoId - b.partidoId;
+                });
+
+                ordenados.forEach(item => {
+                    const part  = item.infoPartido;
+                    const pred  = item.prediccion;
+                    const real  = item.resultadoReal;
+                    const eval_ = item.evaluacion;
+
+                    // Color del borde según resultado
+                    const colorBorde = eval_.tipo === 'exacto'     ? 'var(--gold)'
+                                     : eval_.tipo === 'tendencia'  ? 'var(--green)'
+                                     : eval_.tipo === 'incorrecto' ? 'var(--coral)'
+                                     : 'var(--border)';
+
+                    const predStr = pred ? `${pred.goles_local} - ${pred.goles_visitante}` : '—';
+                    const realStr = real ? `${real.goles_local} - ${real.goles_visitante}` : 'Pendiente';
+
+                    const div = document.createElement('div');
+                    div.className = 'desglose-item';
+                    div.style.borderLeft = `4px solid ${colorBorde}`;
+                    div.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+                            <span class="desglose-match-name">${FLAGS[part.local]||'🏳️'} ${part.local} vs ${part.visitante} ${FLAGS[part.visitante]||'🏳️'} · Gr.${part.grupo}</span>
+                            <span class="desglose-motivo" style="color:${colorBorde};">${eval_.motivo}</span>
+                        </div>
+                        <div class="desglose-scores">
+                            <div>
+                                <span class="desglose-score-label">Tu pronóstico: </span>
+                                <span class="desglose-score-val" style="color:var(--text-main);">${predStr}</span>
+                            </div>
+                            <div>
+                                <span class="desglose-score-label">Resultado real: </span>
+                                <span class="desglose-score-val" style="color:${real ? 'var(--green)' : 'var(--text-muted)'};">${realStr}</span>
+                            </div>
+                        </div>`;
+                    cuerpo.appendChild(div);
+                });
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function cerrarModalDesglose() {
+            const modal = DOM.get('modalDesglose');
+            if (modal) modal.style.display = 'none';
+        }
+
+        // Cerrar modal al hacer clic en el fondo oscuro
+        document.getElementById('modalDesglose').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModalDesglose();
+        });
+
+        // ══════════════════════════════════════════════════════
+        //  FIN Motor de Ranking
+        // ══════════════════════════════════════════════════════
+
         function goToScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             const target = document.getElementById(id); if (target) target.classList.add('active');
-
             document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => btn.classList.remove('active'));
             const navBtn = document.querySelector(`.bottom-nav .nav-item[onclick*="${id}"]`);
             if (navBtn) navBtn.classList.add('active');
-
             if (id === 'screenPredictions') { renderPredictions(); updateUIForLockState(); }
             if (id === 'screenTables') renderTables();
             if (id === 'screenSpecial') { populateSpecials(); updateUIForLockState(); }
             if (id === 'screenRanking') renderRanking();
             if (id === 'screenLogin') populateExistingUsers();
             if (id === 'screenAdmin' && STATE.adminConnected) { adminLoadResults(); loadApiKeyToInput(); }
-            
-            // Fase Final: redirigir al menú si está deshabilitada
             if (id === 'screenFaseFinal') {
                 if (!STATE.faseFinalEnabled) { goToScreen('screenMenu'); return; }
                 renderFaseFinal();
                 updateUIForLockState();
             }
 
+            // ── NUEVO: Controlar visibilidad de la barra sticky ──
+            const barraSticky = DOM.get('miPosicionSticky');
+            if (barraSticky) {
+                barraSticky.style.display = (id === 'screenRanking' && STATE.myId) ? 'flex' : 'none';
+            }
+
             const ub = DOM.get('userBadge'); if (ub) ub.textContent = STATE.currentUser ? `👤 ${STATE.currentUser.nombre_apodo}` : '👤 Sin sesión';
             const cw = DOM.get('closureWarning'); if (cw && id === 'screenWelcome') cw.textContent = STATE.status === 'closed' ? '🔒 LA POLLA MUNDIALISTA ESTÁ TOTALMENTE CERRADA' : '';
-
-            // Nav inferior: Predicciones solo cuando está en esa pantalla
             const navPred = DOM.get('navItemPredictions'); if (navPred) navPred.style.display = id === 'screenPredictions' ? 'flex' : 'none';
-
-            // Aplicar visibilidad de Fase Final en todos los puntos de la UI
             applyFaseFinalVisibility();
-
             if (!['screenWelcome','screenLogin','screenRegister'].includes(id) && !STATE.currentUser) goToScreen('screenWelcome');
         }
 
         function applyFaseFinalVisibility() {
             const enabled = STATE.faseFinalEnabled;
             const activeId = document.querySelector('.screen.active')?.id;
-
-            // 1. Botón en menú principal
-            const btnFF = DOM.get('btnFaseFinalMenu');
-            if (btnFF) btnFF.style.display = enabled ? 'flex' : 'none';
-
-            // 2. Botón en nav inferior (solo visible si habilitado Y estás en esa pantalla)
-            const navFF = DOM.get('navItemFaseFinal');
-            if (navFF) navFF.style.display = (enabled && activeId === 'screenFaseFinal') ? 'flex' : 'none';
-
-            // 3. Tab "Fase final" dentro de Tablas
+            const btnFF = DOM.get('btnFaseFinalMenu'); if (btnFF) btnFF.style.display = enabled ? 'flex' : 'none';
+            const navFF = DOM.get('navItemFaseFinal'); if (navFF) navFF.style.display = (enabled && activeId === 'screenFaseFinal') ? 'flex' : 'none';
             const tabBracket = DOM.get('tabBracketView');
             if (tabBracket) {
                 tabBracket.style.display = enabled ? '' : 'none';
@@ -1032,20 +1016,15 @@
                     if (gb) gb.style.display = 'block'; if (bb) bb.style.display = 'none';
                 }
             }
-
-            // 4. Botón "Guardar e ir a Fase Final" en Comodines
             const btnGoFF = DOM.get('btnGuardarIrFF');
-            if (btnGoFF) {
-                btnGoFF.textContent = enabled ? '💾 Guardar e ir a Fase Final' : '💾 Guardar y volver al Menú';
-            }
+            if (btnGoFF) btnGoFF.textContent = enabled ? '💾 Guardar e ir a Fase Final' : '💾 Guardar y volver al Menú';
         }
 
         function registerUser() {
-            if (STATE.registrosLock) { alert('Los registros están cerrados. Ya no se puede crear nuevos usuarios.'); return; }
+            if (STATE.registrosLock) { alert('Los registros están cerrados.'); return; }
             if (isQuinielaClosed() && !STATE.adminConnected) { alert('La Polla Mundialista está cerrada.'); return; }
             const nick = DOM.get('inputNickname').value.trim(); if (!nick) { alert('Ingresa un apodo familiar.'); return; }
             if (Object.values(STATE.users).some(u => u.nombre_apodo.toLowerCase() === nick.toLowerCase())) { alert('Este nombre ya existe.'); return; }
-
             const newId = 'u_' + Date.now();
             const userObj = { id: newId, nombre_apodo: nick, total_puntos: 0, exacts: 0, date_registered: new Date().toISOString() };
             db.ref('users/' + newId).set(userObj).then(() => {
@@ -1074,23 +1053,20 @@
             const screen = DOM.get('screenPredictions'); const scrollBefore = screen ? screen.scrollTop : 0;
             const focused = document.activeElement;
             if (focused && focused.classList.contains('score-box') && container.contains(focused)) { updateProgress(); return; }
-
             let html = ''; const myPreds = STATE.predictions[STATE.myId] || {};
-            const closed = isQuinielaClosed(); // NUEVO: Verificar estado global
             ALL_MATCHES.forEach(m => {
                 const p = myPreds[m.id] || { gl: '', gv: '' };
                 const matchClosed = isMatchClosed(m.id); const dis = matchClosed ? 'disabled' : '';
                 const tag = matchClosed ? '<span class="match-status locked">🔒 Cerrado</span>' : '<span class="match-status open">🟢 Abierto</span>';
-
                 html += `
                 <div class="match-row">
                     <div class="match-date"><span>📅 ${m.fechaStr} (Grupo ${m.grupo})</span> ${tag}</div>
                     <div class="match-teams">
                         <div class="team"><span class="flag">${FLAGS[m.local] || '🏳️'}</span> <span>${m.local}</span></div>
                         <div class="score-inputs">
-                            <input type="number" inputmode="numeric" pattern="[0-9]*" class="score-box" value="${p.gl !== undefined ? p.gl : ''}" oninput="APP.saveScoreCloud(${m.id},'gl',this.value)" ${dis}>
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" class="score-box" data-mid="${m.id}" value="${p.gl !== undefined ? p.gl : ''}" oninput="APP.saveScoreCloud(${m.id},'gl',this.value)" ${dis}>
                             <span class="divider">-</span>
-                            <input type="number" inputmode="numeric" pattern="[0-9]*" class="score-box" value="${p.gv !== undefined ? p.gv : ''}" oninput="APP.saveScoreCloud(${m.id},'gv',this.value)" ${dis}>
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" class="score-box" data-mid="${m.id}" value="${p.gv !== undefined ? p.gv : ''}" oninput="APP.saveScoreCloud(${m.id},'gv',this.value)" ${dis}>
                         </div>
                         <div class="team right"><span>${m.visitante}</span> <span class="flag">${FLAGS[m.visitante] || '🏳️'}</span></div>
                     </div>
@@ -1100,12 +1076,8 @@
             if (screen) requestAnimationFrame(() => { screen.scrollTop = scrollBefore; });
         }
 
-        // NUEVO (CAMBIO 1): savePrediction con validación de bloqueo global
         function saveScoreCloud(mid, side, val) {
-            if (isMatchClosed(mid)) {
-                triggerToast('🔒 La quiniela está cerrada');
-                return;
-            }
+            if (isMatchClosed(mid)) { triggerToast('🔒 La quiniela está cerrada'); return; }
             if (val.length > 2) val = val.slice(0, 2);
             const v = val === '' ? '' : parseInt(val); if (v < 0) return;
             db.ref(`predictions/${STATE.myId}/${mid}/${side}`).set(v).then(() => {
@@ -1123,40 +1095,25 @@
             const groupsBlock = DOM.get('tablesGroupsBlock'); const bracketBlock = DOM.get('tablesBracketBlock');
             if (groupsBlock) groupsBlock.style.display = isBracket ? 'none' : 'block';
             if (bracketBlock) bracketBlock.style.display = isBracket ? 'block' : 'none';
-            
-            // NUEVO (CAMBIO 4): Actualizar botones de fuente de tabla
             DOM.get('tabSourceSimulated')?.classList.toggle('active', STATE.tableSource === 'simulated');
             DOM.get('tabSourceReal')?.classList.toggle('active', STATE.tableSource === 'real');
-            
             const container = DOM.get('groupTabsContainer');
             if (container) container.innerHTML = Object.keys(GROUPS).map(g => `<button class="group-tab ${STATE.currentSelectedGroup === g ? 'active' : ''}" onclick="APP.setTableGroupActive('${g}')">Grupo ${g}</button>`).join('');
-            
-            // NUEVO (CAMBIO 4): Seleccionar la fuente de datos correcta
             let sourceData;
-            if (STATE.tableSource === 'real') {
-                sourceData = STATE.officialResults || {};
-            } else {
-                sourceData = STATE.predictions[STATE.myId] || {};
-            }
-            
+            if (STATE.tableSource === 'real') { sourceData = STATE.officialResults || {}; }
+            else { sourceData = STATE.predictions[STATE.myId] || {}; }
             const standings = DOM.get('liveGroupStandings');
             if (standings) standings.innerHTML = buildGroupStandings(STATE.currentSelectedGroup, sourceData);
             if (isBracket) renderTablesBracket();
         }
+
         function setTableGroupActive(g) { STATE.currentSelectedGroup = g; STATE.currentTablesView = 'groups'; renderTables(); }
         function setTablesView(view) { STATE.currentTablesView = view === 'bracket' ? 'bracket' : 'groups'; renderTables(); }
-        
-        // NUEVO (CAMBIO 4): Función para cambiar la fuente de datos de la tabla
-        function setTableSource(source) {
-            STATE.tableSource = source;
-            renderTables();
-        }
+        function setTableSource(source) { STATE.tableSource = source; renderTables(); }
 
-        // NUEVO (CAMBIO 5 Y 7): Función buildGroupStandings modificada con orden FIFA y colores de clasificación
         function buildGroupStandings(grupo, source) {
             const teams = GROUPS[grupo]; const matrix = {};
             teams.forEach(t => matrix[t] = { name: t, flag: FLAGS[t] || '🏳️', pj:0, pg:0, pe:0, pp:0, gf:0, gc:0, dg:0, pts:0 });
-
             ALL_MATCHES.filter(m => m.grupo === grupo).forEach(m => {
                 const p = source[m.id];
                 if (p && p.gl !== '' && p.gv !== '' && p.gl !== undefined && p.gv !== undefined && !isNaN(p.gl) && !isNaN(p.gv)) {
@@ -1167,24 +1124,14 @@
                     if (gl > gv) { tl.pg++; tl.pts += 3; tv.pp++; } else if (gl < gv) { tv.pg++; tv.pts += 3; tl.pp++; } else { tl.pe++; tv.pe++; tl.pts++; tv.pts++; }
                 }
             });
-
             Object.values(matrix).forEach(t => t.dg = t.gf - t.gc);
-            // CAMBIO 6: Ordenamiento por PTS DESC, DG DESC, GF DESC
             const sorted = Object.values(matrix).sort((a,b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
-
-            // CAMBIO 5: Orden FIFA de columnas: Equipo | PTS | PJ | PG | PE | PP | GF | GC | DG
             let html = `<div class="standings-container"><table class="standings">
                 <tr><th style="text-align:left;">Equipo</th><th>PTS</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th></tr>`;
             sorted.forEach((t, index) => {
-                // CAMBIO 7: Colores de clasificación automáticos
                 let rowClass = '';
-                if (index === 0 || index === 1) {
-                    rowClass = 'row-qualified'; // 🟢 Clasificados directos
-                } else if (index === 2) {
-                    rowClass = 'row-best-third'; // 🟡 Mejor tercero
-                }
-                // index === 3 -> sin color (eliminado)
-                
+                if (index === 0 || index === 1) rowClass = 'row-qualified';
+                else if (index === 2) rowClass = 'row-best-third';
                 html += `<tr class="${rowClass}">
                     <td class="st-team"><span class="flag">${t.flag}</span> <span>${t.name}</span></td>
                     <td style="color:var(--gold); font-weight:bold; font-size:0.9rem;">${t.pts}</td>
@@ -1196,33 +1143,75 @@
             return html + '</table></div>';
         }
 
-        // CAMBIO 2: Ranking completo mostrando TODOS los usuarios con medallas y destacando al actual
+        // ══════════════════════════════════════════════════════
+        //  NUEVO: renderRanking — con modal de desglose y barra sticky
+        // ══════════════════════════════════════════════════════
         function renderRanking() {
-            const sorted = Object.values(STATE.users).sort((a,b) => b.total_puntos - a.total_puntos || b.exacts - a.exacts);
-            let html = '<table class="ranking-table"><tr><th>Pos</th><th style="text-align:left;">Jugador</th><th>Pts</th><th>🎯</th></tr>';
-            sorted.forEach((u, i) => {
-                let posDisplay;
-                if (i === 0) posDisplay = '🥇';
-                else if (i === 1) posDisplay = '🥈';
-                else if (i === 2) posDisplay = '🥉';
-                else posDisplay = `${i+1}°`; // Desde el cuarto lugar mostrar número normal
-                
-                const activeHighlight = u.id === STATE.myId ? 'highlight' : '';
-                html += `<tr class="${activeHighlight}">
-                    <td style="font-size:1.1rem;">${posDisplay}</td>
-                    <td style="text-align:left; color:${u.id===STATE.myId?'var(--green)':'var(--text-main)'}; font-weight:700;">${u.nombre_apodo} ${u.id===STATE.myId?'(Tú)':''}</td>
-                    <td style="font-weight:bold; color:var(--gold); font-size:1rem;">${u.total_puntos || 0}</td>
-                    <td style="color:var(--text-muted);">${u.exacts || 0}</td>
-                </tr>`;
+            const rankingProcesado = calcularRankingGeneral(Object.values(STATE.users));
+            const contenedor = DOM.get('rankingContent');
+            if (!contenedor) return;
+
+            if (rankingProcesado.length === 0) {
+                contenedor.innerHTML = `<p style="text-align:center; padding:24px; color:var(--text-muted);">Aún no hay participantes registrados.</p>`;
+                return;
+            }
+
+            // Guardar en caché para que el modal los recupere sin atributos inline gigantes
+            rankingProcesado.forEach(u => { _desgloseCache[u.id] = u.desglose; });
+
+            let html = '';
+            rankingProcesado.forEach(usuario => {
+                const esMiFila = usuario.id === STATE.myId;
+
+                // Icono de posición
+                let posIcon;
+                if (usuario.posicion === 1) posIcon = '🥇';
+                else if (usuario.posicion === 2) posIcon = '🥈';
+                else if (usuario.posicion === 3) posIcon = '🥉';
+                else posIcon = `<span style="font-size:0.9rem; color:var(--text-muted);">#${usuario.posicion}</span>`;
+
+                // Escapar nombre para atributo
+                const nombreSafe = usuario.nombre.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+                html += `<div
+                    class="ranking-row${esMiFila ? ' mi-fila' : ''}"
+                    onclick="APP.mostrarDesglose('${usuario.id}', '${nombreSafe}')"
+                    role="button" tabindex="0"
+                    aria-label="Ver desglose de ${usuario.nombre}">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="font-size:1.1rem; width:32px; text-align:center;">${posIcon}</span>
+                        <span style="color:${esMiFila ? 'var(--green)' : 'var(--text-main)'}; font-weight:${esMiFila ? '800' : '600'};">
+                            ${usuario.nombre}${esMiFila ? ' ⭐' : ''}
+                        </span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="font-size:0.78rem; color:var(--text-muted); background:var(--bg-card-soft); padding:2px 7px; border-radius:4px;" title="Marcadores exactos">🎯 ${usuario.exactos}</span>
+                        <span style="font-weight:800; color:var(--gold); font-size:1rem;">${usuario.puntos} pts</span>
+                        <span style="color:var(--text-muted); font-size:0.85rem;">›</span>
+                    </div>
+                </div>`;
             });
-            DOM.get('rankingContent').innerHTML = html + '</table>';
+
+            contenedor.innerHTML = html;
+
+            // ── Barra Sticky "Mi Posición" ──
+            const barraSticky = DOM.get('miPosicionSticky');
+            if (barraSticky && STATE.myId) {
+                const miData = rankingProcesado.find(u => u.id === STATE.myId);
+                if (miData) {
+                    DOM.get('stickyMiRango').textContent  = `#${miData.posicion}`;
+                    DOM.get('stickyMiPuntos').textContent = `${miData.puntos} pts`;
+                    barraSticky.style.display = 'flex';
+                } else {
+                    barraSticky.style.display = 'none';
+                }
+            }
         }
 
-        // CAMBIO 3: Modal de reglas del ranking
+        // NUEVO: Modal de reglas del ranking
         function showRankingRulesModal() {
             const container = DOM.get('dynamicModalContainer');
             if (!container) return;
-            
             const overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
             overlay.innerHTML = `
@@ -1234,22 +1223,14 @@
                         <li><span>🥇 Primero de grupo</span><span class="pts">2 pts</span></li>
                         <li><span>🥈 Segundo de grupo</span><span class="pts">2 pts</span></li>
                         <li><span>🥉 Mejor tercero</span><span class="pts">1 pt</span></li>
-                        <li><span>🔥 Pronósticos Fase Final</span><span class="pts">según reglas actuales</span></li>
-                        <li><span>🌟 Revelación</span><span class="pts">5 pts</span></li>
-                        <li><span>😱 Decepción</span><span class="pts">5 pts</span></li>
-                        <li><span>🇪🇨 Ecuador</span><span class="pts">10 pts</span></li>
-                        <li><span>👑 Campeón</span><span class="pts">10 pts</span></li>
-                        <li><span>⚽ Goleador</span><span class="pts">10 pts</span></li>
+                        <li><span>🔥 Pronósticos Fase Final</span><span class="pts">+1 a +5 pts</span></li>
+                        <li><span>🌟 Revelación / 😱 Decepción</span><span class="pts">5 pts c/u</span></li>
+                        <li><span>🇪🇨 Ecuador (etapa final)</span><span class="pts">10 pts</span></li>
+                        <li><span>👑 Campeón / ⚽ Goleador</span><span class="pts">10 pts c/u</span></li>
                     </ul>
                     <button class="modal-close-btn" onclick="this.closest('.modal-overlay').remove()">Entendido 👍</button>
-                </div>
-            `;
-            
-            // Cerrar al hacer clic fuera del modal
-            overlay.addEventListener('click', function(e) {
-                if (e.target === overlay) overlay.remove();
-            });
-            
+                </div>`;
+            overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
             container.appendChild(overlay);
         }
 
@@ -1271,8 +1252,7 @@
                 if (oSp.decepcion && uSpec.seleccion_decepcion === oSp.decepcion) pts += 5;
                 if (oSp.ecuador && uSpec.posicion_ecuador === oSp.ecuador) pts += 10;
                 if (oSp.campeon && uSpec.campeon_mundial === oSp.campeon) pts += 10;
-                if (oSp.goleador && uSpec.goleador_mundial && oSp.goleador && uSpec.goleador_mundial.trim().toLowerCase() === oSp.goleador.trim().toLowerCase()) pts += 10;
-
+                if (oSp.goleador && uSpec.goleador_mundial && uSpec.goleador_mundial.trim().toLowerCase() === oSp.goleador.trim().toLowerCase()) pts += 10;
                 const uKo = STATE.knockoutPreds[uid] || {};
                 Object.keys(STATE.officialKnockout || {}).forEach(mid => {
                     const officialWinner = STATE.officialKnockout[mid]; const userPick = uKo[mid];
@@ -1311,7 +1291,7 @@
         }
 
         function buildKnockoutFromStandings(grouped, bestThirds) {
-            const best3Queue = bestThirds.slice(); 
+            const best3Queue = bestThirds.slice();
             function resolveToken(token) {
                 if (!token) return ''; if (token === 'Best3') return best3Queue.length ? best3Queue.shift() : 'Mejor 3°';
                 if (token.startsWith('1')) { const g = token.slice(1); return (grouped[g] && grouped[g][0]) ? grouped[g][0].team : `1${g}`; }
@@ -1320,7 +1300,7 @@
             }
             return KNOCKOUT_DEFS.map(def => {
                 let local = def.local, visitor = def.visitor;
-                if (def.round === 'dieciseisavos') { local = resolveToken(local); visitor = resolveToken(visitor); } 
+                if (def.round === 'dieciseisavos') { local = resolveToken(local); visitor = resolveToken(visitor); }
                 else { if (/^[12][A-L]$/.test(local)) local = resolveToken(local); if (/^[12][A-L]$/.test(visitor)) visitor = resolveToken(visitor); }
                 return { id: def.id, round: def.round, local, visitor };
             });
@@ -1334,11 +1314,9 @@
         }
 
         function getUserGeneratedKnockoutMatches() {
-            // NUEVO (CAMBIO 4): Usar la fuente de datos seleccionada para el bracket
             let userResults = {};
-            if (STATE.tableSource === 'real') {
-                userResults = STATE.officialResults || {};
-            } else {
+            if (STATE.tableSource === 'real') { userResults = STATE.officialResults || {}; }
+            else {
                 const userPreds = STATE.predictions[STATE.myId] || {};
                 ALL_MATCHES.forEach(m => {
                     const p = userPreds[m.id];
@@ -1372,7 +1350,6 @@
 
         function renderBracketInto(root, matches, grouped, best3, myKo, interactive) {
             root.innerHTML = '';
-            
             const resolvedNames = {};
             const best3NumQueue = [...best3];
             const sortedMatches = [...matches].sort((a, b) => a.id - b.id);
@@ -1382,13 +1359,10 @@
                     visitor: resolveBracketTokenGeneral(m.visitor, matches, myKo, grouped, best3NumQueue)
                 };
             });
-
             BRACKET_LAYOUT.forEach(colDef => {
                 const col = document.createElement('div'); col.className = 'round';
-                
                 const title = document.createElement('div'); title.className = 'round-title'; title.textContent = colDef.title;
                 col.appendChild(title);
-
                 if (colDef.round !== 'final') {
                     colDef.matches.forEach(matchId => {
                         const m = matches.find(x => x.id === matchId);
@@ -1401,20 +1375,16 @@
                         finalSlot.querySelector('.match').classList.add('bracket-champion');
                         col.appendChild(finalSlot);
                     }
-                    
                     const thirdMatch = matches.find(m => m.id === 103);
                     if (thirdMatch) {
                         const thirdContainer = document.createElement('div'); thirdContainer.className = 'match-third-container';
-                        const thirdCard = document.createElement('div'); thirdCard.className = 'match';
-                        thirdCard.dataset.matchId = 103;
+                        const thirdCard = document.createElement('div'); thirdCard.className = 'match'; thirdCard.dataset.matchId = 103;
                         thirdCard.innerHTML = `<div style="font-size:0.65rem; color:var(--sky); font-weight:900; text-align:center; margin-bottom:4px; letter-spacing:1px;">🥉 TERCER PUESTO</div>
                                                <div class="match-meta"><span>Partido 103</span></div>`;
-                        
                         const lName = resolvedNames[103].local; const vName = resolvedNames[103].visitor;
-                        const closed = isQuinielaClosed(); // NUEVO (CAMBIO 1)
+                        const closed = isQuinielaClosed();
                         const lDis = !interactive || lName.startsWith('Ganador') || lName.startsWith('Mejor') || lName.startsWith('Perdedor') || lName.startsWith('Por definir') || (closed && !STATE.adminConnected);
                         const vDis = !interactive || vName.startsWith('Ganador') || vName.startsWith('Mejor') || vName.startsWith('Perdedor') || vName.startsWith('Por definir') || (closed && !STATE.adminConnected);
-                        
                         thirdCard.appendChild(createKoButton(103, lName, myKo[103] === lName, lDis));
                         thirdCard.appendChild(createKoButton(103, vName, myKo[103] === vName, vDis));
                         thirdContainer.appendChild(thirdCard);
@@ -1428,52 +1398,40 @@
         function createMatchSlot(m, resolvedNames, myKo, interactive, customTitle) {
             const slot = document.createElement('div'); slot.className = 'match-slot';
             const card = document.createElement('div'); card.className = 'match'; card.dataset.matchId = m.id;
-
             if (customTitle) {
                 const tag = document.createElement('div');
                 tag.style.cssText = 'font-size:0.65rem; color:var(--gold); font-weight:900; text-align:center; margin-bottom:4px; letter-spacing:1px;';
-                tag.textContent = customTitle;
-                card.appendChild(tag);
+                tag.textContent = customTitle; card.appendChild(tag);
             }
-
             const meta = document.createElement('div'); meta.className = 'match-meta'; meta.innerHTML = `<span>Partido ${m.id}</span>`; card.appendChild(meta);
-            
             const lName = resolvedNames.local; const vName = resolvedNames.visitor;
-            const closed = isQuinielaClosed(); // NUEVO (CAMBIO 1)
+            const closed = isQuinielaClosed();
             const lDis = !interactive || lName.startsWith('Ganador') || lName.startsWith('Mejor') || lName.startsWith('Perdedor') || lName.startsWith('Por definir') || (closed && !STATE.adminConnected);
             const vDis = !interactive || vName.startsWith('Ganador') || vName.startsWith('Mejor') || vName.startsWith('Perdedor') || vName.startsWith('Por definir') || (closed && !STATE.adminConnected);
-            
             card.appendChild(createKoButton(m.id, lName, myKo[m.id] === lName, lDis));
             card.appendChild(createKoButton(m.id, vName, myKo[m.id] === vName, vDis));
-            
             slot.appendChild(card);
             return slot;
         }
 
         function renderFaseFinal() {
             const root = DOM.get('bracketRoot'); if (!root) return;
-
             const userResults = {}; const userPreds = STATE.predictions[STATE.myId] || {}; let filledCount = 0;
             ALL_MATCHES.forEach(m => {
                 const p = userPreds[m.id];
-                if (p && p.gl !== '' && p.gv !== '' && !isNaN(p.gl) && !isNaN(p.gv)) {
-                    userResults[m.id] = { gl: parseInt(p.gl), gv: parseInt(p.gv) }; filledCount++;
-                }
+                if (p && p.gl !== '' && p.gv !== '' && !isNaN(p.gl) && !isNaN(p.gv)) { userResults[m.id] = { gl: parseInt(p.gl), gv: parseInt(p.gv) }; filledCount++; }
             });
-
             if (filledCount === 0) {
                 root.innerHTML = `<div style="text-align:center; padding:32px 16px; color:var(--text-muted); width:100%; grid-column:1/-1;">
                     <div style="font-size:3rem; margin-bottom:12px;">⚽</div>
                     <p style="font-weight:700; color:var(--text-main); margin-bottom:8px;">El bracket aún no tiene equipos</p>
-                    <p style="font-size:0.85rem;">Completa los pronósticos de la <strong style="color:var(--gold);">Fase de Grupos</strong> primero.<br>Conforme llenes los resultados, aquí aparecerán los clasificados.</p>
+                    <p style="font-size:0.85rem;">Completa los pronósticos de la <strong style="color:var(--gold);">Fase de Grupos</strong> primero.</p>
                     <button class="btn secondary" style="margin-top:16px; max-width:220px; margin-left:auto; margin-right:auto;" onclick="APP.goToScreen('screenPredictions')">Ir a Pronósticos ⚽</button>
                 </div>`;
                 root.onclick = null; return;
             }
-
             const data = getUserGeneratedKnockoutMatches();
             renderBracketInto(root, data.matches, data.grouped, data.best3, STATE.knockoutPreds[STATE.myId] || {}, true);
-
             root.onclick = function(e) {
                 const btn = e.target.closest('.ko-team-btn'); if (!btn || btn.disabled) return;
                 APP.saveKo(parseInt(btn.dataset.matchId, 10), btn.dataset.team);
@@ -1486,46 +1444,36 @@
         }
 
         function createKoButton(matchId, teamName, selected, disabled) {
-            const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'ko-team-btn' + (selected ? ' selected' : '') + (disabled ? ' disabled' : '');
+            const btn = document.createElement('button'); btn.type = 'button';
+            btn.className = 'ko-team-btn' + (selected ? ' selected' : '') + (disabled ? ' disabled' : '');
             if (disabled) btn.disabled = true;
             btn.dataset.matchId = matchId; btn.dataset.team = teamName;
-            
             const isPlaceholder = teamName.startsWith('Ganador') || teamName.startsWith('Perdedor') || teamName.startsWith('Por definir') || teamName.startsWith('Mejor');
             const flagIcon = isPlaceholder ? '🏴‍☠️' : (FLAGS[teamName] || '🏳️');
-            
             btn.innerHTML = `<span class="team-left"><span class="flag">${flagIcon}</span><span class="team-name">${teamName}</span></span><span class="ko-icon">✅</span>`;
             return btn;
         }
 
-        // NUEVO (CAMBIO 1): saveKo con validación de bloqueo global
         async function saveKo(mid, team) {
-            if (isQuinielaClosed()) {
-                triggerToast('🔒 La quiniela está cerrada');
-                return;
-            }
+            if (isQuinielaClosed()) { triggerToast('🔒 La quiniela está cerrada'); return; }
             if (!STATE.myId) { triggerToast('Inicia sesión'); return; }
             try {
                 if (!STATE.knockoutPreds[STATE.myId]) STATE.knockoutPreds[STATE.myId] = {};
                 STATE.knockoutPreds[STATE.myId][mid] = team;
-
-                // Validación y Limpieza
                 const userResults = {}; const userPreds = STATE.predictions[STATE.myId] || {};
                 ALL_MATCHES.forEach(m => {
                     const p = userPreds[m.id]; if (p && p.gl !== '' && p.gv !== '' && !isNaN(p.gl) && !isNaN(p.gv)) userResults[m.id] = { gl: parseInt(p.gl), gv: parseInt(p.gv) };
                 });
                 const data = getUserGeneratedKnockoutMatches();
                 const myKo = STATE.knockoutPreds[STATE.myId];
-                
                 const resolvedNames = {}; const best3NumQueue = [...data.best3];
                 const sortedMatches = [...data.matches].sort((a,b) => a.id - b.id);
                 sortedMatches.forEach(m => { resolvedNames[m.id] = { local: resolveBracketTokenGeneral(m.local, data.matches, myKo, data.grouped, best3NumQueue), visitor: resolveBracketTokenGeneral(m.visitor, data.matches, myKo, data.grouped, best3NumQueue) }; });
-
                 const orderOfMatches = KNOCKOUT_DEFS.map(d => d.id).sort((a,b) => a - b);
                 orderOfMatches.forEach(id => {
                     const currentPick = myKo[id]; if (!currentPick) return;
                     if (currentPick !== resolvedNames[id].local && currentPick !== resolvedNames[id].visitor) delete myKo[id];
                 });
-
                 await db.ref(`knockout_preds/${STATE.myId}`).set(myKo); STATE.knockoutPreds[STATE.myId] = myKo;
                 renderFaseFinal();
                 if (mid === 104) showChampionCelebration(team); else triggerToast('✅ Guardado');
@@ -1552,12 +1500,8 @@
             document.body.appendChild(modal);
         }
 
-        // NUEVO (CAMBIO 1): saveAllKoDrafts con validación de bloqueo global
         function saveAllKoDrafts() {
-            if (isQuinielaClosed()) {
-                triggerToast('🔒 La quiniela está cerrada');
-                return;
-            }
+            if (isQuinielaClosed()) { triggerToast('🔒 La quiniela está cerrada'); return; }
             const root = DOM.get('bracketRoot'); if (!root) return;
             const toSave = {};
             root.querySelectorAll('.ko-team-btn.selected').forEach(b => {
@@ -1591,7 +1535,6 @@
             });
             html += `<button class="btn" style="margin-top:12px;" onclick="APP.saveAdmMatchesCloud()">💾 Guardar Resultados Oficiales</button>`;
             DOM.get('adminContent').innerHTML = html;
-
             let htmlK = '';
             KNOCKOUT_DEFS.forEach(d => {
                 const defOfficialMatch = (STATE.officialKnockoutMatches && STATE.officialKnockoutMatches[d.id]) ? STATE.officialKnockoutMatches[d.id] : null;
@@ -1612,7 +1555,6 @@
             });
             htmlK += `<button class="btn secondary" onclick="APP.generateOfficialBracket()">Generar Bracket Oficial desde resultados de grupos</button>`;
             DOM.get('adminKnockoutContent').innerHTML = htmlK;
-
             renderAdminUsers(); populateAdminSpecialsOptions();
         }
 
@@ -1635,7 +1577,7 @@
         function generateOfficialBracket() { generateOfficialBracketAndSave(); }
 
         function renderAdminUsers() {
-            const container = DOM.get('adminUsersList'); container.innerHTML = '';
+            const container = DOM.get('adminUsersList'); if (!container) return; container.innerHTML = '';
             Object.values(STATE.users).forEach(u => {
                 const div = document.createElement('div'); div.className = 'admin-user';
                 const meta = document.createElement('div'); meta.className = 'meta';
@@ -1651,39 +1593,21 @@
 
         async function adminDeleteUser(uid) {
             try {
-                await db.ref(`users/${uid}`).remove();
-                await db.ref(`predictions/${uid}`).remove();
-                await db.ref(`specials/${uid}`).remove();
-                await db.ref(`knockout_preds/${uid}`).remove();
-                delete STATE.users[uid];
-                delete STATE.predictions[uid];
-                delete STATE.specials[uid];
-                delete STATE.knockoutPreds[uid];
-                renderAdminUsers();
-                triggerToast('✅ Usuario eliminado');
-            } catch (e) {
-                console.error('Error eliminando usuario:', e);
-                triggerToast('❌ Error: ' + (e.message || 'No se pudo eliminar'));
-            }
+                await db.ref(`users/${uid}`).remove(); await db.ref(`predictions/${uid}`).remove();
+                await db.ref(`specials/${uid}`).remove(); await db.ref(`knockout_preds/${uid}`).remove();
+                delete STATE.users[uid]; delete STATE.predictions[uid]; delete STATE.specials[uid]; delete STATE.knockoutPreds[uid];
+                renderAdminUsers(); triggerToast('✅ Usuario eliminado');
+            } catch (e) { console.error(e); triggerToast('❌ Error: ' + (e.message || 'No se pudo eliminar')); }
         }
 
         async function adminResetUser(uid) {
             try {
-                await db.ref(`predictions/${uid}`).remove();
-                await db.ref(`specials/${uid}`).remove();
-                await db.ref(`knockout_preds/${uid}`).remove();
-                await db.ref(`users/${uid}/total_puntos`).set(0);
-                await db.ref(`users/${uid}/exacts`).set(0);
-                delete STATE.predictions[uid];
-                delete STATE.specials[uid];
-                delete STATE.knockoutPreds[uid];
+                await db.ref(`predictions/${uid}`).remove(); await db.ref(`specials/${uid}`).remove();
+                await db.ref(`knockout_preds/${uid}`).remove(); await db.ref(`users/${uid}/total_puntos`).set(0); await db.ref(`users/${uid}/exacts`).set(0);
+                delete STATE.predictions[uid]; delete STATE.specials[uid]; delete STATE.knockoutPreds[uid];
                 if (STATE.users[uid]) { STATE.users[uid].total_puntos = 0; STATE.users[uid].exacts = 0; }
-                renderAdminUsers();
-                triggerToast('✅ Usuario reiniciado');
-            } catch (e) {
-                console.error('Error reiniciando usuario:', e);
-                triggerToast('❌ Error: ' + (e.message || 'No se pudo reiniciar'));
-            }
+                renderAdminUsers(); triggerToast('✅ Usuario reiniciado');
+            } catch (e) { console.error(e); triggerToast('❌ Error: ' + (e.message || 'No se pudo reiniciar')); }
         }
 
         function saveOfficialSpecials() {
@@ -1722,30 +1646,22 @@
         }
 
         function toggleFaseFinal(enable) {
-            STATE.faseFinalEnabled = !!enable;
-            applyFaseFinalVisibility();
+            STATE.faseFinalEnabled = !!enable; applyFaseFinalVisibility();
             const activeId = document.querySelector('.screen.active')?.id;
             if (!enable && activeId === 'screenFaseFinal') goToScreen('screenMenu');
-            db.ref('fase_final_enabled').set(!!enable).then(() => {
-                triggerToast(enable ? '✅ Fase Final habilitada' : '🔒 Fase Final deshabilitada');
-            });
+            db.ref('fase_final_enabled').set(!!enable).then(() => { triggerToast(enable ? '✅ Fase Final habilitada' : '🔒 Fase Final deshabilitada'); });
         }
 
         function toggleGruposLock(lock) {
             STATE.gruposLock = !!lock;
             if (STATE.adminConnected) adminLoadResults();
-            db.ref('grupos_lock').set(!!lock).then(() => {
-                triggerToast(lock ? '🔒 Pronósticos de grupos cerrados' : '🔓 Pronósticos de grupos abiertos');
-            });
+            db.ref('grupos_lock').set(!!lock).then(() => { triggerToast(lock ? '🔒 Pronósticos de grupos cerrados' : '🔓 Pronósticos de grupos abiertos'); });
         }
 
         function toggleRegistros(lock) {
             STATE.registrosLock = !!lock;
-            const btn = DOM.get('btnCrearUsuario');
-            if (btn) btn.style.display = lock ? 'none' : '';
-            db.ref('registros_lock').set(!!lock).then(() => {
-                triggerToast(lock ? '🔒 Registros cerrados' : '🔓 Registros abiertos');
-            });
+            const btn = DOM.get('btnCrearUsuario'); if (btn) btn.style.display = lock ? 'none' : '';
+            db.ref('registros_lock').set(!!lock).then(() => { triggerToast(lock ? '🔒 Registros cerrados' : '🔓 Registros abiertos'); });
         }
 
         function saveOfficialKnockoutBatch(map) {
@@ -1759,41 +1675,30 @@
 
         let autoSyncInterval = null;
         function setSyncStatus(msg, color) { const el = document.getElementById('syncStatus'); if (el) { el.textContent = msg; el.style.color = color || 'var(--text-muted)'; } }
-
         function saveApiKey() {
             const val = document.getElementById('fdApiKey')?.value.trim(); if (!val) { triggerToast('⚠️ Ingresa una API Key'); return; }
             localStorage.setItem('fd_api_key', val); triggerToast('✅ API Key guardada'); setSyncStatus('Key guardada. Listo para sincronizar.', 'var(--green)');
         }
-
         function loadApiKeyToInput() {
             const saved = localStorage.getItem('fd_api_key'); const el = document.getElementById('fdApiKey'); if (el && saved) el.value = saved;
             const lastSync = localStorage.getItem('fd_last_sync'); if (lastSync) setSyncStatus('Última sincronización: ' + lastSync, 'var(--text-muted)');
         }
-
         function toSpanish(name) { return API_TO_SPANISH[name] || name; }
-
         async function syncFromAPI() {
             const apiKey = localStorage.getItem('fd_api_key'); if (!apiKey) { triggerToast('⚠️ Guarda tu API Key primero'); return; }
             setSyncStatus('🔄 Conectando con football-data.org...', 'var(--gold)');
-
             try {
                 const resp = await fetch('https://api.football-data.org/v4/competitions/WC/matches?status=FINISHED', { headers: { 'X-Auth-Token': apiKey } });
                 if (resp.status === 400) return syncFromAPIAll(apiKey);
                 if (!resp.ok) { const err = await resp.json().catch(() => ({})); setSyncStatus('❌ Error ' + resp.status + ': ' + (err.message || 'revisa tu API Key'), 'var(--error)'); return; }
-
                 const data = await resp.json(); const groupUpdates = {}; const koWinnerUpdates = {}; let groupCount = 0; let koCount = 0;
-
                 data.matches.forEach(apiM => {
                     const home = toSpanish(apiM.homeTeam.name); const away = toSpanish(apiM.awayTeam.name); const fts = apiM.score?.fullTime;
                     if (!fts || fts.home === null || fts.away === null) return;
-
                     const stage = apiM.stage || ''; const isGroup = stage === 'GROUP_STAGE' || stage === 'GROUPS';
-
                     if (isGroup) {
                         const ourMatch = ALL_MATCHES.find(m => (m.local === home && m.visitante === away) || (m.local === away && m.visitante === home));
-                        if (ourMatch) {
-                            const reversed = ourMatch.local === away; groupUpdates[ourMatch.id] = { gl: reversed ? fts.away : fts.home, gv: reversed ? fts.home : fts.away }; groupCount++;
-                        }
+                        if (ourMatch) { const reversed = ourMatch.local === away; groupUpdates[ourMatch.id] = { gl: reversed ? fts.away : fts.home, gv: reversed ? fts.home : fts.away }; groupCount++; }
                     } else {
                         const round = API_STAGE_TO_ROUND[stage]; if (!round) return;
                         const winner = apiM.score?.winner === 'HOME_TEAM' ? home : away;
@@ -1803,21 +1708,17 @@
                         });
                     }
                 });
-
                 const promises = [];
                 if (groupCount > 0) promises.push(db.ref('official_results').update(groupUpdates));
                 if (koCount > 0) promises.push(db.ref('official_knockout').update(koWinnerUpdates));
                 await Promise.all(promises);
-
                 if (groupCount > 0) generateOfficialBracketAndSave();
                 const now = new Date().toLocaleString('es-EC', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short' }); localStorage.setItem('fd_last_sync', now);
-
                 const total = groupCount + koCount;
-                if (total > 0) { setSyncStatus(`✅ ${groupCount} grupos + ${koCount} eliminatorios sincronizados · ${now}`, 'var(--green)'); triggerToast(`✅ ${total} resultados actualizados`); } 
+                if (total > 0) { setSyncStatus(`✅ ${groupCount} grupos + ${koCount} eliminatorios sincronizados · ${now}`, 'var(--green)'); triggerToast(`✅ ${total} resultados actualizados`); }
                 else { setSyncStatus(`ℹ️ Sin resultados nuevos · ${now}`, 'var(--text-muted)'); triggerToast('ℹ️ Sin resultados nuevos todavía'); }
-            } catch (err) { console.error('API sync error:', err); setSyncStatus('❌ Error de conexión. Revisa tu internet.', 'var(--error)'); triggerToast('❌ Error al conectar con la API'); }
+            } catch (err) { console.error('API sync error:', err); setSyncStatus('❌ Error de conexión.', 'var(--error)'); triggerToast('❌ Error al conectar con la API'); }
         }
-
         async function syncFromAPIAll(apiKey) {
             setSyncStatus('🔄 Obteniendo calendario completo...', 'var(--gold)');
             try {
@@ -1830,61 +1731,45 @@
                     const home = toSpanish(apiM.homeTeam.name); const away = toSpanish(apiM.awayTeam.name); const fts = apiM.score?.fullTime;
                     if (!fts || fts.home === null || fts.away === null) return;
                     const ourMatch = ALL_MATCHES.find(m => (m.local === home && m.visitante === away) || (m.local === away && m.visitante === home));
-                    if (ourMatch) {
-                        const reversed = ourMatch.local === away; groupUpdates[ourMatch.id] = { gl: reversed ? fts.away : fts.home, gv: reversed ? fts.home : fts.away }; groupCount++;
-                    }
+                    if (ourMatch) { const reversed = ourMatch.local === away; groupUpdates[ourMatch.id] = { gl: reversed ? fts.away : fts.home, gv: reversed ? fts.home : fts.away }; groupCount++; }
                 });
                 if (groupCount > 0) { await db.ref('official_results').update(groupUpdates); generateOfficialBracketAndSave(); }
                 const now = new Date().toLocaleString('es-EC', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short' }); localStorage.setItem('fd_last_sync', now);
                 setSyncStatus(`✅ ${groupCount} partidos sincronizados · ${now}`, groupCount > 0 ? 'var(--green)' : 'var(--text-muted)'); triggerToast(groupCount > 0 ? `✅ ${groupCount} resultados actualizados` : 'ℹ️ Sin resultados nuevos');
             } catch (err) { console.error(err); setSyncStatus('❌ Error de conexión', 'var(--error)'); }
         }
-
         function toggleAutoSync(enabled) {
-            if (enabled) { syncFromAPI(); autoSyncInterval = setInterval(syncFromAPI, 5 * 60 * 1000); setSyncStatus('🟢 Auto-sync activo (cada 5 min)', 'var(--green)'); } 
+            if (enabled) { syncFromAPI(); autoSyncInterval = setInterval(syncFromAPI, 5 * 60 * 1000); setSyncStatus('🟢 Auto-sync activo (cada 5 min)', 'var(--green)'); }
             else { clearInterval(autoSyncInterval); autoSyncInterval = null; setSyncStatus('Auto-sync desactivado', 'var(--text-muted)'); }
         }
 
         // ==================== API PÚBLICA (APP) ====================
         window.APP = {
             goToScreen, registerUser, loginExistingUser, logout, saveScoreCloud, setTableGroupActive,
-            // NUEVO (CAMBIO 1): saveSpecial con validación de bloqueo global
             saveSpecial: function(field, val) {
-                if (isQuinielaClosed()) {
-                    triggerToast('🔒 La quiniela está cerrada');
-                    // Revertir el valor del select/input al valor guardado previamente
-                    populateSpecials();
-                    return;
-                }
+                if (isQuinielaClosed()) { triggerToast('🔒 La quiniela está cerrada'); populateSpecials(); return; }
                 db.ref(`specials/${STATE.myId}/${field}`).set(val).then(() => triggerToast('✅ Guardado')).catch(err => { console.error(err); triggerToast('❌ Error'); });
             },
-            saveKo, saveAllKoDrafts, setTablesView,
-            // NUEVO (CAMBIO 4): Selector de fuente de tabla
-            setTableSource: setTableSource,
-            // NUEVO (CAMBIO 3): Modal de reglas del ranking
-            showRankingRulesModal: showRankingRulesModal,
+            saveKo, saveAllKoDrafts, setTablesView, setTableSource,
+            showRankingRulesModal,
+            // ── NUEVO: Método público para abrir el desglose desde la tabla ──
+            mostrarDesglose: function(uid, nombre) {
+                const desglose = _desgloseCache[uid];
+                if (!desglose) { triggerToast('Sin datos de desglose disponibles'); return; }
+                abrirModalDesglose(desglose, nombre);
+            },
+            cerrarDesglose: cerrarModalDesglose,
             adminLogin: function() {
                 if (DOM.get('adminPassword').value === 'admin2026') {
                     STATE.adminConnected = true; sessionStorage.setItem('p26adm','1');
                     DOM.get('adminLoginForm').style.display = 'none'; DOM.get('adminPanel').style.display = 'block'; adminLoadResults();
                 } else alert('PIN de seguridad inválido.');
             },
-            // NUEVO (CAMBIO 1): adminSetStatus actualizado para guardar también en settings
             adminSetStatus: function(st) {
-                const promises = [];
-                promises.push(db.ref('status').set(st));
-                // Si cierra, también bloquear en settings
-                if (st === 'closed') {
-                    promises.push(db.ref('settings/predictionsLocked').set(true));
-                    STATE.settings.predictionsLocked = true;
-                } else {
-                    promises.push(db.ref('settings/predictionsLocked').set(false));
-                    STATE.settings.predictionsLocked = false;
-                }
-                Promise.all(promises).then(() => {
-                    triggerToast('Status actualizado');
-                    updateUIForLockState();
-                });
+                const promises = [db.ref('status').set(st)];
+                if (st === 'closed') { promises.push(db.ref('settings/predictionsLocked').set(true)); STATE.settings.predictionsLocked = true; }
+                else { promises.push(db.ref('settings/predictionsLocked').set(false)); STATE.settings.predictionsLocked = false; }
+                Promise.all(promises).then(() => { triggerToast('Status actualizado'); updateUIForLockState(); });
             },
             adminResetMundial: function() {
                 if (confirm('🚨 ATENCIÓN: Se de-vincularán los resultados familiares ingresados.')) {
@@ -1904,15 +1789,11 @@
                 const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `Polla_Familiar_2026_Master_${new Date().toISOString().slice(0,10)}.csv`; link.click();
             },
-            adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials, toggleFaseFinal, toggleGruposLock, toggleRegistros,
-            adminDeleteUser, adminResetUser, saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch, saveApiKey, syncFromAPI, toggleAutoSync,
-            
-            // NUEVO (CAMBIO 1): saveAndGoFaseFinal (antes saveAndGoMenu) con validación de bloqueo
+            adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials,
+            toggleFaseFinal, toggleGruposLock, toggleRegistros, adminDeleteUser, adminResetUser,
+            saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch, saveApiKey, syncFromAPI, toggleAutoSync,
             saveAndGoFaseFinal: function() {
-                if (isQuinielaClosed()) {
-                    triggerToast('🔒 La quiniela está cerrada');
-                    return;
-                }
+                if (isQuinielaClosed()) { triggerToast('🔒 La quiniela está cerrada'); return; }
                 const fields = [
                     { id: 'selRevelacion', key: 'seleccion_revelacion' }, { id: 'selDecepcion', key: 'seleccion_decepcion' },
                     { id: 'selEcuadorPos', key: 'posicion_ecuador' }, { id: 'selCampeon', key: 'campeon_mundial' }, { id: 'txtGoleador', key: 'goleador_mundial' },
@@ -1921,13 +1802,12 @@
                     const el = DOM.get(f.id); if (!el || !el.value.trim()) return Promise.resolve();
                     return db.ref(`specials/${STATE.myId}/${f.key}`).set(el.value.trim());
                 });
-                Promise.all(promises).then(() => { 
-                    triggerToast('Comodines guardados'); 
-                    goToScreen(STATE.faseFinalEnabled ? 'screenFaseFinal' : 'screenMenu'); 
+                Promise.all(promises).then(() => {
+                    triggerToast('Comodines guardados');
+                    goToScreen(STATE.faseFinalEnabled ? 'screenFaseFinal' : 'screenMenu');
                 }).catch(err => { console.error(err); triggerToast('❌ Error'); });
             }
         };
-
         window.APP.setTableGroupActive = setTableGroupActive;
 
         function startCountdown() {
@@ -1950,12 +1830,10 @@
             const btnCrear = DOM.get('btnCrearUsuario'); if (btnCrear) btnCrear.style.display = STATE.registrosLock ? 'none' : '';
             applyFaseFinalVisibility();
             if (STATE.adminConnected) renderAdminUsers();
-            // NUEVO (CAMBIO 1): Actualizar UI de bloqueo
             updateUIForLockState();
         }
 
         if (STATE.myId) goToScreen('screenMenu'); else goToScreen('screenWelcome');
-
         window.renderFaseFinal = renderFaseFinal; window.generateOfficialBracket = generateOfficialBracketAndSave;
         window.saveAllKoDrafts = saveAllKoDrafts; window.triggerToast = triggerToast;
         window.populateAdminSpecialsOptions = populateAdminSpecialsOptions; window.saveOfficialSpecials = saveOfficialSpecials; window.loadOfficialSpecials = loadOfficialSpecials;
@@ -1963,3 +1841,6 @@
     </script>
 </body>
 </html>
+ENDOFFILE
+echo "File created successfully"
+wc -l /mnt/user-data/outputs/polla-mundialista-2026.html
