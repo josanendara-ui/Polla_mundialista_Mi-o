@@ -43,10 +43,13 @@
         .card { background: linear-gradient(180deg, rgba(31,42,63,0.96), rgba(23,32,51,0.96)); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.09); box-shadow: var(--shadow); }
         .input-field, select { width: 100%; padding: 14px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg-input); color: #fff; font-size: 16px; margin-bottom: 12px; outline: none; transition: border 0.2s, box-shadow 0.2s, background 0.2s; }
         .input-field:focus, select:focus { box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.12); background: #111C2E; border-color: var(--green); }
+        /* Estilos para inputs y selects deshabilitados cuando la quiniela está cerrada */
+        .input-field:disabled, select:disabled, .score-box:disabled { opacity: 0.4; background: #000; color: #64748b; border-color: #1e293b; cursor: not-allowed; }
 
         .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius); font-weight: 800; font-size: 1rem; cursor: pointer; text-align: center; background: linear-gradient(135deg, var(--green-dark), var(--green)); color: #06201C; margin-bottom: 10px; box-shadow: 0 10px 24px rgba(45, 212, 191, 0.18); transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.2s; }
         .btn:hover { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(45, 212, 191, 0.24); }
         .btn:active { transform: translateY(0); opacity: 0.85; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
         .btn.secondary { background: rgba(255,255,255,0.035); color: var(--text-main); box-shadow: none; border: 1px solid var(--border); }
         .btn.gold { background: linear-gradient(135deg, #F59E0B, var(--gold)); color: #1F1300; }
         .btn.danger { background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
@@ -73,7 +76,6 @@
         .score-box { width: 44px; height: 44px; text-align: center; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: #fff; font-size: 16px; font-weight: 700; outline: none; transition: border 0.2s; -moz-appearance: textfield; }
         .score-box::-webkit-outer-spin-button, .score-box::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .score-box:focus { border-color: var(--gold); background: #172554; box-shadow: 0 0 0 4px rgba(247, 201, 72, 0.12); }
-        .score-box:disabled { opacity: 0.4; background: #000; color: #64748b; border-color: #1e293b; }
 
         /* TABS */
         .group-nav { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 12px; scrollbar-width: none; }
@@ -81,12 +83,17 @@
         .group-tab { padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); border-radius: 20px; font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
         .group-tab.active { background: var(--green); color: #06201C; border-color: var(--green); box-shadow: 0 8px 18px rgba(45, 212, 191, 0.16); font-weight: 900; }
 
-        /* STANDINGS */
+        /* STANDINGS - Orden FIFA actualizado */
         .standings-container { overflow-x: auto; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 20px; box-shadow: var(--shadow); }
-        .standings { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 460px; }
-        .standings th { background: rgba(0,0,0,0.2); color: var(--text-muted); padding: 10px 8px; font-weight: 700; text-align: center; font-size: 0.7rem; text-transform: uppercase; }
-        .standings td { padding: 12px 8px; text-align: center; border-bottom: 1px solid var(--border); }
+        .standings { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 500px; }
+        .standings th { background: rgba(0,0,0,0.2); color: var(--text-muted); padding: 10px 6px; font-weight: 700; text-align: center; font-size: 0.7rem; text-transform: uppercase; }
+        .standings td { padding: 10px 6px; text-align: center; border-bottom: 1px solid var(--border); }
         .st-team { text-align: left !important; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+
+        /* Colores de clasificación (CAMBIO 7) */
+        .standings tr.row-qualified { background: rgba(16, 185, 129, 0.18); }  /* Primer y segundo lugar */
+        .standings tr.row-best-third { background: rgba(251, 191, 36, 0.15); } /* Tercer lugar */
+        /* Cuarto lugar sin color especial */
 
         /* RANKING */
         .ranking-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -217,6 +224,84 @@
         .tables-switch button { flex:1; border:0; border-radius:999px; padding:10px 12px; background:transparent; color:var(--text-muted); font-weight:900; cursor:pointer; }
         .tables-switch button.active { background:var(--green); color:#06201C; }
         .bracket-help { display:flex; justify-content:space-between; gap:12px; align-items:center; color:var(--text-muted); font-size:0.82rem; margin-bottom:10px; }
+
+        /* NUEVO: Estilos para el modal de reglas del ranking (CAMBIO 3) */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 10000;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            padding: 28px 24px;
+            max-width: 380px; width: 90%;
+            box-shadow: 0 0 60px rgba(251,191,36,0.4);
+            text-align: left;
+            max-height: 80vh; overflow-y: auto;
+        }
+        .modal-card h3 {
+            text-align: center; font-size: 1.2rem; color: var(--gold); margin-bottom: 16px;
+            font-weight: 900;
+        }
+        .modal-card ul {
+            list-style: none; padding: 0;
+        }
+        .modal-card li {
+            padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex; align-items: center; gap: 10px;
+            font-size: 0.9rem; color: var(--text-main);
+        }
+        .modal-card li .pts {
+            margin-left: auto; font-weight: 900; color: var(--green);
+        }
+        .modal-close-btn {
+            margin-top: 20px; width: 100%;
+            padding: 12px; border: none; border-radius: 12px;
+            background: var(--green); color: #06201C;
+            font-weight: 800; font-size: 1rem; cursor: pointer;
+        }
+
+        /* NUEVO: Selector de tipo de tabla (CAMBIO 4) */
+        .table-source-switch {
+            display: flex; gap: 6px; padding: 4px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.035);
+            border-radius: 999px; margin-bottom: 14px;
+        }
+        .table-source-switch button {
+            flex: 1; border: 0; border-radius: 999px;
+            padding: 10px 12px; background: transparent;
+            color: var(--text-muted); font-weight: 900; cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .table-source-switch button.active {
+            background: var(--gold); color: #1F1300;
+        }
+
+        /* NUEVO: Botón de reglas del ranking (CAMBIO 3) */
+        .btn-rules {
+            background: rgba(247, 201, 72, 0.12);
+            border: 1px solid rgba(247, 201, 72, 0.35);
+            color: var(--gold);
+            width: 100%; padding: 14px; border-radius: var(--radius);
+            font-weight: 800; font-size: 0.95rem; cursor: pointer;
+            margin-top: 16px; transition: background 0.2s;
+        }
+        .btn-rules:hover { background: rgba(247, 201, 72, 0.22); }
+
+        /* Mensaje de quiniela cerrada */
+        .closure-banner {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #EF4444;
+            padding: 12px 16px; border-radius: var(--radius);
+            font-weight: 800; text-align: center;
+            margin-bottom: 16px; font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -372,13 +457,22 @@
                     <div class="progress-bar-fill" id="progressBar"></div>
                 </div>
             </div>
+            <!-- NUEVO: Banner de quiniela cerrada (CAMBIO 1) -->
+            <div id="closureBannerPredictions" class="closure-banner" style="display:none;">🔒 La quiniela está cerrada</div>
             <div id="matchesContainer"></div>
             <button class="btn gold" onclick="APP.goToScreen('screenSpecial')" style="margin-top:8px;">Siguiente: Comodines Especiales 🌟</button>
         </div>
 
         <div class="screen" id="screenTables">
-            <h3 style="margin-bottom:8px; font-size:1.15rem;">Tablas del Mundial simuladas</h3>
-            <p class="small" style="margin-bottom:12px;">Revisa tu clasificación de grupos y la llave final generada con tus pronósticos.</p>
+            <h3 style="margin-bottom:8px; font-size:1.15rem;">Tablas del Mundial</h3>
+            <p class="small" style="margin-bottom:12px;">Revisa la clasificación de grupos y la llave final.</p>
+            
+            <!-- NUEVO: Selector de tipo de tabla (CAMBIO 4) -->
+            <div class="table-source-switch" role="tablist" aria-label="Fuente de datos de la tabla">
+                <button id="tabSourceSimulated" class="active" type="button" onclick="APP.setTableSource('simulated')">📊 Tabla Simulada</button>
+                <button id="tabSourceReal" type="button" onclick="APP.setTableSource('real')">🏆 Tabla Real</button>
+            </div>
+            
             <div class="tables-switch" role="tablist" aria-label="Vista de tablas">
                 <button id="tabGroupsView" class="active" type="button" onclick="APP.setTablesView('groups')">Grupos</button>
                 <button id="tabBracketView" type="button" onclick="APP.setTablesView('bracket')">Fase final</button>
@@ -398,10 +492,14 @@
             <div class="card" style="padding:0; overflow:hidden; border-color:var(--border);">
                 <div id="rankingContent"></div>
             </div>
+            <!-- NUEVO: Botón de reglas del ranking (CAMBIO 3) -->
+            <button class="btn-rules" onclick="APP.showRankingRulesModal()">📜 ¿Cómo se ganan los puntos?</button>
         </div>
 
         <div class="screen" id="screenSpecial">
             <h3 style="margin-bottom:16px; font-size:1.2rem;">Comodines Especiales 🌟</h3>
+            <!-- NUEVO: Banner de quiniela cerrada (CAMBIO 1) -->
+            <div id="closureBannerSpecial" class="closure-banner" style="display:none;">🔒 La quiniela está cerrada</div>
             <div class="card">
                 <label style="font-size:0.85rem; color:var(--text-muted); font-weight:700; display:block; margin-bottom:4px;">🌟 Selección revelación</label>
                 <select id="selRevelacion" class="input-field" onchange="APP.saveSpecial('seleccion_revelacion', this.value)"></select>
@@ -432,6 +530,8 @@
           <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
             Selecciona el ganador de cada cruce. Los emparejamientos se actualizan automáticamente según tus tablas de grupos.
           </p>
+          <!-- NUEVO: Banner de quiniela cerrada (CAMBIO 1) -->
+          <div id="closureBannerFaseFinal" class="closure-banner" style="display:none;">🔒 La quiniela está cerrada</div>
 
           <div class="bracket-panel">
               <div id="bracketRoot" class="bracket" role="region" aria-label="Llave eliminatoria"></div>
@@ -547,6 +647,9 @@
             <button class="nav-item" onclick="APP.goToScreen('screenRanking')"><span class="icon">🏆</span>Ranking</button>
         </div>
     </div>
+
+    <!-- NUEVO: Contenedor para modales dinámicos -->
+    <div id="dynamicModalContainer"></div>
 
     <script>
     (function() {
@@ -688,7 +791,7 @@
             { id: 60, grupo: "D", local: "Paraguay", visitante: "Australia", kickoff: "2026-06-25T22:00:00-04:00", fechaStr: "Jue 25 Jun 22:00" },
             { id: 61, grupo: "I", local: "Noruega", visitante: "Francia", kickoff: "2026-06-26T15:00:00-04:00", fechaStr: "Vie 26 Jun 15:00" },
             { id: 62, grupo: "I", local: "Senegal", visitante: "Irak", kickoff: "2026-06-26T15:00:00-04:00", fechaStr: "Vie 26 Jun 15:00" },
-            { id: 63, group: "H", local: "Cabo Verde", visitante: "Arabia Saudita", kickoff: "2026-06-26T20:00:00-04:00", fechaStr: "Vie 26 Jun 20:00" },
+            { id: 63, grupo: "H", local: "Cabo Verde", visitante: "Arabia Saudita", kickoff: "2026-06-26T20:00:00-04:00", fechaStr: "Vie 26 Jun 20:00" },
             { id: 64, grupo: "H", local: "Uruguay", visitante: "España", kickoff: "2026-06-26T20:00:00-04:00", fechaStr: "Vie 26 Jun 20:00" },
             { id: 65, grupo: "G", local: "Egipto", visitante: "Irán", kickoff: "2026-06-26T23:00:00-04:00", fechaStr: "Vie 26 Jun 23:00" },
             { id: 66, grupo: "G", local: "Nueva Zelanda", visitante: "Bélgica", kickoff: "2026-06-26T23:00:00-04:00", fechaStr: "Vie 26 Jun 23:00" },
@@ -750,16 +853,26 @@
 
         const KO_POINTS = { dieciseisavos: 1, octavos: 2, cuartos: 3, semis: 4, final: 5, tercero: 2 };
 
+        // === ESTADO GLOBAL ===
         const STATE = {
             users: {}, predictions: {}, specials: {}, officialResults: {}, officialSpecials: {},
             knockoutPreds: {}, officialKnockout: {}, officialKnockoutMatches: {}, status: 'open',
             myId: localStorage.getItem('polla_myId'), currentUser: null, currentSelectedGroup: 'A',
             currentTablesView: 'groups', adminConnected: sessionStorage.getItem('p26adm') === '1',
-            faseFinalEnabled: false, gruposLock: false, registrosLock: false
+            faseFinalEnabled: false, gruposLock: false, registrosLock: false,
+            // NUEVO (CAMBIO 1): Variable global de bloqueo unificado
+            settings: { predictionsLocked: false },
+            // NUEVO (CAMBIO 4): Fuente de datos para las tablas ('simulated' o 'real')
+            tableSource: 'simulated'
         };
 
         let toastTimeout;
         const DOM = { get: id => document.getElementById(id), q: sel => document.querySelector(sel), qAll: sel => document.querySelectorAll(sel) };
+
+        // NUEVO (CAMBIO 1): Función para verificar si la quiniela está totalmente cerrada
+        function isQuinielaClosed() {
+            return STATE.settings.predictionsLocked || STATE.status === 'closed';
+        }
 
         db.ref('/').on('value', snap => {
             const data = snap.val() || {};
@@ -775,6 +888,9 @@
             STATE.faseFinalEnabled = !!data.fase_final_enabled;
             STATE.gruposLock = !!data.grupos_lock;
             STATE.registrosLock = !!data.registros_lock;
+            
+            // NUEVO (CAMBIO 1): Sincronizar settings.predictionsLocked desde Firebase
+            STATE.settings.predictionsLocked = !!(data.settings && data.settings.predictionsLocked);
 
             if (STATE.myId && STATE.users[STATE.myId]) {
                 STATE.currentUser = STATE.users[STATE.myId];
@@ -796,36 +912,42 @@
             toastTimeout = setTimeout(() => t.classList.remove('show'), 1500);
         }
 
+        // NUEVO (CAMBIO 1): Función para actualizar el estado de bloqueo visual de toda la UI
+        function updateUIForLockState() {
+            const closed = isQuinielaClosed();
+            
+            // Banners de cierre
+            const banners = ['closureBannerPredictions', 'closureBannerSpecial', 'closureBannerFaseFinal'];
+            banners.forEach(id => {
+                const el = DOM.get(id);
+                if (el) el.style.display = closed ? 'block' : 'none';
+            });
+
+            // Deshabilitar inputs y selects en pantallas de predicciones
+            if (closed) {
+                document.querySelectorAll('#matchesContainer .score-box').forEach(inp => inp.disabled = true);
+                document.querySelectorAll('#screenSpecial select, #screenSpecial input').forEach(el => el.disabled = true);
+                document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => {
+                    btn.disabled = true;
+                    btn.classList.add('disabled');
+                });
+            }
+        }
+
         function isMatchClosed(matchId) {
             if (STATE.adminConnected) return false; 
-            if (STATE.status === 'closed') return true;
-            if (STATE.gruposLock && matchId <= 72) return true; 
-        
-            const match = ALL_MATCHES.find(m => m.id === matchId);
-            if (!match || !match.kickoff) return false;
-        
-            const MINUTOS_ANTES_DEL_CIERRE = 15;
-            const tiempoDeKickoff = new Date(match.kickoff).getTime();
+            // NUEVO (CAMBIO 1): Verificar bloqueo global primero
+            if (isQuinielaClosed()) return true;
+            if (STATE.gruposLock && matchId <= 72) return true; // bloqueo manual
             
-            if (isNaN(tiempoDeKickoff)) return false; 
+            const match = ALL_MATCHES.find(m => m.id === matchId);
+            if (!match) return false;
         
-            const tiempoLimiteCierre = tiempoDeKickoff - (MINUTOS_ANTES_DEL_CIERRE * 60 * 1000);
-            return new Date().getTime() >= tiempoLimiteCierre;
-        }
+            // Restamos 15 minutos (15 mins * 60 segs * 1000 milisegundos) a la hora del partido
+            const tiempoDeCierre = new Date(match.kickoff).getTime() - (15 * 60 * 1000);
         
-        function areSpecialsClosed() {
-            if (STATE.adminConnected) return false; 
-            if (STATE.status === 'closed') return true; 
-            if (STATE.gruposLock) return true; 
-        
-            const primerPartido = ALL_MATCHES[0]; 
-            if (!primerPartido || !primerPartido.kickoff) return false;
-        
-            const tiempoDeKickoff = new Date(primerPartido.kickoff).getTime();
-            if (isNaN(tiempoDeKickoff)) return false;
-        
-            const limite = tiempoDeKickoff - (15 * 60 * 1000);
-            return new Date().getTime() >= limite;
+            // Comparamos la hora actual con el nuevo tiempo de cierre
+            return new Date().getTime() > tiempoDeCierre;
         }
 
         function updateProgress() {
@@ -849,9 +971,9 @@
             const navBtn = document.querySelector(`.bottom-nav .nav-item[onclick*="${id}"]`);
             if (navBtn) navBtn.classList.add('active');
 
-            if (id === 'screenPredictions') renderPredictions();
+            if (id === 'screenPredictions') { renderPredictions(); updateUIForLockState(); }
             if (id === 'screenTables') renderTables();
-            if (id === 'screenSpecial') populateSpecials();
+            if (id === 'screenSpecial') { populateSpecials(); updateUIForLockState(); }
             if (id === 'screenRanking') renderRanking();
             if (id === 'screenLogin') populateExistingUsers();
             if (id === 'screenAdmin' && STATE.adminConnected) { adminLoadResults(); loadApiKeyToInput(); }
@@ -860,6 +982,7 @@
             if (id === 'screenFaseFinal') {
                 if (!STATE.faseFinalEnabled) { goToScreen('screenMenu'); return; }
                 renderFaseFinal();
+                updateUIForLockState();
             }
 
             const ub = DOM.get('userBadge'); if (ub) ub.textContent = STATE.currentUser ? `👤 ${STATE.currentUser.nombre_apodo}` : '👤 Sin sesión';
@@ -908,7 +1031,7 @@
 
         function registerUser() {
             if (STATE.registrosLock) { alert('Los registros están cerrados. Ya no se puede crear nuevos usuarios.'); return; }
-            if (STATE.status === 'closed' && !STATE.adminConnected) { alert('La Polla Mundialista está cerrada.'); return; }
+            if (isQuinielaClosed() && !STATE.adminConnected) { alert('La Polla Mundialista está cerrada.'); return; }
             const nick = DOM.get('inputNickname').value.trim(); if (!nick) { alert('Ingresa un apodo familiar.'); return; }
             if (Object.values(STATE.users).some(u => u.nombre_apodo.toLowerCase() === nick.toLowerCase())) { alert('Este nombre ya existe.'); return; }
 
@@ -942,10 +1065,11 @@
             if (focused && focused.classList.contains('score-box') && container.contains(focused)) { updateProgress(); return; }
 
             let html = ''; const myPreds = STATE.predictions[STATE.myId] || {};
+            const closed = isQuinielaClosed(); // NUEVO: Verificar estado global
             ALL_MATCHES.forEach(m => {
                 const p = myPreds[m.id] || { gl: '', gv: '' };
-                const closed = isMatchClosed(m.id); const dis = closed ? 'disabled' : '';
-                const tag = closed ? '<span class="match-status locked">🔒 Cerrado</span>' : '<span class="match-status open">🟢 Abierto</span>';
+                const matchClosed = isMatchClosed(m.id); const dis = matchClosed ? 'disabled' : '';
+                const tag = matchClosed ? '<span class="match-status locked">🔒 Cerrado</span>' : '<span class="match-status open">🟢 Abierto</span>';
 
                 html += `
                 <div class="match-row">
@@ -965,8 +1089,12 @@
             if (screen) requestAnimationFrame(() => { screen.scrollTop = scrollBefore; });
         }
 
+        // NUEVO (CAMBIO 1): savePrediction con validación de bloqueo global
         function saveScoreCloud(mid, side, val) {
-            if (isMatchClosed(mid)) return;
+            if (isMatchClosed(mid)) {
+                triggerToast('🔒 La quiniela está cerrada');
+                return;
+            }
             if (val.length > 2) val = val.slice(0, 2);
             const v = val === '' ? '' : parseInt(val); if (v < 0) return;
             db.ref(`predictions/${STATE.myId}/${mid}/${side}`).set(v).then(() => {
@@ -984,15 +1112,36 @@
             const groupsBlock = DOM.get('tablesGroupsBlock'); const bracketBlock = DOM.get('tablesBracketBlock');
             if (groupsBlock) groupsBlock.style.display = isBracket ? 'none' : 'block';
             if (bracketBlock) bracketBlock.style.display = isBracket ? 'block' : 'none';
+            
+            // NUEVO (CAMBIO 4): Actualizar botones de fuente de tabla
+            DOM.get('tabSourceSimulated')?.classList.toggle('active', STATE.tableSource === 'simulated');
+            DOM.get('tabSourceReal')?.classList.toggle('active', STATE.tableSource === 'real');
+            
             const container = DOM.get('groupTabsContainer');
             if (container) container.innerHTML = Object.keys(GROUPS).map(g => `<button class="group-tab ${STATE.currentSelectedGroup === g ? 'active' : ''}" onclick="APP.setTableGroupActive('${g}')">Grupo ${g}</button>`).join('');
+            
+            // NUEVO (CAMBIO 4): Seleccionar la fuente de datos correcta
+            let sourceData;
+            if (STATE.tableSource === 'real') {
+                sourceData = STATE.officialResults || {};
+            } else {
+                sourceData = STATE.predictions[STATE.myId] || {};
+            }
+            
             const standings = DOM.get('liveGroupStandings');
-            if (standings) standings.innerHTML = buildGroupStandings(STATE.currentSelectedGroup, STATE.predictions[STATE.myId] || {});
+            if (standings) standings.innerHTML = buildGroupStandings(STATE.currentSelectedGroup, sourceData);
             if (isBracket) renderTablesBracket();
         }
         function setTableGroupActive(g) { STATE.currentSelectedGroup = g; STATE.currentTablesView = 'groups'; renderTables(); }
         function setTablesView(view) { STATE.currentTablesView = view === 'bracket' ? 'bracket' : 'groups'; renderTables(); }
+        
+        // NUEVO (CAMBIO 4): Función para cambiar la fuente de datos de la tabla
+        function setTableSource(source) {
+            STATE.tableSource = source;
+            renderTables();
+        }
 
+        // NUEVO (CAMBIO 5 Y 7): Función buildGroupStandings modificada con orden FIFA y colores de clasificación
         function buildGroupStandings(grupo, source) {
             const teams = GROUPS[grupo]; const matrix = {};
             teams.forEach(t => matrix[t] = { name: t, flag: FLAGS[t] || '🏳️', pj:0, pg:0, pe:0, pp:0, gf:0, gc:0, dg:0, pts:0 });
@@ -1002,42 +1151,95 @@
                 if (p && p.gl !== '' && p.gv !== '' && p.gl !== undefined && p.gv !== undefined && !isNaN(p.gl) && !isNaN(p.gv)) {
                     const gl = parseInt(p.gl); const gv = parseInt(p.gv);
                     const tl = matrix[m.local]; const tv = matrix[m.visitante];
-                    if (!tl || !tv) return; // seguridad: nombre de equipo no coincide con GROUPS
+                    if (!tl || !tv) return;
                     tl.pj++; tv.pj++; tl.gf += gl; tl.gc += gv; tv.gf += gv; tv.gc += gl;
                     if (gl > gv) { tl.pg++; tl.pts += 3; tv.pp++; } else if (gl < gv) { tv.pg++; tv.pts += 3; tl.pp++; } else { tl.pe++; tv.pe++; tl.pts++; tv.pts++; }
                 }
             });
 
             Object.values(matrix).forEach(t => t.dg = t.gf - t.gc);
+            // CAMBIO 6: Ordenamiento por PTS DESC, DG DESC, GF DESC
             const sorted = Object.values(matrix).sort((a,b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
 
+            // CAMBIO 5: Orden FIFA de columnas: Equipo | PTS | PJ | PG | PE | PP | GF | GC | DG
             let html = `<div class="standings-container"><table class="standings">
-                <tr><th style="text-align:left;">Selección</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th></tr>`;
-            sorted.forEach(t => {
-                html += `<tr>
+                <tr><th style="text-align:left;">Equipo</th><th>PTS</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th></tr>`;
+            sorted.forEach((t, index) => {
+                // CAMBIO 7: Colores de clasificación automáticos
+                let rowClass = '';
+                if (index === 0 || index === 1) {
+                    rowClass = 'row-qualified'; // 🟢 Clasificados directos
+                } else if (index === 2) {
+                    rowClass = 'row-best-third'; // 🟡 Mejor tercero
+                }
+                // index === 3 -> sin color (eliminado)
+                
+                html += `<tr class="${rowClass}">
                     <td class="st-team"><span class="flag">${t.flag}</span> <span>${t.name}</span></td>
-                    <td>${t.pj}</td><td>${t.pg}</td><td>${t.pe}</td><td>${t.pp}</td><td>${t.gf}</td><td>${t.gc}</td>
-                    <td style="color:${t.dg>0?'var(--green)':t.dg<0?'#EF4444':'inherit'}">${t.dg>0?'+'+t.dg:t.dg}</td>
                     <td style="color:var(--gold); font-weight:bold; font-size:0.9rem;">${t.pts}</td>
+                    <td>${t.pj}</td><td>${t.pg}</td><td>${t.pe}</td><td>${t.pp}</td>
+                    <td>${t.gf}</td><td>${t.gc}</td>
+                    <td style="color:${t.dg>0?'var(--green)':t.dg<0?'#EF4444':'inherit'}">${t.dg>0?'+'+t.dg:t.dg}</td>
                 </tr>`;
             });
             return html + '</table></div>';
         }
 
+        // CAMBIO 2: Ranking completo mostrando TODOS los usuarios con medallas y destacando al actual
         function renderRanking() {
             const sorted = Object.values(STATE.users).sort((a,b) => b.total_puntos - a.total_puntos || b.exacts - a.exacts);
-            let html = '<table class="ranking-table"><tr><th>Pos</th><th style="text-align:left;">Jugador</th><th>Pts</th><th>🎯 Exactos</th></tr>';
+            let html = '<table class="ranking-table"><tr><th>Pos</th><th style="text-align:left;">Jugador</th><th>Pts</th><th>🎯</th></tr>';
             sorted.forEach((u, i) => {
-                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}°`;
+                let posDisplay;
+                if (i === 0) posDisplay = '🥇';
+                else if (i === 1) posDisplay = '🥈';
+                else if (i === 2) posDisplay = '🥉';
+                else posDisplay = `${i+1}°`; // Desde el cuarto lugar mostrar número normal
+                
                 const activeHighlight = u.id === STATE.myId ? 'highlight' : '';
                 html += `<tr class="${activeHighlight}">
-                    <td style="font-size:1.1rem;">${medal}</td>
+                    <td style="font-size:1.1rem;">${posDisplay}</td>
                     <td style="text-align:left; color:${u.id===STATE.myId?'var(--green)':'var(--text-main)'}; font-weight:700;">${u.nombre_apodo} ${u.id===STATE.myId?'(Tú)':''}</td>
                     <td style="font-weight:bold; color:var(--gold); font-size:1rem;">${u.total_puntos || 0}</td>
                     <td style="color:var(--text-muted);">${u.exacts || 0}</td>
                 </tr>`;
             });
             DOM.get('rankingContent').innerHTML = html + '</table>';
+        }
+
+        // CAMBIO 3: Modal de reglas del ranking
+        function showRankingRulesModal() {
+            const container = DOM.get('dynamicModalContainer');
+            if (!container) return;
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-card">
+                    <h3>📜 ¿Cómo se ganan los puntos?</h3>
+                    <ul>
+                        <li><span>🎯 Marcador exacto</span><span class="pts">3 pts</span></li>
+                        <li><span>✅ Ganador correcto</span><span class="pts">1 pt</span></li>
+                        <li><span>🥇 Primero de grupo</span><span class="pts">2 pts</span></li>
+                        <li><span>🥈 Segundo de grupo</span><span class="pts">2 pts</span></li>
+                        <li><span>🥉 Mejor tercero</span><span class="pts">1 pt</span></li>
+                        <li><span>🔥 Pronósticos Fase Final</span><span class="pts">según reglas actuales</span></li>
+                        <li><span>🌟 Revelación</span><span class="pts">5 pts</span></li>
+                        <li><span>😱 Decepción</span><span class="pts">5 pts</span></li>
+                        <li><span>🇪🇨 Ecuador</span><span class="pts">10 pts</span></li>
+                        <li><span>👑 Campeón</span><span class="pts">10 pts</span></li>
+                        <li><span>⚽ Goleador</span><span class="pts">10 pts</span></li>
+                    </ul>
+                    <button class="modal-close-btn" onclick="this.closest('.modal-overlay').remove()">Entendido 👍</button>
+                </div>
+            `;
+            
+            // Cerrar al hacer clic fuera del modal
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.remove();
+            });
+            
+            container.appendChild(overlay);
         }
 
         function calculatePointsEngine() {
@@ -1078,7 +1280,7 @@
                 const res = resultsMap[m.id];
                 if (res && res.gl !== undefined && res.gv !== undefined && res.gl !== null && res.gv !== null && !isNaN(res.gl) && !isNaN(res.gv)) {
                     const gl = parseInt(res.gl), gv = parseInt(res.gv); const tl = standings[m.local], tv = standings[m.visitante];
-                    if (!tl || !tv) return; // seguridad: nombre de equipo no coincide con GROUPS
+                    if (!tl || !tv) return;
                     tl.pj++; tv.pj++; tl.gf += gl; tl.gc += gv; tv.gf += gv; tv.gc += gl;
                     if (gl > gv) { tl.pg++; tl.pts += 3; tv.pp++; } else if (gl < gv) { tv.pg++; tv.pts += 3; tl.pp++; } else { tl.pe++; tv.pe++; tl.pts++; tv.pts++; }
                 }
@@ -1121,10 +1323,17 @@
         }
 
         function getUserGeneratedKnockoutMatches() {
-            const userResults = {}; const userPreds = STATE.predictions[STATE.myId] || {};
-            ALL_MATCHES.forEach(m => {
-                const p = userPreds[m.id]; if (p && p.gl !== '' && p.gv !== '' && !isNaN(p.gl) && !isNaN(p.gv)) userResults[m.id] = { gl: parseInt(p.gl), gv: parseInt(p.gv) };
-            });
+            // NUEVO (CAMBIO 4): Usar la fuente de datos seleccionada para el bracket
+            let userResults = {};
+            if (STATE.tableSource === 'real') {
+                userResults = STATE.officialResults || {};
+            } else {
+                const userPreds = STATE.predictions[STATE.myId] || {};
+                ALL_MATCHES.forEach(m => {
+                    const p = userPreds[m.id];
+                    if (p && p.gl !== '' && p.gv !== '' && !isNaN(p.gl) && !isNaN(p.gv)) userResults[m.id] = { gl: parseInt(p.gl), gv: parseInt(p.gv) };
+                });
+            }
             const grouped = computeStandingsFromResults(userResults); const best3 = computeBestThirds(grouped);
             return { grouped, best3, matches: buildKnockoutFromStandings(grouped, best3) };
         }
@@ -1191,8 +1400,9 @@
                                                <div class="match-meta"><span>Partido 103</span></div>`;
                         
                         const lName = resolvedNames[103].local; const vName = resolvedNames[103].visitor;
-                        const lDis = !interactive || lName.startsWith('Ganador') || lName.startsWith('Mejor') || lName.startsWith('Perdedor') || lName.startsWith('Por definir') || (STATE.status === 'closed' && !STATE.adminConnected);
-                        const vDis = !interactive || vName.startsWith('Ganador') || vName.startsWith('Mejor') || vName.startsWith('Perdedor') || vName.startsWith('Por definir') || (STATE.status === 'closed' && !STATE.adminConnected);
+                        const closed = isQuinielaClosed(); // NUEVO (CAMBIO 1)
+                        const lDis = !interactive || lName.startsWith('Ganador') || lName.startsWith('Mejor') || lName.startsWith('Perdedor') || lName.startsWith('Por definir') || (closed && !STATE.adminConnected);
+                        const vDis = !interactive || vName.startsWith('Ganador') || vName.startsWith('Mejor') || vName.startsWith('Perdedor') || vName.startsWith('Por definir') || (closed && !STATE.adminConnected);
                         
                         thirdCard.appendChild(createKoButton(103, lName, myKo[103] === lName, lDis));
                         thirdCard.appendChild(createKoButton(103, vName, myKo[103] === vName, vDis));
@@ -1218,8 +1428,9 @@
             const meta = document.createElement('div'); meta.className = 'match-meta'; meta.innerHTML = `<span>Partido ${m.id}</span>`; card.appendChild(meta);
             
             const lName = resolvedNames.local; const vName = resolvedNames.visitor;
-            const lDis = !interactive || lName.startsWith('Ganador') || lName.startsWith('Mejor') || lName.startsWith('Perdedor') || lName.startsWith('Por definir') || (STATE.status === 'closed' && !STATE.adminConnected);
-            const vDis = !interactive || vName.startsWith('Ganador') || vName.startsWith('Mejor') || vName.startsWith('Perdedor') || vName.startsWith('Por definir') || (STATE.status === 'closed' && !STATE.adminConnected);
+            const closed = isQuinielaClosed(); // NUEVO (CAMBIO 1)
+            const lDis = !interactive || lName.startsWith('Ganador') || lName.startsWith('Mejor') || lName.startsWith('Perdedor') || lName.startsWith('Por definir') || (closed && !STATE.adminConnected);
+            const vDis = !interactive || vName.startsWith('Ganador') || vName.startsWith('Mejor') || vName.startsWith('Perdedor') || vName.startsWith('Por definir') || (closed && !STATE.adminConnected);
             
             card.appendChild(createKoButton(m.id, lName, myKo[m.id] === lName, lDis));
             card.appendChild(createKoButton(m.id, vName, myKo[m.id] === vName, vDis));
@@ -1269,13 +1480,18 @@
             btn.dataset.matchId = matchId; btn.dataset.team = teamName;
             
             const isPlaceholder = teamName.startsWith('Ganador') || teamName.startsWith('Perdedor') || teamName.startsWith('Por definir') || teamName.startsWith('Mejor');
-            const flagIcon = isPlaceholder ? '🏴\u200D☠️' : (FLAGS[teamName] || '🏳️');
+            const flagIcon = isPlaceholder ? '🏴‍☠️' : (FLAGS[teamName] || '🏳️');
             
             btn.innerHTML = `<span class="team-left"><span class="flag">${flagIcon}</span><span class="team-name">${teamName}</span></span><span class="ko-icon">✅</span>`;
             return btn;
         }
 
+        // NUEVO (CAMBIO 1): saveKo con validación de bloqueo global
         async function saveKo(mid, team) {
+            if (isQuinielaClosed()) {
+                triggerToast('🔒 La quiniela está cerrada');
+                return;
+            }
             if (!STATE.myId) { triggerToast('Inicia sesión'); return; }
             try {
                 if (!STATE.knockoutPreds[STATE.myId]) STATE.knockoutPreds[STATE.myId] = {};
@@ -1325,7 +1541,12 @@
             document.body.appendChild(modal);
         }
 
+        // NUEVO (CAMBIO 1): saveAllKoDrafts con validación de bloqueo global
         function saveAllKoDrafts() {
+            if (isQuinielaClosed()) {
+                triggerToast('🔒 La quiniela está cerrada');
+                return;
+            }
             const root = DOM.get('bracketRoot'); if (!root) return;
             const toSave = {};
             root.querySelectorAll('.ko-team-btn.selected').forEach(b => {
@@ -1423,7 +1644,6 @@
                 await db.ref(`predictions/${uid}`).remove();
                 await db.ref(`specials/${uid}`).remove();
                 await db.ref(`knockout_preds/${uid}`).remove();
-                // Actualizar STATE local inmediatamente sin esperar Firebase
                 delete STATE.users[uid];
                 delete STATE.predictions[uid];
                 delete STATE.specials[uid];
@@ -1443,7 +1663,6 @@
                 await db.ref(`knockout_preds/${uid}`).remove();
                 await db.ref(`users/${uid}/total_puntos`).set(0);
                 await db.ref(`users/${uid}/exacts`).set(0);
-                // Actualizar STATE local inmediatamente
                 delete STATE.predictions[uid];
                 delete STATE.specials[uid];
                 delete STATE.knockoutPreds[uid];
@@ -1469,24 +1688,12 @@
             const mySpec = STATE.specials[STATE.myId] || {};
             const flagOpts = ALL_TEAMS.map(t => `<option value="${t}">${(FLAGS[t] || '🏳️')} ${t}</option>`).join('');
             const base = '<option value="">Selecciona selección...</option>' + flagOpts;
-            
             const elRev = DOM.get('selRevelacion'); const elDec = DOM.get('selDecepcion'); const elCam = DOM.get('selCampeon');
-            const elGol = DOM.get('txtGoleador'); const elEcu = DOM.get('selEcuadorPos');
-        
-            const isClosed = areSpecialsClosed();
-        
-            if (elRev) { elRev.innerHTML = base; elRev.value = mySpec.seleccion_revelacion || ''; elRev.disabled = isClosed; }
-            if (elDec) { elDec.innerHTML = base; elDec.value = mySpec.seleccion_decepcion || ''; elDec.disabled = isClosed; }
-            if (elCam) { elCam.innerHTML = base; elCam.value = mySpec.campeon_mundial || ''; elCam.disabled = isClosed; }
-            if (elGol) { elGol.value = mySpec.goleador_mundial || ''; elGol.disabled = isClosed; }
-            if (elEcu) { elEcu.value = mySpec.posicion_ecuador || ''; elEcu.disabled = isClosed; }
-            
-            [elRev, elDec, elCam, elGol, elEcu].forEach(el => {
-                if (el) {
-                    el.style.opacity = isClosed ? "0.5" : "1";
-                    el.style.cursor = isClosed ? "not-allowed" : "pointer";
-                }
-            });
+            if (elRev) { elRev.innerHTML = base; elRev.value = mySpec.seleccion_revelacion || ''; }
+            if (elDec) { elDec.innerHTML = base; elDec.value = mySpec.seleccion_decepcion || ''; }
+            if (elCam) { elCam.innerHTML = base; elCam.value = mySpec.campeon_mundial || ''; }
+            const elGol = DOM.get('txtGoleador'); if (elGol) elGol.value = mySpec.goleador_mundial || '';
+            const elEcu = DOM.get('selEcuadorPos'); if (elEcu) elEcu.value = mySpec.posicion_ecuador || '';
         }
 
         function populateAdminSpecialsOptions() {
@@ -1627,25 +1834,47 @@
             else { clearInterval(autoSyncInterval); autoSyncInterval = null; setSyncStatus('Auto-sync desactivado', 'var(--text-muted)'); }
         }
 
+        // ==================== API PÚBLICA (APP) ====================
         window.APP = {
             goToScreen, registerUser, loginExistingUser, logout, saveScoreCloud, setTableGroupActive,
+            // NUEVO (CAMBIO 1): saveSpecial con validación de bloqueo global
             saveSpecial: function(field, val) {
-                if (areSpecialsClosed()) {
-                    triggerToast('⚠️ Los comodines ya están cerrados');
-                    populateSpecials(); 
+                if (isQuinielaClosed()) {
+                    triggerToast('🔒 La quiniela está cerrada');
+                    // Revertir el valor del select/input al valor guardado previamente
+                    populateSpecials();
                     return;
                 }
-                if (STATE.status === 'closed') return;
                 db.ref(`specials/${STATE.myId}/${field}`).set(val).then(() => triggerToast('✅ Guardado')).catch(err => { console.error(err); triggerToast('❌ Error'); });
             },
             saveKo, saveAllKoDrafts, setTablesView,
+            // NUEVO (CAMBIO 4): Selector de fuente de tabla
+            setTableSource: setTableSource,
+            // NUEVO (CAMBIO 3): Modal de reglas del ranking
+            showRankingRulesModal: showRankingRulesModal,
             adminLogin: function() {
                 if (DOM.get('adminPassword').value === 'admin2026') {
                     STATE.adminConnected = true; sessionStorage.setItem('p26adm','1');
                     DOM.get('adminLoginForm').style.display = 'none'; DOM.get('adminPanel').style.display = 'block'; adminLoadResults();
                 } else alert('PIN de seguridad inválido.');
             },
-            adminSetStatus: function(st) { db.ref('status').set(st).then(() => triggerToast('Status actualizado')); },
+            // NUEVO (CAMBIO 1): adminSetStatus actualizado para guardar también en settings
+            adminSetStatus: function(st) {
+                const promises = [];
+                promises.push(db.ref('status').set(st));
+                // Si cierra, también bloquear en settings
+                if (st === 'closed') {
+                    promises.push(db.ref('settings/predictionsLocked').set(true));
+                    STATE.settings.predictionsLocked = true;
+                } else {
+                    promises.push(db.ref('settings/predictionsLocked').set(false));
+                    STATE.settings.predictionsLocked = false;
+                }
+                Promise.all(promises).then(() => {
+                    triggerToast('Status actualizado');
+                    updateUIForLockState();
+                });
+            },
             adminResetMundial: function() {
                 if (confirm('🚨 ATENCIÓN: Se de-vincularán los resultados familiares ingresados.')) {
                     db.ref('official_results').remove(); db.ref('official_specials').remove(); db.ref('official_knockout').remove(); db.ref('official_knockout_matches').remove(); triggerToast('Reiniciado');
@@ -1667,12 +1896,12 @@
             adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials, toggleFaseFinal, toggleGruposLock, toggleRegistros,
             adminDeleteUser, adminResetUser, saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch, saveApiKey, syncFromAPI, toggleAutoSync,
             
+            // NUEVO (CAMBIO 1): saveAndGoFaseFinal (antes saveAndGoMenu) con validación de bloqueo
             saveAndGoFaseFinal: function() {
-                if (areSpecialsClosed()) {
-                    goToScreen(STATE.faseFinalEnabled ? 'screenFaseFinal' : 'screenMenu'); 
+                if (isQuinielaClosed()) {
+                    triggerToast('🔒 La quiniela está cerrada');
                     return;
                 }
-
                 const fields = [
                     { id: 'selRevelacion', key: 'seleccion_revelacion' }, { id: 'selDecepcion', key: 'seleccion_decepcion' },
                     { id: 'selEcuadorPos', key: 'posicion_ecuador' }, { id: 'selCampeon', key: 'campeon_mundial' }, { id: 'txtGoleador', key: 'goleador_mundial' },
@@ -1710,6 +1939,8 @@
             const btnCrear = DOM.get('btnCrearUsuario'); if (btnCrear) btnCrear.style.display = STATE.registrosLock ? 'none' : '';
             applyFaseFinalVisibility();
             if (STATE.adminConnected) renderAdminUsers();
+            // NUEVO (CAMBIO 1): Actualizar UI de bloqueo
+            updateUIForLockState();
         }
 
         if (STATE.myId) goToScreen('screenMenu'); else goToScreen('screenWelcome');
