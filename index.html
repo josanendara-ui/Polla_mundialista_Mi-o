@@ -430,21 +430,6 @@
                         <button class="btn secondary" onclick="APP.loadOfficialSpecials()">Cargar desde Nube</button>
                     </div>
                 </div>
-                <h4 style="font-size:0.95rem; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; font-weight:800;">🔌 Sincronización Automática</h4>
-                <div class="card" style="margin-bottom:12px;">
-                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Conecta con <strong style="color:var(--gold);">football-data.org</strong> para cargar resultados automáticamente. <a href="https://www.football-data.org/client/register" target="_blank" style="color:var(--green);">Regístrate gratis aquí</a> y pega tu API Key.</p>
-                    <label class="small">API Key (football-data.org)</label>
-                    <input id="fdApiKey" class="input-field" placeholder="Pega tu API Key aquí" type="password" style="margin-bottom:8px;">
-                    <div style="display:flex; gap:8px;">
-                        <button class="btn secondary" style="flex:1;" onclick="APP.saveApiKey()">💾 Guardar Key</button>
-                        <button class="btn gold" style="flex:1;" onclick="APP.syncFromAPI()">🔄 Sincronizar Ahora</button>
-                    </div>
-                    <div id="syncStatus" style="margin-top:10px; font-size:0.82rem; color:var(--text-muted); text-align:center; min-height:18px;"></div>
-                    <div style="display:flex; align-items:center; gap:10px; margin-top:10px; padding-top:10px; border-top:1px solid var(--border);">
-                        <input type="checkbox" id="autoSyncToggle" onchange="APP.toggleAutoSync(this.checked)" style="width:18px; height:18px; accent-color:var(--green); cursor:pointer;">
-                        <span class="small">Auto-sincronizar cada 5 minutos</span>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="bottom-nav">
@@ -530,31 +515,6 @@
             'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Croacia': '🇭🇷', 'Ghana': '🇬🇭', 'Panamá': '🇵🇦'
         };
         const ALL_TEAMS = Object.values(GROUPS).flat();
-        const API_TO_SPANISH = {
-            'Mexico': 'México', 'South Africa': 'Sudáfrica', 'Korea Republic': 'Corea del Sur',
-            'Czechia': 'Chequia', 'Czech Republic': 'Chequia', 'Canada': 'Canadá',
-            'Bosnia and Herzegovina': 'Bosnia y Herzegovina', 'Qatar': 'Catar', 'Switzerland': 'Suiza',
-            'Brazil': 'Brasil', 'Morocco': 'Marruecos', 'Haiti': 'Haití', 'Scotland': 'Escocia',
-            'United States': 'Estados Unidos', 'USA': 'Estados Unidos', 'Paraguay': 'Paraguay',
-            'Australia': 'Australia', 'Türkiye': 'Turquía', 'Turkey': 'Turquía',
-            'Germany': 'Alemania', 'Curaçao': 'Curazao', 'Curacao': 'Curazao',
-            "Côte d'Ivoire": 'Costa de Marfil', 'Ivory Coast': 'Costa de Marfil', 'Ecuador': 'Ecuador',
-            'Netherlands': 'Países Bajos', 'Japan': 'Japón', 'Sweden': 'Suecia', 'Tunisia': 'Túnez',
-            'Belgium': 'Bélgica', 'Egypt': 'Egipto', 'Iran': 'Irán', 'New Zealand': 'Nueva Zelanda',
-            'Spain': 'España', 'Cape Verde': 'Cabo Verde', 'Saudi Arabia': 'Arabia Saudita',
-            'Uruguay': 'Uruguay', 'France': 'Francia', 'Senegal': 'Senegal', 'Iraq': 'Irak',
-            'Norway': 'Noruega', 'Argentina': 'Argentina', 'Algeria': 'Argelia', 'Austria': 'Austria',
-            'Jordan': 'Jordania', 'Portugal': 'Portugal',
-            'DR Congo': 'República Democrática del Congo', 'Congo DR': 'República Democrática del Congo',
-            'Democratic Republic of the Congo': 'República Democrática del Congo',
-            'Uzbekistan': 'Uzbekistán', 'Colombia': 'Colombia', 'England': 'Inglaterra',
-            'Croatia': 'Croacia', 'Ghana': 'Ghana', 'Panama': 'Panamá'
-        };
-        const API_STAGE_TO_ROUND = {
-            'ROUND_OF_32': 'dieciseisavos', 'LAST_32': 'dieciseisavos',
-            'ROUND_OF_16': 'octavos', 'LAST_16': 'octavos',
-            'QUARTER_FINALS': 'cuartos', 'SEMI_FINALS': 'semis',
-            'THIRD_PLACE': 'tercero', 'FINAL': 'final'
         };
         const ALL_MATCHES = [
             { id: 1, grupo: "A", local: "México", visitante: "Sudáfrica", kickoff: "2026-06-11T15:00:00-04:00", fechaStr: "Jue 11 Jun 15:00" },
@@ -970,7 +930,7 @@
             if (id === 'screenSpecial') { populateSpecials(); updateUIForLockState(); }
             if (id === 'screenRanking') renderRanking();
             if (id === 'screenLogin') populateExistingUsers();
-            if (id === 'screenAdmin' && STATE.adminConnected) { adminLoadResults(); loadApiKeyToInput(); }
+            if (id === 'screenAdmin' && STATE.adminConnected) { adminLoadResults(); }
             if (id === 'screenFaseFinal') {
                 if (!STATE.faseFinalEnabled) { goToScreen('screenMenu'); return; }
                 renderFaseFinal();
@@ -1662,42 +1622,6 @@
             const snap = await db.ref('official_specials').get(); const data = snap.val() || {};
             if (data) { STATE.officialSpecials = data; populateAdminSpecialsOptions(); triggerToast('Especiales cargados'); }
         }
-
-        let autoSyncInterval = null;
-        function setSyncStatus(msg, color) { const el = document.getElementById('syncStatus'); if (el) { el.textContent = msg; el.style.color = color || 'var(--text-muted)'; } }
-        function saveApiKey() {
-            const val = document.getElementById('fdApiKey')?.value.trim(); if (!val) { triggerToast('⚠️ Ingresa una API Key'); return; }
-            localStorage.setItem('fd_api_key', val); triggerToast('✅ API Key guardada'); setSyncStatus('Key guardada. Listo para sincronizar.', 'var(--green)');
-        }
-        function loadApiKeyToInput() {
-            const saved = localStorage.getItem('fd_api_key'); const el = document.getElementById('fdApiKey'); if (el && saved) el.value = saved;
-            const lastSync = localStorage.getItem('fd_last_sync'); if (lastSync) setSyncStatus('Última sincronización: ' + lastSync, 'var(--text-muted)');
-        }
-        function toSpanish(name) { return API_TO_SPANISH[name] || name; }
-        async function syncFromAPI() {
-            const apiKey = localStorage.getItem('fd_api_key'); if (!apiKey) { triggerToast('⚠️ Guarda tu API Key primero'); return; }
-            setSyncStatus('🔄 Conectando con football-data.org...', 'var(--gold)');
-            try {
-                const resp = await fetch('https://api.football-data.org/v4/competitions/WC/matches?status=FINISHED', { headers: { 'X-Auth-Token': apiKey } });
-                if (resp.status === 400) return syncFromAPIAll(apiKey);
-                if (!resp.ok) { const err = await resp.json().catch(() => ({})); setSyncStatus('❌ Error ' + resp.status + ': ' + (err.message || 'revisa tu API Key'), 'var(--error)'); return; }
-                const data = await resp.json(); const groupUpdates = {}; const koWinnerUpdates = {}; let groupCount = 0; let koCount = 0;
-                data.matches.forEach(apiM => {
-                    const home = toSpanish(apiM.homeTeam.name); const away = toSpanish(apiM.awayTeam.name); const fts = apiM.score?.fullTime;
-                    if (!fts || fts.home === null || fts.away === null) return;
-                    const stage = apiM.stage || ''; const isGroup = stage === 'GROUP_STAGE' || stage === 'GROUPS';
-                    if (isGroup) {
-                        const ourMatch = ALL_MATCHES.find(m => (m.local === home && m.visitante === away) || (m.local === away && m.visitante === home));
-                        if (ourMatch) { const reversed = ourMatch.local === away; groupUpdates[ourMatch.id] = { gl: reversed ? fts.away : fts.home, gv: reversed ? fts.home : fts.away }; groupCount++; }
-                    } else {
-                        const round = API_STAGE_TO_ROUND[stage]; if (!round) return;
-                        const winner = apiM.score?.winner === 'HOME_TEAM' ? home : away;
-                        Object.entries(STATE.officialKnockoutMatches || {}).forEach(([mid, mdata]) => {
-                            const mLocal = toSpanish(mdata.local); const mVisitor = toSpanish(mdata.visitor);
-                            if ((mLocal === home && mVisitor === away) || (mLocal === away && mVisitor === home)) { koWinnerUpdates[mid] = winner; koCount++; }
-                        });
-                    }
-                });
                 const promises = [];
                 if (groupCount > 0) promises.push(db.ref('official_results').update(groupUpdates));
                 if (koCount > 0) promises.push(db.ref('official_knockout').update(koWinnerUpdates));
@@ -1705,32 +1629,6 @@
                 if (groupCount > 0) generateOfficialBracketAndSave();
                 const now = new Date().toLocaleString('es-EC', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short' }); localStorage.setItem('fd_last_sync', now);
                 const total = groupCount + koCount;
-                if (total > 0) { setSyncStatus(`✅ ${groupCount} grupos + ${koCount} eliminatorios sincronizados · ${now}`, 'var(--green)'); triggerToast(`✅ ${total} resultados actualizados`); }
-                else { setSyncStatus(`ℹ️ Sin resultados nuevos · ${now}`, 'var(--text-muted)'); triggerToast('ℹ️ Sin resultados nuevos todavía'); }
-            } catch (err) { console.error('API sync error:', err); setSyncStatus('❌ Error de conexión.', 'var(--error)'); triggerToast('❌ Error al conectar con la API'); }
-        }
-        async function syncFromAPIAll(apiKey) {
-            setSyncStatus('🔄 Obteniendo calendario completo...', 'var(--gold)');
-            try {
-                const resp = await fetch('https://api.football-data.org/v4/competitions/WC/matches', { headers: { 'X-Auth-Token': apiKey } });
-                if (!resp.ok) { const err = await resp.json().catch(() => ({})); setSyncStatus('❌ ' + (err.message || 'API Key inválida'), 'var(--error)'); return; }
-                const data = await resp.json(); const finishedMatches = (data.matches || []).filter(m => m.status === 'FINISHED');
-                if (finishedMatches.length === 0) { setSyncStatus('ℹ️ Aún no hay partidos finalizados en la API', 'var(--text-muted)'); triggerToast('ℹ️ El torneo aún no ha comenzado'); return; }
-                const groupUpdates = {}; let groupCount = 0;
-                finishedMatches.forEach(apiM => {
-                    const home = toSpanish(apiM.homeTeam.name); const away = toSpanish(apiM.awayTeam.name); const fts = apiM.score?.fullTime;
-                    if (!fts || fts.home === null || fts.away === null) return;
-                    const ourMatch = ALL_MATCHES.find(m => (m.local === home && m.visitante === away) || (m.local === away && m.visitante === home));
-                    if (ourMatch) { const reversed = ourMatch.local === away; groupUpdates[ourMatch.id] = { gl: reversed ? fts.away : fts.home, gv: reversed ? fts.home : fts.away }; groupCount++; }
-                });
-                if (groupCount > 0) { await db.ref('official_results').update(groupUpdates); generateOfficialBracketAndSave(); }
-                const now = new Date().toLocaleString('es-EC', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short' }); localStorage.setItem('fd_last_sync', now);
-                setSyncStatus(`✅ ${groupCount} partidos sincronizados · ${now}`, groupCount > 0 ? 'var(--green)' : 'var(--text-muted)'); triggerToast(groupCount > 0 ? `✅ ${groupCount} resultados actualizados` : 'ℹ️ Sin resultados nuevos');
-            } catch (err) { console.error(err); setSyncStatus('❌ Error de conexión', 'var(--error)'); }
-        }
-        function toggleAutoSync(enabled) {
-            if (enabled) { syncFromAPI(); autoSyncInterval = setInterval(syncFromAPI, 5 * 60 * 1000); setSyncStatus('🟢 Auto-sync activo (cada 5 min)', 'var(--green)'); }
-            else { clearInterval(autoSyncInterval); autoSyncInterval = null; setSyncStatus('Auto-sync desactivado', 'var(--text-muted)'); }
         }
 
         // ==================== API PÚBLICA (APP) ====================
@@ -1781,7 +1679,7 @@
             },
             adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials,
             toggleFaseFinal, toggleGruposLock, toggleRegistros, adminDeleteUser, adminResetUser,
-            saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch, saveApiKey, syncFromAPI, toggleAutoSync,
+            saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch,
             saveAndGoFaseFinal: function() {
                 if (isQuinielaClosed()) { triggerToast('🔒 La quiniela está cerrada'); return; }
                 const fields = [
