@@ -1460,14 +1460,25 @@
             const mySpec = STATE.specials[STATE.myId] || {};
             const flagOpts = ALL_TEAMS.map(t => `<option value="${t}">${(FLAGS[t] || '🏳️')} ${t}</option>`).join('');
             const base = '<option value="">Selecciona selección...</option>' + flagOpts;
+            
             const elRev = DOM.get('selRevelacion'); const elDec = DOM.get('selDecepcion'); const elCam = DOM.get('selCampeon');
-            if (elRev) { elRev.innerHTML = base; elRev.value = mySpec.seleccion_revelacion || ''; }
-            if (elDec) { elDec.innerHTML = base; elDec.value = mySpec.seleccion_decepcion || ''; }
-            if (elCam) { elCam.innerHTML = base; elCam.value = mySpec.campeon_mundial || ''; }
-            const elGol = DOM.get('txtGoleador'); if (elGol) elGol.value = mySpec.goleador_mundial || '';
-            const elEcu = DOM.get('selEcuadorPos'); if (elEcu) elEcu.value = mySpec.posicion_ecuador || '';
+            const elGol = DOM.get('txtGoleador'); const elEcu = DOM.get('selEcuadorPos');
+        
+            const isClosed = areSpecialsClosed();
+        
+            if (elRev) { elRev.innerHTML = base; elRev.value = mySpec.seleccion_revelacion || ''; elRev.disabled = isClosed; }
+            if (elDec) { elDec.innerHTML = base; elDec.value = mySpec.seleccion_decepcion || ''; elDec.disabled = isClosed; }
+            if (elCam) { elCam.innerHTML = base; elCam.value = mySpec.campeon_mundial || ''; elCam.disabled = isClosed; }
+            if (elGol) { elGol.value = mySpec.goleador_mundial || ''; elGol.disabled = isClosed; }
+            if (elEcu) { elEcu.value = mySpec.posicion_ecuador || ''; elEcu.disabled = isClosed; }
+            
+            [elRev, elDec, elCam, elGol, elEcu].forEach(el => {
+                if (el) {
+                    el.style.opacity = isClosed ? "0.5" : "1";
+                    el.style.cursor = isClosed ? "not-allowed" : "pointer";
+                }
+            });
         }
-
         function populateAdminSpecialsOptions() {
             const selOpts = ALL_TEAMS.map(t => `<option value="${t}">${(FLAGS[t] || '🏳️')} ${t}</option>`).join('');
             const elRev = DOM.get('officialRevelacion'); if (elRev) elRev.innerHTML = '<option value="">--</option>' + selOpts;
@@ -1610,8 +1621,13 @@
         window.APP = {
             goToScreen, registerUser, loginExistingUser, logout, saveScoreCloud, setTableGroupActive,
             saveSpecial: function(field, val) {
-                if (STATE.status === 'closed') return;
-                db.ref(`specials/${STATE.myId}/${field}`).set(val).then(() => triggerToast('✅ Guardado')).catch(err => { console.error(err); triggerToast('❌ Error'); });
+            if (areSpecialsClosed()) {
+                triggerToast('⚠️ Los comodines ya están cerrados');
+                populateSpecials(); 
+                return;
+            }
+            if (STATE.status === 'closed') return;
+            db.ref(`specials/${STATE.myId}/${field}`).set(val).then(() => triggerToast('✅ Guardado')).catch(err => { console.error(err); triggerToast('❌ Error'); });
             },
             saveKo, saveAllKoDrafts, setTablesView,
             adminLogin: function() {
@@ -1644,19 +1660,23 @@
             
             // Función nueva de navegación desde Especiales a Fase Final
             saveAndGoFaseFinal: function() {
-                const fields = [
-                    { id: 'selRevelacion', key: 'seleccion_revelacion' }, { id: 'selDecepcion', key: 'seleccion_decepcion' },
-                    { id: 'selEcuadorPos', key: 'posicion_ecuador' }, { id: 'selCampeon', key: 'campeon_mundial' }, { id: 'txtGoleador', key: 'goleador_mundial' },
-                ];
-                const promises = fields.map(f => {
-                    const el = DOM.get(f.id); if (!el || !el.value.trim()) return Promise.resolve();
-                    return db.ref(`specials/${STATE.myId}/${f.key}`).set(el.value.trim());
-                });
-                Promise.all(promises).then(() => { 
-                    triggerToast('Comodines guardados'); 
-                    goToScreen(STATE.faseFinalEnabled ? 'screenFaseFinal' : 'screenMenu'); 
-                }).catch(err => { console.error(err); triggerToast('❌ Error'); });
+            if (areSpecialsClosed()) {
+                goToScreen(STATE.faseFinalEnabled ? 'screenFaseFinal' : 'screenMenu'); 
+                return;
             }
+
+            const fields = [
+                { id: 'selRevelacion', key: 'seleccion_revelacion' }, { id: 'selDecepcion', key: 'seleccion_decepcion' },
+                { id: 'selEcuadorPos', key: 'posicion_ecuador' }, { id: 'selCampeon', key: 'campeon_mundial' }, { id: 'txtGoleador', key: 'goleador_mundial' },
+            ];
+            const promises = fields.map(f => {
+                const el = DOM.get(f.id); if (!el || !el.value.trim()) return Promise.resolve();
+                return db.ref(`specials/${STATE.myId}/${f.key}`).set(el.value.trim());
+            });
+            Promise.all(promises).then(() => { 
+                triggerToast('Comodines guardados'); 
+                goToScreen(STATE.faseFinalEnabled ? 'screenFaseFinal' : 'screenMenu'); 
+            }).catch(err => { console.error(err); triggerToast('❌ Error'); });
         };
 
         window.APP.setTableGroupActive = setTableGroupActive;
