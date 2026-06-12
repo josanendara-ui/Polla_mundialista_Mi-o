@@ -799,9 +799,16 @@
         function isMatchClosed(matchId) {
             if (STATE.adminConnected) return false; 
             if (STATE.status === 'closed') return true;
-            if (STATE.gruposLock && matchId <= 72) return true; // bloqueo manual de pronósticos fase de grupos
+            if (STATE.gruposLock && matchId <= 72) return true; // bloqueo manual
+            
             const match = ALL_MATCHES.find(m => m.id === matchId);
-            return match && new Date() > new Date(match.kickoff);
+            if (!match) return false;
+        
+            // Restamos 15 minutos (15 mins * 60 segs * 1000 milisegundos) a la hora del partido
+            const tiempoDeCierre = new Date(match.kickoff).getTime() - (15 * 60 * 1000);
+        
+            // Comparamos la hora actual con el nuevo tiempo de cierre
+            return new Date().getTime() > tiempoDeCierre;
         }
 
         function updateProgress() {
