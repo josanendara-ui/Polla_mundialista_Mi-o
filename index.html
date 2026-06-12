@@ -915,21 +915,32 @@
         // NUEVO (CAMBIO 1): Función para actualizar el estado de bloqueo visual de toda la UI
         function updateUIForLockState() {
             const closed = isQuinielaClosed();
-            
-            // Banners de cierre
+
+            // Banners de cierre — siempre se actualizan en ambas direcciones
             const banners = ['closureBannerPredictions', 'closureBannerSpecial', 'closureBannerFaseFinal'];
             banners.forEach(id => {
                 const el = DOM.get(id);
                 if (el) el.style.display = closed ? 'block' : 'none';
             });
 
-            // Deshabilitar inputs y selects en pantallas de predicciones
             if (closed) {
+                // Deshabilitar inputs y selects en pantallas de predicciones
                 document.querySelectorAll('#matchesContainer .score-box').forEach(inp => inp.disabled = true);
                 document.querySelectorAll('#screenSpecial select, #screenSpecial input').forEach(el => el.disabled = true);
                 document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => {
-                    btn.disabled = true;
-                    btn.classList.add('disabled');
+                    btn.disabled = true; btn.classList.add('disabled');
+                });
+            } else {
+                // Re-habilitar — respetar el cierre individual por kickoff
+                document.querySelectorAll('#matchesContainer .score-box').forEach(inp => {
+                    const mid = parseInt(inp.dataset.mid);
+                    inp.disabled = mid ? isMatchClosed(mid) : false;
+                });
+                document.querySelectorAll('#screenSpecial select, #screenSpecial input').forEach(el => el.disabled = false);
+                document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => {
+                    // Solo re-habilitar si el texto no es placeholder
+                    const isPlaceholder = ['Ganador', 'Mejor', 'Perdedor', 'Por definir'].some(p => btn.dataset.team?.startsWith(p));
+                    if (!isPlaceholder) { btn.disabled = false; btn.classList.remove('disabled'); }
                 });
             }
         }
