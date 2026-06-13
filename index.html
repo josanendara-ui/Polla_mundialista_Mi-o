@@ -515,7 +515,6 @@
             'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Croacia': '🇭🇷', 'Ghana': '🇬🇭', 'Panamá': '🇵🇦'
         };
         const ALL_TEAMS = Object.values(GROUPS).flat();
-        };
         const ALL_MATCHES = [
             { id: 1, grupo: "A", local: "México", visitante: "Sudáfrica", kickoff: "2026-06-11T15:00:00-04:00", fechaStr: "Jue 11 Jun 15:00" },
             { id: 2, grupo: "A", local: "Corea del Sur", visitante: "Chequia", kickoff: "2026-06-11T22:00:00-04:00", fechaStr: "Jue 11 Jun 22:00" },
@@ -705,13 +704,20 @@
         }
 
         function isMatchClosed(matchId) {
+            // El admin siempre puede editar
             if (STATE.adminConnected) return false;
+            // Si la quiniela completa está cerrada, todo bloqueado
             if (isQuinielaClosed()) return true;
+            // Si se forzó el cierre de grupos desde el panel admin
             if (STATE.gruposLock && matchId <= 72) return true;
-            const match = ALL_MATCHES.find(m => m.id === matchId);
-            if (!match) return false;
-            const tiempoDeCierre = new Date(match.kickoff).getTime() - (15 * 60 * 1000);
-            return new Date().getTime() > tiempoDeCierre;
+            // Verificar si ya existe resultado oficial para este partido
+            const oficial = STATE.officialResults[matchId];
+            if (oficial && oficial.gl !== undefined && oficial.gv !== undefined
+                && oficial.gl !== null && oficial.gv !== null
+                && oficial.gl !== '' && oficial.gv !== '') {
+                return true;   // tiene resultado oficial → cerrado
+            }
+            return false;   // sin resultado oficial → abierto para pronosticar
         }
 
         function updateProgress() {
@@ -1622,14 +1628,6 @@
             const snap = await db.ref('official_specials').get(); const data = snap.val() || {};
             if (data) { STATE.officialSpecials = data; populateAdminSpecialsOptions(); triggerToast('Especiales cargados'); }
         }
-                const promises = [];
-                if (groupCount > 0) promises.push(db.ref('official_results').update(groupUpdates));
-                if (koCount > 0) promises.push(db.ref('official_knockout').update(koWinnerUpdates));
-                await Promise.all(promises);
-                if (groupCount > 0) generateOfficialBracketAndSave();
-                const now = new Date().toLocaleString('es-EC', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short' }); localStorage.setItem('fd_last_sync', now);
-                const total = groupCount + koCount;
-        }
 
         // ==================== API PÚBLICA (APP) ====================
         window.APP = {
@@ -1729,6 +1727,3 @@
     </script>
 </body>
 </html>
-ENDOFFILE
-echo "File created successfully"
-wc -l /mnt/user-data/outputs/polla-mundialista-2026.html
