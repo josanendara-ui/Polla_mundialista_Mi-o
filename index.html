@@ -768,22 +768,27 @@
 
         function calcularRankingGeneral(usuariosArray) {
             if (!usuariosArray || !Array.isArray(usuariosArray)) return [];
+            
             const ranking = usuariosArray.map(usuario => {
                 const uid = usuario.id || usuario.uid;
                 const prediccionesUsuario = STATE.predictions[uid] || {};
                 let exactosContador = 0;
                 const desgloseHistorial = [];
+                
                 ALL_MATCHES.forEach(partido => {
                     const resultadoOficial = STATE.officialResults[partido.id];
                     const prediccionRaw = prediccionesUsuario[partido.id];
+                    
                     const predAdapted = (prediccionRaw && prediccionRaw.gl !== undefined)
                         ? { goles_local: prediccionRaw.gl, goles_visitante: prediccionRaw.gv }
                         : null;
                     const realAdapted = (resultadoOficial && resultadoOficial.gl !== undefined)
                         ? { goles_local: resultadoOficial.gl, goles_visitante: resultadoOficial.gv }
                         : null;
+                        
                     const evaluacion = evaluarPuntosPartido(predAdapted, realAdapted);
                     if (evaluacion.tipo === 'exacto') exactosContador++;
+                    
                     if (evaluacion.tipo !== 'pendiente' || predAdapted !== null) {
                         desgloseHistorial.push({
                             partidoId: partido.id,
@@ -794,28 +799,40 @@
                         });
                     }
                 });
+                
                 return {
                     id: uid,
                     nombre: usuario.nombre_apodo || 'Usuario Anónimo',
                     puntos: usuario.total_puntos || 0,
                     exactos: exactosContador,
+                    fecha_registro: usuario.date_registered || 0, // Extraemos la fecha para el desempate
                     desglose: desgloseHistorial
                 };
             });
+        
+            // Aplicamos el ordenamiento con reglas de desempate estrictas
             ranking.sort((a, b) => {
+                // 1. Mayor cantidad de Puntos
                 if (b.puntos !== a.puntos) return b.puntos - a.puntos;
+                
+                // 2. Mayor cantidad de Marcadores Exactos
                 if (b.exactos !== a.exactos) return b.exactos - a.exactos;
+                
+                // 3. Orden de registro (el que se inscribió antes gana el empate)
+                const timeA = new Date(a.fecha_registro).getTime();
+                const timeB = new Date(b.fecha_registro).getTime();
+                if (timeA !== timeB) return timeA - timeB;
+                
+                // 4. Último recurso: Orden alfabético
                 return a.nombre.localeCompare(b.nombre);
             });
-            let rangoActual = 1;
-            return ranking.map((item, index, arr) => {
-                if (index > 0 && (item.puntos !== arr[index - 1].puntos || item.exactos !== arr[index - 1].exactos)) {
-                    rangoActual = index + 1;
-                }
-                return { posicion: rangoActual, ...item };
+        
+            // Asignamos posiciones únicas y consecutivas estrictas (1, 2, 3, 4...)
+            return ranking.map((item, index) => {
+                return { posicion: index + 1, ...item };
             });
         }
-
+        
         function abrirModalDesglose(desglose, nombreParticipante) {
             const cuerpo = DOM.get('modalDesgloseCuerpo');
             const titulo = DOM.get('modalDesgloseTitulo');
