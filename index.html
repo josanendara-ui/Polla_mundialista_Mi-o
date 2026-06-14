@@ -186,7 +186,7 @@
         .desglose-motivo { font-size: 0.8rem; font-weight: 700; }
         
         #miPosicionSticky {
-            display: none; position: fixed; bottom: 65px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 720px;
+            display: none; position: fixed; padding-bottom:180px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 720px;
             background: linear-gradient(to top, #172033 80%, rgba(23,32,51,0.92)); border-top: 2px solid var(--gold); padding: 10px 20px;
             box-shadow: 0 -8px 24px rgba(0,0,0,0.45); z-index: 29; justify-content: space-between; align-items: center; font-weight: bold;
         }
@@ -313,7 +313,7 @@
                 </div>
                 <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar"></div></div>
             </div>
-            <div id="closureBannerPredictions" class="closure-banner" style="display:none;">🔒 La quiniela está cerrada</div>
+            <div id="closureBannerPredictions" class="closure-banner" style="display:none;">🔒Los comodines están cerrados</div>
             <div id="matchesContainer"></div>
             <button class="btn gold" onclick="APP.goToScreen('screenSpecial')" style="margin-top:8px;">Siguiente: Comodines Especiales 🌟</button>
         </div>
@@ -350,8 +350,8 @@
 
         <div class="screen" id="screenSpecial">
             <h3 style="margin-bottom:16px; font-size:1.2rem;">Comodines Especiales 🌟</h3>
-            <div id="closureBannerSpecial" class="closure-banner" style="display:none;">🔒 La quiniela está cerrada</div>
-            <div class="card">
+            <div id="closureBannerSpecial" class="closure-banner" style="display:none;"> 🔒 Los comodines están cerrados </div>
+                    <div class="card">
                 <label style="font-size:0.85rem; color:var(--text-muted); font-weight:700; display:block; margin-bottom:4px;">🌟 Selección revelación</label>
                 <select id="selRevelacion" class="input-field" onchange="APP.saveSpecial('seleccion_revelacion', this.value)"></select>
                 <label style="font-size:0.85rem; color:var(--text-muted); font-weight:700; display:block; margin-top:10px; margin-bottom:4px;">😱 Mayor decepción</label>
@@ -404,10 +404,6 @@
                 <button class="btn" onclick="APP.adminLogin()">Ingresar</button>
             </div>
             <div id="adminPanel" style="display:none;">
-                <div style="display:flex; gap:10px; margin-bottom:16px;">
-                    <button id="btnAdminStatusOpen" class="btn secondary" style="flex:1;" onclick="APP.adminSetStatus('open')">🔓 Pronósticos abiertos</button>
-                    <button id="btnAdminStatusClosed" class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.adminSetStatus('closed')">🔒 Pronósticos cerrados</button>
-                </div>
                 <div style="display:flex; gap:10px; margin-bottom:12px;">
                     <button id="btnAdminFFVisible" class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinalVisibility(true)">👁️ Fase final visible</button>
                     <button id="btnAdminFFHidden" class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinalVisibility(false)">🙈 Fase final oculta</button>
@@ -415,6 +411,20 @@
                 <div style="display:flex; gap:10px; margin-bottom:20px;">
                     <button id="btnAdminPredsVisible" class="btn secondary" style="flex:1;" onclick="APP.togglePredictionsVisibility(true)">📋 Pronósticos visibles</button>
                     <button id="btnAdminPredsHidden" class="btn secondary" style="flex:1;" onclick="APP.togglePredictionsVisibility(false)">🚫 Pronósticos ocultos</button>
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:16px;">
+                    <button id="btnAdminSpecialsOpen"
+                            class="btn secondary"
+                            style="flex:1;"
+                            onclick="APP.setSpecialsStatus(true)">
+                        🌟 Comodines Abiertos
+                    </button>
+                    <button id="btnAdminSpecialsClosed"
+                            class="btn secondary"
+                            style="flex:1; border-color:#EF4444; color:#EF4444;"
+                            onclick="APP.setSpecialsStatus(false)">
+                        🔒 Comodines Cerrados
+                    </button>
                 </div>
                 <button class="btn gold" style="margin-bottom:20px;" onclick="APP.adminExportCSV()">📥 Exportar datos a Excel (CSV)</button>
                 <button class="btn danger" style="width:100%; margin-bottom: 20px;" onclick="APP.adminResetMundial()">♻️ Reiniciar Resultados Oficiales</button>
@@ -709,6 +719,7 @@
             STATE.predictionsVisible = data.predictions_visible !== undefined ? data.predictions_visible : true;
             STATE.gruposLock = !!data.grupos_lock; STATE.registrosLock = !!data.registros_lock;
             STATE.settings.predictionsLocked = !!(data.settings && data.settings.predictionsLocked);
+            STATE.settings.specialsOpen = data.settings?.specialsOpen !== false;
             if (STATE.myId && STATE.users[STATE.myId]) STATE.currentUser = STATE.users[STATE.myId];
             calculatePointsEngine(); updateProgress(); refreshUIAfterData();
             const activeScreenId = document.querySelector('.screen.active')?.id || 'screenWelcome';
@@ -1455,6 +1466,26 @@
             if (elCam) { elCam.innerHTML = base; elCam.value = mySpec.campeon_mundial || ''; }
             const elGol = DOM.get('txtGoleador'); if (elGol) elGol.value = mySpec.goleador_mundial || '';
             const elEcu = DOM.get('selEcuadorPos'); if (elEcu) elEcu.value = mySpec.posicion_ecuador || '';
+            const locked =
+                STATE.settings &&
+                STATE.settings.specialsOpen === false;
+            
+            [
+                elRev,
+                elDec,
+                elCam,
+                elGol,
+                elEcu
+            ].forEach(el => {
+                if(el) el.disabled = locked;
+            });
+            
+            const banner = DOM.get('closureBannerSpecial');
+            
+            if(banner){
+                banner.style.display =
+                    locked ? 'block' : 'none';
+            }
         }
 
         function populateAdminSpecialsOptions() {
@@ -1514,21 +1545,30 @@
                 } else alert('PIN de seguridad inválido.');
             },
             
-            adminSetStatus: function(st) {
-                STATE.status = st; const promises = [db.ref('status').set(st)];
-                if (st === 'closed') {
-                    promises.push(db.ref('settings/predictionsLocked').set(true)); STATE.settings.predictionsLocked = true;
-                } else {
-                    promises.push(db.ref('settings/predictionsLocked').set(false)); STATE.settings.predictionsLocked = false;
-                    promises.push(db.ref('registros_lock').set(false)); STATE.registrosLock = false;
-                }
-                Promise.all(promises).then(() => { triggerToast('Pronósticos ' + (st === 'closed' ? 'cerrados' : 'abiertos')); updateUIForLockState(); updateAdminButtonsUI(); if (document.querySelector('.screen.active')?.id === 'screenPredictions') renderPredictions(); });
-            },
-            
             adminResetMundial: function() {
                 if (confirm('🚨 ATENCIÓN: Se borrarán los resultados oficiales cargados.')) {
                     db.ref('official_results').remove(); db.ref('official_specials').remove(); db.ref('official_knockout').remove(); db.ref('official_knockout_matches').remove(); triggerToast('Reiniciado');
                 }
+            },
+
+           setSpecialsStatus: function(isOpen) {
+
+                STATE.settings.specialsOpen = isOpen;
+            
+                db.ref('settings/specialsOpen')
+                  .set(isOpen)
+                  .then(() => {
+            
+                    triggerToast(
+                        isOpen
+                        ? '🌟 Comodines abiertos'
+                        : '🔒 Comodines cerrados'
+                    );
+            
+                    updateUIForLockState();
+            
+                  });
+            
             },
             
             adminExportCSV: function() {
