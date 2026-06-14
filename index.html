@@ -1522,11 +1522,11 @@
                 } else alert('PIN de seguridad inválido.');
             },
             adminSetStatus: function(st) {
+                STATE.status = st;  // ← Forzar actualización local inmediata
                 const promises = [db.ref('status').set(st)];
                 if (st === 'closed') {
                     promises.push(db.ref('settings/predictionsLocked').set(true));
                     STATE.settings.predictionsLocked = true;
-                    // Cerrar también registros
                     promises.push(db.ref('registros_lock').set(true));
                     STATE.registrosLock = true;
                 } else {
@@ -1538,6 +1538,10 @@
                 Promise.all(promises).then(() => {
                     triggerToast('Pronósticos ' + (st === 'closed' ? 'cerrados' : 'abiertos'));
                     updateUIForLockState();
+                    // Refrescar inputs de partidos si estamos en la pantalla de predicciones
+                    if (document.querySelector('.screen.active')?.id === 'screenPredictions') {
+                        renderPredictions();
+                    }
                 });
             },
             adminResetMundial: function() {
