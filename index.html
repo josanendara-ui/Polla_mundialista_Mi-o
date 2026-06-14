@@ -643,7 +643,21 @@
                 btnPredHid.style.color = !STATE.predictionsVisible ? '#06201C' : 'var(--text-muted)';
             }
         }
-
+        function isQuinielaClosed() {
+            return STATE.settings.predictionsLocked || STATE.status === 'closed';
+        }
+        
+        // AGREGAR ESTA FUNCIÓN NUEVA:
+        function isMatchClosed(matchId) {
+            if (STATE.adminConnected) return false;
+            if (isQuinielaClosed()) return true;
+            const match = ALL_MATCHES.find(m => m.id === matchId);
+            if (!match) return false;
+            const kickoff = new Date(match.kickoff);
+            const cutoff = new Date(kickoff.getTime() - 15 * 60 * 1000); // 15 min antes
+            return new Date() >= cutoff;
+        }
+        
         function isQuinielaClosed() {
             return STATE.settings.predictionsLocked || STATE.status === 'closed';
         }
