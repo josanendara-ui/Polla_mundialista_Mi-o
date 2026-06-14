@@ -737,23 +737,28 @@
         }
 
        function updateUIForLockState() {
-            const closed = isQuinielaClosed();
+            const closed = isQuinielaClosed(); // Para la fase final y grupos
             
-            // --- LÓGICA DE BLOQUEO DE COMODINES ---
+            // --- LÓGICA DE COMODINES CORREGIDA ---
             const mySpec = STATE.myId && STATE.specials[STATE.myId] ? STATE.specials[STATE.myId] : {};
-            // Se bloquea si el usuario ya presionó el botón final (is_locked) o si ya tiene llenos los principales (para retrocompatibilidad)
-            const comodinesLlenos = mySpec.is_locked === true || (mySpec.campeon_mundial && mySpec.seleccion_revelacion && mySpec.goleador_mundial);
-            const lockSpecials = closed || comodinesLlenos;
+            
+            // 1. ¿El admin cerró los comodines desde el panel?
+            const comodinesGlobalCerrados = STATE.settings && STATE.settings.specialsOpen === false;
+            // 2. ¿El usuario ya selló sus comodines con el botón?
+            const comodinesSellaosUsuario = mySpec.is_locked === true;
+            
+            // Se bloquean si pasa cualquiera de las dos cosas
+            const lockSpecials = comodinesGlobalCerrados || comodinesSellaosUsuario;
 
             const bannerFaseFinal = DOM.get('closureBannerFaseFinal');
             if (bannerFaseFinal) bannerFaseFinal.style.display = closed ? 'block' : 'none';
             
             const bannerSpecial = DOM.get('closureBannerSpecial');
             if (bannerSpecial) {
-                if (closed) {
+                if (comodinesGlobalCerrados) {
                     bannerSpecial.style.display = 'block';
-                    bannerSpecial.textContent = '🔒 Los comodines están cerrados';
-                } else if (comodinesLlenos) {
+                    bannerSpecial.textContent = '🔒 Los comodines están cerrados por el administrador';
+                } else if (comodinesSellaosUsuario) {
                     bannerSpecial.style.display = 'block';
                     bannerSpecial.textContent = '🔒 Ya registraste tus comodines. No se pueden modificar.';
                 } else {
@@ -764,7 +769,7 @@
             const bannerPreds = DOM.get('closureBannerPredictions');
             if (bannerPreds) bannerPreds.style.display = 'none';
 
-            // Aplica el bloqueo a los inputs de la pantalla Comodines
+            // Aplica el bloqueo a los inputs y al botón
             document.querySelectorAll('#screenSpecial select, #screenSpecial input').forEach(el => {
                 el.disabled = lockSpecials && !STATE.adminConnected;
             });
@@ -774,7 +779,7 @@
                 btnGuardarSpecial.disabled = lockSpecials && !STATE.adminConnected;
             }
 
-            // Aplica el bloqueo a la Fase Final (Se mantiene tu lógica original intacta)
+            // Aplica el bloqueo a la Fase Final
             if (closed) {
                 document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => { btn.disabled = true; btn.classList.add('disabled'); });
             } else {
@@ -783,7 +788,7 @@
                     if (!isPlaceholder) { btn.disabled = false; btn.classList.remove('disabled'); }
                 });
             }
-        } 
+        }
         function updateProgress() {
             if (!STATE.myId) return;
             const userPreds = STATE.predictions[STATE.myId] || {}; let count = 0;
@@ -1590,14 +1595,14 @@
         // UNIFICACIÓN CORRECTA DEL OBJETO GLOBAL WINDOW.APP
         window.APP = {
             goToScreen, registerUser, loginExistingUser, logout, saveScoreCloud, setTableGroupActive, saveKo, saveAllKoDrafts, setTablesView, setTableSource, showRankingRulesModal, cerrarDesglose: cerrarModalDesglose, adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials, toggleFaseFinalVisibility, togglePredictionsVisibility, adminDeleteUser, adminResetUser, saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch,
-            
             saveSpecial: function(field, val) {
-                // Intercepta los autosaves (onchange) si el candado ya está activo
                 const mySpec = STATE.specials[STATE.myId] || {};
-                const comodinesLlenos = mySpec.is_locked === true || (mySpec.campeon_mundial && mySpec.seleccion_revelacion && mySpec.goleador_mundial);
+                const comodinesGlobalCerrados = STATE.settings && STATE.settings.specialsOpen === false;
                 
-                if ((isQuinielaClosed() || comodinesLlenos) && !STATE.adminConnected) { 
+                // Si están cerrados globalmente o el usuario ya selló, bloquea el autosave
+                if ((comodinesGlobalCerrados || mySpec.is_locked) && !STATE.adminConnected) { 
                     triggerToast('🔒 Tus comodines ya están sellados'); 
+                    populateSpecials(); // Regresa el select a su valor visual anterior
                     return; 
                 }
                 
@@ -1607,10 +1612,18 @@
             },
             
             saveAndGoFaseFinal: function() {
-                if (isQuinielaClosed() && !STATE.adminConnected) { triggerToast('🔒 La quiniela está cerrada'); return; }
+                const comodinesGlobalCerrados = STATE.settings && STATE.settings.specialsOpen === false;
+                if (comodinesGlobalCerrados && !STATE.adminConnected) { 
+                    triggerToast('🔒 Los comodines están cerrados'); 
+                    return; 
+                }
+
                 const fields = [
-                    { id: 'selRevelacion', key: 'seleccion_revelacion' }, { id: 'selDecepcion', key: 'seleccion_decepcion' },
-                    { id: 'selEcuadorPos', key: 'posicion_ecuador' }, { id: 'selCampeon', key: 'campeon_mundial' }, { id: 'txtGoleador', key: 'goleador_mundial' }
+                    { id: 'selRevelacion', key: 'seleccion_revelacion' }, 
+                    { id: 'selDecepcion', key: 'seleccion_decepcion' },
+                    { id: 'selEcuadorPos', key: 'posicion_ecuador' }, 
+                    { id: 'selCampeon', key: 'campeon_mundial' }, 
+                    { id: 'txtGoleador', key: 'goleador_mundial' }
                 ];
                 
                 const promises = fields.map(f => {
@@ -1619,12 +1632,16 @@
                     return db.ref(`specials/${STATE.myId}/${f.key}`).set(el.value.trim());
                 });
 
-                // ESTE ES EL TRUCO: Creamos el candado permanente en la base de datos
+                // Se activa el candado is_locked solo al darle al botón final
                 promises.push(db.ref(`specials/${STATE.myId}/is_locked`).set(true));
 
                 Promise.all(promises).then(() => { 
                     triggerToast('✅ Comodines Sellados'); 
-                    goToScreen('screenMenu'); 
+                    if (STATE.faseFinalEnabled) {
+                        goToScreen('screenFaseFinal');
+                    } else {
+                        goToScreen('screenMenu');
+                    }
                 }).catch(err => { 
                     console.error(err); 
                     triggerToast('❌ Error'); 
