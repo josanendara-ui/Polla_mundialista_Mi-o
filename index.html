@@ -186,7 +186,8 @@
         .desglose-motivo { font-size: 0.8rem; font-weight: 700; }
         
         #miPosicionSticky {
-            display: none; position: fixed; padding-bottom:60px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 720px;
+            display: none; position: fixed; bottom: 58px; padding-bottom: env(safe-area-inset-bottom, 0px);
+            left: 50%; transform: translateX(-50%); width: 100%; max-width: 720px;
             background: linear-gradient(to top, #172033 80%, rgba(23,32,51,0.92)); border-top: 2px solid var(--gold); padding: 10px 20px;
             box-shadow: 0 -8px 24px rgba(0,0,0,0.45); z-index: 29; justify-content: space-between; align-items: center; font-weight: bold;
         }
@@ -338,8 +339,9 @@
                 <div class="bracket-panel"><div id="tablesBracketRoot" class="bracket" role="region" aria-label="Diagrama de fase final"></div></div>
             </div>
         </div>
-
-        <div class="screen" id="screenRanking"  style="padding-bottom:220px;">
+        
+        <div class="screen" id="screenRanking"  style="padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px) + 80px);">
+            
             <h3 style="margin-bottom:16px; font-size:1.2rem; text-align:center;">Clasificación General</h3>
             <p style="font-size:0.78rem; color:var(--text-muted); text-align:center; margin-bottom:12px; margin-top:-8px;">Toca cualquier jugador para ver su desglose de puntos 👆</p>
             <div class="card" style="padding:0; overflow:hidden; border-color:var(--border);">
@@ -721,7 +723,25 @@
             STATE.settings.predictionsLocked = !!(data.settings && data.settings.predictionsLocked);
             STATE.settings.specialsOpen = data.settings?.specialsOpen !== false;
             if (STATE.myId && STATE.users[STATE.myId]) STATE.currentUser = STATE.users[STATE.myId];
-            calculatePointsEngine(); updateProgress(); refreshUIAfterData();
+
+            // Diferir cálculo pesado para no bloquear la UI
+            setTimeout(() => {
+                calculatePointsEngine();
+                updateProgress();
+                // Escribir puntos calculados en lote a Firebase
+                const updates = {};
+                Object.keys(STATE.users).forEach(uid => {
+                    if (STATE.users[uid].total_puntos !== undefined) {
+                        updates[`users/${uid}/total_puntos`] = STATE.users[uid].total_puntos;
+                        updates[`users/${uid}/exacts`] = STATE.users[uid].exacts;
+                    }
+                });
+                if (Object.keys(updates).length > 0) {
+                    db.ref('/').update(updates).catch(() => {});
+                }
+            }, 50);
+            refreshUIAfterData();
+            
             const activeScreenId = document.querySelector('.screen.active')?.id || 'screenWelcome';
             goToScreen(activeScreenId);
         }, error => {
@@ -779,15 +799,20 @@
                 btnGuardarSpecial.disabled = lockSpecials && !STATE.adminConnected;
             }
 
-            // Aplica el bloqueo a la Fase Final
-            if (closed) {
-                document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => { btn.disabled = true; btn.classList.add('disabled'); });
-            } else {
-                document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => {
-                    const isPlaceholder = ['Ganador', 'Mejor', 'Perdedor', 'Por definir'].some(p => btn.dataset.team?.startsWith(p));
-                    if (!isPlaceholder) { btn.disabled = false; btn.classList.remove('disabled'); }
-                });
-            }
+           // Aplica el bloqueo a la Fase Final (global + por fecha individual)
+            document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => {
+                const matchId = parseInt(btn.dataset.matchId, 10);
+                const matchClosedIndividually = isMatchClosed(matchId);
+                const isPlaceholder = ['Ganador', 'Mejor', 'Perdedor', 'Por definir'].some(p => btn.dataset.team?.startsWith(p));
+                
+                if (closed || matchClosedIndividually || isPlaceholder) {
+                    btn.disabled = true;
+                    btn.classList.add('disabled');
+                } else {
+                    btn.disabled = false;
+                    btn.classList.remove('disabled');
+                }
+            });
         }
         function updateProgress() {
             if (!STATE.myId) return;
@@ -1275,8 +1300,8 @@
                         const thirdCard = document.createElement('div'); thirdCard.className = 'match'; thirdCard.dataset.matchId = 103;
                         thirdCard.innerHTML = `<div style="font-size:0.65rem; color:var(--sky); font-weight:900; text-align:center; margin-bottom:4px; letter-spacing:1px;">🥉 TERCER PUESTO</div><div class="match-meta"><span>Partido 103</span></div>`;
                         const lName = resolvedNames[103].local; const vName = resolvedNames[103].visitor; const closed = isQuinielaClosed();
-                        const lDis = !interactive || lName.startsWith('Ganador') || lName.startsWith('Mejor') || lName.startsWith('Perdedor') || lName.startsWith('Por definir') || (closed && !STATE.adminConnected);
-                        const vDis = !interactive || vName.startsWith('Ganador') || vName.startsWith('Mejor') || vName.startsWith('Perdedor') || vName.startsWith('Por definir') || (closed && !STATE.adminConnected);
+                        const lDis = !interactive || lName.startsWith('Ganador') || lName.startsWith('Mejor') || lName.startsWith('Perdedor') || lName.startsWith('Por definir') || ((closed || isMatchClosed(m.id)) && !STATE.adminConnected);
+                        const vDis = !interactive || vName.startsWith('Ganador') || vName.startsWith('Mejor') || vName.startsWith('Perdedor') || vName.startsWith('Por definir') || ((closed || isMatchClosed(m.id)) && !STATE.adminConnected);
                         thirdCard.appendChild(createKoButton(103, lName, myKo[103] === lName, lDis)); thirdCard.appendChild(createKoButton(103, vName, myKo[103] === vName, vDis));
                         thirdContainer.appendChild(thirdCard); col.appendChild(thirdContainer);
                     }
@@ -1599,54 +1624,33 @@
                 const mySpec = STATE.specials[STATE.myId] || {};
                 const comodinesGlobalCerrados = STATE.settings && STATE.settings.specialsOpen === false;
                 
-                // Si están cerrados globalmente o el usuario ya selló, bloquea el autosave
-                if ((comodinesGlobalCerrados || mySpec.is_locked) && !STATE.adminConnected) { 
+                // Verificar si el usuario ya tiene TODOS los campos llenos (misma lógica que populateSpecials)
+                const userAlreadyFilled = !!(
+                    mySpec.seleccion_revelacion || 
+                    mySpec.seleccion_decepcion || 
+                    mySpec.posicion_ecuador || 
+                    mySpec.campeon_mundial || 
+                    mySpec.goleador_mundial
+                );
+                
+                // Bloquear si: admin cerró globalmente, o el usuario selló, o el usuario ya llenó todo
+                if ((comodinesGlobalCerrados || mySpec.is_locked || userAlreadyFilled) && !STATE.adminConnected) { 
                     triggerToast('🔒 Tus comodines ya están sellados'); 
-                    populateSpecials(); // Regresa el select a su valor visual anterior
+                    populateSpecials();
                     return; 
                 }
                 
                 db.ref(`specials/${STATE.myId}/${field}`).set(val)
-                  .then(() => triggerToast('✅ Guardado'))
+                  .then(() => {
+                      if (!STATE.specials[STATE.myId]) STATE.specials[STATE.myId] = {};
+                      STATE.specials[STATE.myId][field] = val;
+                      triggerToast('✅ Guardado');
+                  })
                   .catch(err => { console.error(err); triggerToast('❌ Error'); });
             },
             
-            saveAndGoFaseFinal: function() {
-                const comodinesGlobalCerrados = STATE.settings && STATE.settings.specialsOpen === false;
-                if (comodinesGlobalCerrados && !STATE.adminConnected) { 
-                    triggerToast('🔒 Los comodines están cerrados'); 
-                    return; 
-                }
-
-                const fields = [
-                    { id: 'selRevelacion', key: 'seleccion_revelacion' }, 
-                    { id: 'selDecepcion', key: 'seleccion_decepcion' },
-                    { id: 'selEcuadorPos', key: 'posicion_ecuador' }, 
-                    { id: 'selCampeon', key: 'campeon_mundial' }, 
-                    { id: 'txtGoleador', key: 'goleador_mundial' }
-                ];
-                
-                const promises = fields.map(f => {
-                    const el = DOM.get(f.id); 
-                    if (!el || !el.value.trim()) return Promise.resolve();
-                    return db.ref(`specials/${STATE.myId}/${f.key}`).set(el.value.trim());
-                });
-
-                // Se activa el candado is_locked solo al darle al botón final
-                promises.push(db.ref(`specials/${STATE.myId}/is_locked`).set(true));
-
-                Promise.all(promises).then(() => { 
-                    triggerToast('✅ Comodines Sellados'); 
-                    if (STATE.faseFinalEnabled) {
-                        goToScreen('screenFaseFinal');
-                    } else {
-                        goToScreen('screenMenu');
-                    }
-                }).catch(err => { 
-                    console.error(err); 
-                    triggerToast('❌ Error'); 
-                });
-            },
+            // Esta definición estaba duplicada y ha sido eliminada.
+            // La primera definición de saveAndGoFaseFinal (más arriba) es la correcta.
             
             mostrarDesglose: function(uid, nombre) {
                 const desglose = _desgloseCache[uid];
