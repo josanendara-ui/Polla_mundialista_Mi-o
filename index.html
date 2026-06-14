@@ -661,38 +661,27 @@
         }
 
         function isMatchClosed(matchId) {
-            // 1. Los administradores siempre pueden editar
+            // 1. ERES EL ADMINISTRADOR: Tú siempre puedes editar todo
             if (STATE.adminConnected) return false;
             
-            // 2. Bloqueo manual forzado de toda la fase de grupos
-            if (STATE.gruposLock && matchId <= 72) return true;
+            // 2. BLOQUEO MAESTRO (El botón "🔒 Pronósticos cerrados")
+            // Si presionaste el botón, TODO se bloquea al instante.
+            if (isQuinielaClosed()) return true;
 
-            // 3. NUEVO: Bloqueo automático por hora de inicio (kickoff)
+            // 3. BLOQUEO AUTOMÁTICO (El reloj del partido)
+            // Si la quiniela sigue "Abierta", los partidos se van bloqueando uno por uno cuando suena el silbato inicial.
             const match = ALL_MATCHES.find(m => m.id === matchId);
             if (match && match.kickoff) {
                 const kickoffTime = new Date(match.kickoff).getTime();
                 const now = new Date().getTime();
                 
-                // Si la hora actual superó o es igual a la hora del partido, se bloquea
                 if (now >= kickoffTime) {
                     return true;
                 }
             }
-
-            // 4. Cierre por estado de quiniela (si cerraste manualmente desde el panel)
-            if (isQuinielaClosed()) {
-                const oficial = STATE.officialResults[matchId];
-                if (oficial && oficial.gl !== undefined && oficial.gv !== undefined &&
-                    oficial.gl !== null && oficial.gv !== null &&
-                    oficial.gl !== '' && oficial.gv !== '') {
-                    return true;
-                }
-                return false; 
-            }
             
             return false;
-        }
-        
+        }        
         function updateProgress() {
             if (!STATE.myId) return;
             const userPreds = STATE.predictions[STATE.myId] || {}; let count = 0;
