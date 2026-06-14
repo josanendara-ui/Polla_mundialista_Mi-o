@@ -661,9 +661,25 @@
         }
 
         function isMatchClosed(matchId) {
+            // 1. Los administradores siempre pueden editar
             if (STATE.adminConnected) return false;
+            
+            // 2. Bloqueo manual forzado de toda la fase de grupos
             if (STATE.gruposLock && matchId <= 72) return true;
-            // Cierre suave: si la quiniela está cerrada, solo se bloquean partidos con resultado oficial
+
+            // 3. NUEVO: Bloqueo automático por hora de inicio (kickoff)
+            const match = ALL_MATCHES.find(m => m.id === matchId);
+            if (match && match.kickoff) {
+                const kickoffTime = new Date(match.kickoff).getTime();
+                const now = new Date().getTime();
+                
+                // Si la hora actual superó o es igual a la hora del partido, se bloquea
+                if (now >= kickoffTime) {
+                    return true;
+                }
+            }
+
+            // 4. Cierre por estado de quiniela (si cerraste manualmente desde el panel)
             if (isQuinielaClosed()) {
                 const oficial = STATE.officialResults[matchId];
                 if (oficial && oficial.gl !== undefined && oficial.gv !== undefined &&
@@ -671,11 +687,12 @@
                     oficial.gl !== '' && oficial.gv !== '') {
                     return true;
                 }
-                return false; // partido sin resultado oficial sigue abierto
+                return false; 
             }
+            
             return false;
         }
-
+        
         function updateProgress() {
             if (!STATE.myId) return;
             const userPreds = STATE.predictions[STATE.myId] || {}; let count = 0;
