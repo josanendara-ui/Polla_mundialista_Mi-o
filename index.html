@@ -661,27 +661,31 @@
         }
 
         function isMatchClosed(matchId) {
-            // 1. ERES EL ADMINISTRADOR: Tú siempre puedes editar todo
+            // 1. El administrador siempre puede editar todo
             if (STATE.adminConnected) return false;
             
-            // 2. BLOQUEO MAESTRO (El botón "🔒 Pronósticos cerrados")
-            // Si presionaste el botón, TODO se bloquea al instante.
-            if (isQuinielaClosed()) return true;
+            // 2. Bloqueo manual forzado de toda la fase de grupos (si se activa en la base de datos)
+            if (STATE.gruposLock && matchId <= 72) return true;
 
-            // 3. BLOQUEO AUTOMÁTICO (El reloj del partido)
-            // Si la quiniela sigue "Abierta", los partidos se van bloqueando uno por uno cuando suena el silbato inicial.
+            // 3. Bloqueo automático 15 minutos ANTES de la hora de inicio (kickoff)
             const match = ALL_MATCHES.find(m => m.id === matchId);
             if (match && match.kickoff) {
                 const kickoffTime = new Date(match.kickoff).getTime();
+                
+                // Restamos 15 minutos en milisegundos (15 * 60 * 1000 = 900000)
+                const closingTime = kickoffTime - 900000; 
+                
                 const now = new Date().getTime();
                 
-                if (now >= kickoffTime) {
+                // Si la hora actual ya alcanzó esos 15 minutos previos, se bloquea
+                if (now >= closingTime) {
                     return true;
                 }
             }
             
             return false;
-        }        
+        }
+        
         function updateProgress() {
             if (!STATE.myId) return;
             const userPreds = STATE.predictions[STATE.myId] || {}; let count = 0;
