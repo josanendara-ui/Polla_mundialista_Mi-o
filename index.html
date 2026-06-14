@@ -683,22 +683,6 @@
         }
 
         function updateUIForLockState() {
-            const closed = isQuinielaClosed();
-            const banners = ['closureBannerPredictions', 'closureBannerSpecial', 'closureBannerFaseFinal'];
-            banners.forEach(id => { const el = DOM.get(id); if (el) el.style.display = closed ? 'block' : 'none'; });
-            if (closed) {
-                document.querySelectorAll('#screenSpecial select, #screenSpecial input').forEach(el => el.disabled = true);
-                document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => { btn.disabled = true; btn.classList.add('disabled'); });
-            } else {
-                document.querySelectorAll('#screenSpecial select, #screenSpecial input').forEach(el => el.disabled = false);
-                document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => {
-                    const isPlaceholder = ['Ganador', 'Mejor', 'Perdedor', 'Por definir'].some(p => btn.dataset.team?.startsWith(p));
-                    if (!isPlaceholder) { btn.disabled = false; btn.classList.remove('disabled'); }
-                });
-            }
-        }
-
-        function updateUIForLockState() {
             const closed = isQuinielaClosed(); // Esto lee si diste click en "Cerrado"
             
             // 1. Mostrar banner de bloqueo SOLO en Comodines y Fase Final
