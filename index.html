@@ -339,7 +339,7 @@
         <div class="screen" id="screenMenu">
             <h3 style="margin-bottom:20px; font-size:1.2rem; text-align:center;">Panel de Control</h3>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                <button class="btn secondary" style="padding:24px 0; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="APP.goToScreen('screenPredictions')"><span style="font-size:1.6rem;">⚽</span><span style="font-size:0.85rem;">Pronósticos</span></button>
+                <button id="btnPredMenu" class="btn secondary" style="padding:24px 0; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="APP.goToScreen('screenPredictions')"><span style="font-size:1.6rem;">⚽</span><span style="font-size:0.85rem;">Pronósticos</span></button>
                 <button class="btn secondary" style="padding:24px 0; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="APP.goToScreen('screenTables')"><span style="font-size:1.6rem;">📊</span><span style="font-size:0.85rem;">Tablas Grupos</span></button>
                 <button class="btn secondary" style="padding:24px 0; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="APP.goToScreen('screenRanking')"><span style="font-size:1.6rem;">🏆</span><span style="font-size:0.85rem;">Leaderboard</span></button>
                 <button id="btnFaseFinalMenu" class="btn secondary" style="padding:24px 0; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="APP.goToScreen('screenFaseFinal')"><span style="font-size:1.6rem;">🔥</span><span style="font-size:0.85rem;">Fase Final</span></button>
@@ -893,8 +893,14 @@
 
         function goToScreen(id) {
             if (!STATE.adminConnected) {
-                if (id === 'screenPredictions' && !STATE.predictionsVisible) return;
-                if (id === 'screenFaseFinal' && !STATE.faseFinalEnabled) return;
+                if (id === 'screenPredictions' && !STATE.predictionsVisible) { 
+                    goToScreen('screenMenu'); 
+                    return; 
+                }
+                if (id === 'screenFaseFinal' && !STATE.faseFinalEnabled) { 
+                    goToScreen('screenMenu'); 
+                    return; 
+                }
             }
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             const target = document.getElementById(id); if (target) target.classList.add('active');
@@ -927,9 +933,18 @@
         function applyVisibility() {
             const faseEnabled = STATE.faseFinalEnabled;
             const predVisible = STATE.predictionsVisible;
-            const btnFF = DOM.get('btnFaseFinalMenu'); if (btnFF) btnFF.style.display = faseEnabled ? 'flex' : 'none';
-            const navFF = DOM.get('navItemFaseFinal'); if (navFF) navFF.style.display = faseEnabled ? 'flex' : 'none';
-            const navPred = DOM.get('navItemPredictions'); if (navPred) navPred.style.display = predVisible ? 'flex' : 'none';
+            
+            const btnFF = DOM.get('btnFaseFinalMenu'); 
+            if (btnFF) btnFF.style.display = faseEnabled ? 'flex' : 'none';
+        
+            const navFF = DOM.get('navItemFaseFinal'); 
+            if (navFF) navFF.style.display = faseEnabled ? 'flex' : 'none';
+            const navPred = DOM.get('navItemPredictions'); 
+            if (navPred) navPred.style.display = predVisible ? 'flex' : 'none';
+        
+            const btnPredMenu = DOM.get('btnPredMenu');
+            if (btnPredMenu) btnPredMenu.style.display = predVisible ? 'flex' : 'none';
+        
             const tabBracket = DOM.get('tabBracketView');
             if (tabBracket) {
                 if (!faseEnabled && STATE.currentTablesView === 'bracket') {
@@ -943,7 +958,6 @@
             const btnGoFF = DOM.get('btnGuardarIrFF');
             if (btnGoFF) btnGoFF.textContent = faseEnabled ? '💾 Guardar e ir a Fase Final' : '💾 Guardar y volver al Menú';
         }
-
         function registerUser() {
             if (STATE.registrosLock) { alert('Los registros están cerrados.'); return; }
             if (isQuinielaClosed() && !STATE.adminConnected) { alert('La Polla Mundialista está cerrada.'); return; }
@@ -1646,7 +1660,7 @@
                 });
                 Promise.all(promises).then(() => {
                     triggerToast('Comodines guardados');
-                    goToScreen(STATE.faseFinalEnabled ? 'screenFaseFinal' : 'screenMenu');
+                    goToScreen('screenMenu');
                 }).catch(err => { console.error(err); triggerToast('❌ Error'); });
             }
         };
