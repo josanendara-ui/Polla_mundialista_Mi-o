@@ -7,6 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
+        /* ========== ESTILOS (los mismos que tenías, sin cambios) ========== */
         :root {
             --bg-body: #101826;
             --bg-card: #172033;
@@ -26,17 +27,14 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background: radial-gradient(circle at top left, rgba(45, 212, 191, 0.16), transparent 34%), radial-gradient(circle at 85% 0%, rgba(247, 201, 72, 0.12), transparent 28%), var(--bg-body); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; -webkit-tap-highlight-color: transparent; }
         .app-container { width: 100%; max-width: 720px; background: rgba(16, 24, 38, 0.93); box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 28px 80px rgba(0,0,0,0.34); display: flex; flex-direction: column; height: 100vh; position: relative; }
-        /* CABECERA */
         .header { background: rgba(23, 32, 51, 0.94); backdrop-filter: blur(16px); padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 30; }
         .header h1 { font-size: 1rem; color: var(--text-main); font-weight: 800; cursor: pointer; line-height: 1.2; }
         .user-tag { background: rgba(45, 212, 191, 0.12); border-color: rgba(45, 212, 191, 0.3); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: var(--green); border: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
-        /* PANTALLAS */
         .screen { display: none; flex-direction: column; padding: 16px; flex: 1; overflow-y: auto; padding-bottom: 90px; }
         .screen.active { display: flex; animation: fade .2s ease-in-out; }
         @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
         @keyframes welcomeFloat { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
-        /* TARJETAS E INPUTS */
         .card { background: linear-gradient(180deg, rgba(31,42,63,0.96), rgba(23,32,51,0.96)); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.09); box-shadow: var(--shadow); }
         .input-field, select { width: 100%; padding: 14px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg-input); color: #fff; font-size: 16px; margin-bottom: 12px; outline: none; transition: border 0.2s, box-shadow 0.2s, background 0.2s; }
         .input-field:focus, select:focus { box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.12); background: #111C2E; border-color: var(--green); }
@@ -48,12 +46,10 @@
         .btn.secondary { background: rgba(255,255,255,0.035); color: var(--text-main); box-shadow: none; border: 1px solid var(--border); }
         .btn.gold { background: linear-gradient(135deg, #F59E0B, var(--gold)); color: #1F1300; }
         .btn.danger { background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
-        /* PROGRESS */
         .progress-container { background: linear-gradient(180deg, rgba(31,42,63,0.96), rgba(23,32,51,0.96)); padding: 14px; border-radius: var(--radius); margin-bottom: 16px; border: 1px solid var(--border); box-shadow: var(--shadow); }
         .progress-header { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
         .progress-bar-bg { width: 100%; height: 8px; background: var(--bg-input); border-radius: 4px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--gold)); transition: width 0.3s ease; width: 0%; }
-        /* MATCHES */
         .match-row { background: linear-gradient(180deg, rgba(31,42,63,0.96), rgba(23,32,51,0.96)); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; display: flex; flex-direction: column; box-shadow: var(--shadow); }
         .match-date { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 10px; text-align: left; letter-spacing: 0.5px; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; }
         .match-status.locked { color: #EF4444; }
@@ -63,17 +59,14 @@
         .team span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .team.right { flex-direction: row-reverse; text-align: right; }
         .flag { font-size: 1.4rem; }
-        /* SCORE BOXES */
         .score-inputs { display: flex; align-items: center; gap: 6px; margin: 0 12px; }
         .score-box { width: 44px; height: 44px; text-align: center; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: #fff; font-size: 16px; font-weight: 700; outline: none; transition: border 0.2s; -moz-appearance: textfield; }
         .score-box::-webkit-outer-spin-button, .score-box::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .score-box:focus { border-color: var(--gold); background: #172554; box-shadow: 0 0 0 4px rgba(247, 201, 72, 0.12); }
-        /* TABS */
         .group-nav { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 12px; scrollbar-width: none; }
         .group-nav::-webkit-scrollbar { display: none; }
         .group-tab { padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); border-radius: 20px; font-weight: 600; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
         .group-tab.active { background: var(--green); color: #06201C; border-color: var(--green); box-shadow: 0 8px 18px rgba(45, 212, 191, 0.16); font-weight: 900; }
-        /* STANDINGS */
         .standings-container { overflow-x: auto; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 20px; box-shadow: var(--shadow); }
         .standings { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 500px; }
         .standings th { background: rgba(0,0,0,0.2); color: var(--text-muted); padding: 10px 6px; font-weight: 700; text-align: center; font-size: 0.7rem; text-transform: uppercase; }
@@ -81,25 +74,16 @@
         .st-team { text-align: left !important; display: flex; align-items: center; gap: 6px; font-weight: 600; }
         .standings tr.row-qualified { background: rgba(16, 185, 129, 0.18); }
         .standings tr.row-best-third { background: rgba(251, 191, 36, 0.15); }
-        /* RANKING */
-        .ranking-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .ranking-table th { color: var(--text-muted); padding: 12px 8px; text-align: center; font-weight: 700; border-bottom: 2px solid var(--border); text-transform: uppercase; font-size: 0.7rem; }
-        .ranking-table td { padding: 14px 8px; text-align: center; border-bottom: 1px solid var(--border); font-weight: 600; }
-        .ranking-table tr.highlight { background: rgba(16, 185, 129, 0.12) !important; border-left: 4px solid var(--green); }
-        /* ── NUEVO: Filas de ranking interactivas ── */
         .ranking-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.18s; }
         .ranking-row:hover { background: rgba(255,255,255,0.04); }
         .ranking-row.mi-fila { background: rgba(45,212,191,0.08); border-left: 3px solid var(--green); }
         .ranking-row:last-child { border-bottom: none; }
-        /* BOTTOM NAV */
         .bottom-nav { display: flex; background: rgba(23, 32, 51, 0.94); backdrop-filter: blur(16px); border-top: 1px solid var(--border); position: fixed; bottom: 0; width: 100%; max-width: 720px; padding-bottom: env(safe-area-inset-bottom); z-index: 30; }
         .nav-item { flex: 1; padding: 14px 0; background: none; border: none; color: var(--text-muted); font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; cursor: pointer; font-weight: 700; gap: 4px; transition: color 0.2s ease; }
         .nav-item.active { color: var(--green); }
         .nav-item .icon { font-size: 1.2rem; }
-        /* TOAST */
         .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--green); color: #06201C; padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 0.85rem; z-index: 1000; opacity: 0; transition: 0.3s; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-        /* BRACKET */
         .bracket-panel { overflow-x: auto; overflow-y: visible; background: rgba(13,20,34,0.72); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 0; box-shadow: var(--shadow); -webkit-overflow-scrolling: touch; }
         .bracket { display: flex; min-width: 1200px; }
         .round { display: flex; flex-direction: column; flex: 1; position: relative; }
@@ -122,7 +106,6 @@
         .ko-team-btn.selected .ko-icon { opacity: 1; transform: scale(1.05); }
         .match-meta { display: flex; justify-content: space-between; font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; }
         @media (max-width: 860px) { .app-container { max-width: 100%; } .team { font-size: 0.86rem; } .score-box { width: 38px; height: 42px; } }
-        /* utilities */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .grid-full { grid-column: span 2; }
         .text-center { text-align: center; }
@@ -137,7 +120,6 @@
         .tables-switch button { flex:1; border:0; border-radius:999px; padding:10px 12px; background:transparent; color:var(--text-muted); font-weight:900; cursor:pointer; }
         .tables-switch button.active { background:var(--green); color:#06201C; }
         .bracket-help { display:flex; justify-content:space-between; gap:12px; align-items:center; color:var(--text-muted); font-size:0.82rem; margin-bottom:10px; }
-        /* Modal reglas ranking */
         .modal-overlay { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-card { background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px solid var(--gold); border-radius: 20px; padding: 28px 24px; max-width: 380px; width: 90%; box-shadow: 0 0 60px rgba(251,191,36,0.4); text-align: left; max-height: 80vh; overflow-y: auto; }
@@ -146,19 +128,12 @@
         .modal-card li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-main); }
         .modal-card li .pts { margin-left: auto; font-weight: 900; color: var(--green); }
         .modal-close-btn { margin-top: 20px; width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--green); color: #06201C; font-weight: 800; font-size: 1rem; cursor: pointer; }
-        /* Selector fuente tabla */
         .table-source-switch { display: flex; gap: 6px; padding: 4px; border: 1px solid var(--border); background: rgba(255,255,255,0.035); border-radius: 999px; margin-bottom: 14px; }
         .table-source-switch button { flex: 1; border: 0; border-radius: 999px; padding: 10px 12px; background: transparent; color: var(--text-muted); font-weight: 900; cursor: pointer; font-size: 0.85rem; }
         .table-source-switch button.active { background: var(--gold); color: #1F1300; }
-        /* Botón reglas ranking */
         .btn-rules { background: rgba(247, 201, 72, 0.12); border: 1px solid rgba(247, 201, 72, 0.35); color: var(--gold); width: 100%; padding: 14px; border-radius: var(--radius); font-weight: 800; font-size: 0.95rem; cursor: pointer; margin-top: 16px; transition: background 0.2s; }
         .btn-rules:hover { background: rgba(247, 201, 72, 0.22); }
-        /* Banner cierre */
         .closure-banner { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); color: #EF4444; padding: 12px 16px; border-radius: var(--radius); font-weight: 800; text-align: center; margin-bottom: 16px; font-size: 0.9rem; }
-
-        /* ══════════════════════════════════════════════════════
-           NUEVO: Modal de Desglose de Puntos
-           ══════════════════════════════════════════════════════ */
         #modalDesglose { display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
         .desglose-inner { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); width: 92%; max-width: 540px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow); }
         .desglose-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-card-soft); flex-shrink: 0; }
@@ -169,14 +144,10 @@
         .desglose-score-label { color: var(--text-muted); font-size: 0.78rem; }
         .desglose-score-val { font-family: monospace; font-weight: 800; font-size: 1rem; }
         .desglose-motivo { font-size: 0.8rem; font-weight: 700; }
-
-        /* ══════════════════════════════════════════════════════
-           NUEVO: Barra Flotante "Mi Posición" sobre el nav
-           ══════════════════════════════════════════════════════ */
         #miPosicionSticky {
             display: none;
             position: fixed;
-            bottom: 65px; /* justo encima del bottom-nav */
+            bottom: 65px;
             left: 50%;
             transform: translateX(-50%);
             width: 100%;
@@ -185,7 +156,7 @@
             border-top: 2px solid var(--gold);
             padding: 10px 20px;
             box-shadow: 0 -8px 24px rgba(0,0,0,0.45);
-            z-index: 29; /* debajo del nav (30) pero sobre el contenido */
+            z-index: 29;
             justify-content: space-between;
             align-items: center;
             font-weight: bold;
@@ -325,7 +296,6 @@
         </div>
         <div class="screen" id="screenRanking">
             <h3 style="margin-bottom:16px; font-size:1.2rem; text-align:center;">Clasificación General</h3>
-            <!-- Hint de interactividad -->
             <p style="font-size:0.78rem; color:var(--text-muted); text-align:center; margin-bottom:12px; margin-top:-8px;">Toca cualquier jugador para ver su desglose de puntos 👆</p>
             <div class="card" style="padding:0; overflow:hidden; border-color:var(--border);">
                 <div id="rankingContent"></div>
@@ -385,21 +355,18 @@
                 <button class="btn" onclick="APP.adminLogin()">Ingresar</button>
             </div>
             <div id="adminPanel" style="display:none;">
+                <!-- NUEVOS BOTONES SIMPLIFICADOS -->
                 <div style="display:flex; gap:10px; margin-bottom:16px;">
-                    <button class="btn secondary" style="flex:1;" onclick="APP.adminSetStatus('open')">🔓 Abrir Quiniela</button>
-                    <button class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.adminSetStatus('closed')">🔒 Forzar Cierre</button>
+                    <button class="btn secondary" style="flex:1;" onclick="APP.adminSetStatus('open')">🔓 Pronósticos abiertos</button>
+                    <button class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.adminSetStatus('closed')">🔒 Pronósticos cerrados</button>
                 </div>
                 <div style="display:flex; gap:10px; margin-bottom:12px;">
-                    <button class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinal(true)">✅ Habilitar Fase Final</button>
-                    <button class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinal(false)">❌ Deshabilitar Fase Final</button>
-                </div>
-                <div style="display:flex; gap:10px; margin-bottom:12px;">
-                    <button class="btn secondary" style="flex:1;" onclick="APP.toggleGruposLock(false)">🔓 Abrir Pronósticos Grupos</button>
-                    <button class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.toggleGruposLock(true)">🔒 Cerrar Pronósticos Grupos</button>
+                    <button class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinalVisibility(true)">👁️ Fase final visible</button>
+                    <button class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinalVisibility(false)">🙈 Fase final oculta</button>
                 </div>
                 <div style="display:flex; gap:10px; margin-bottom:20px;">
-                    <button class="btn secondary" style="flex:1;" onclick="APP.toggleRegistros(false)">🔓 Abrir Registros</button>
-                    <button class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.toggleRegistros(true)">🔒 Cerrar Registros</button>
+                    <button class="btn secondary" style="flex:1;" onclick="APP.togglePredictionsVisibility(true)">📋 Pronósticos visibles</button>
+                    <button class="btn secondary" style="flex:1;" onclick="APP.togglePredictionsVisibility(false)">🚫 Pronósticos ocultos</button>
                 </div>
                 <button class="btn gold" style="margin-bottom:20px;" onclick="APP.adminExportCSV()">📥 Exportar datos a Excel (CSV)</button>
                 <button class="btn danger" style="width:100%; margin-bottom: 20px;" onclick="APP.adminResetMundial()">♻️ Reiniciar Resultados Oficiales</button>
@@ -441,9 +408,6 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         NUEVO: Modal Desglose de Puntos por Partido
-         ══════════════════════════════════════════════════════ -->
     <div id="modalDesglose">
         <div class="desglose-inner">
             <div class="desglose-header">
@@ -454,9 +418,6 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         NUEVO: Barra Flotante "Mi Posición"
-         ══════════════════════════════════════════════════════ -->
     <div id="miPosicionSticky">
         <div style="display:flex; align-items:center; gap:10px;">
             <span id="stickyMiRango" style="background:var(--gold); color:var(--bg-body); border-radius:6px; padding:3px 10px; font-size:0.95rem; font-weight:800;">#0</span>
@@ -467,13 +428,11 @@
         </div>
     </div>
 
-    <!-- Contenedor modales dinámicos -->
     <div id="dynamicModalContainer"></div>
 
     <script>
     (function() {
         'use strict';
-        // === Firebase config ===
         firebase.initializeApp({
             apiKey: "AIzaSyBfNHaQUBTRydtClhbaEAYqotZuWq8vmzI",
             authDomain: "polla-mundialista-16e59.firebaseapp.com",
@@ -485,7 +444,6 @@
         });
         const db = firebase.database();
 
-        // === DATOS ===
         const GROUPS = {
             A: ['México', 'Sudáfrica', 'Corea del Sur', 'Chequia'],
             B: ['Canadá', 'Bosnia y Herzegovina', 'Catar', 'Suiza'],
@@ -632,13 +590,12 @@
         ];
         const KO_POINTS = { dieciseisavos: 1, octavos: 2, cuartos: 3, semis: 4, final: 5, tercero: 2 };
 
-        // === ESTADO GLOBAL ===
         const STATE = {
             users: {}, predictions: {}, specials: {}, officialResults: {}, officialSpecials: {},
             knockoutPreds: {}, officialKnockout: {}, officialKnockoutMatches: {}, status: 'open',
             myId: localStorage.getItem('polla_myId'), currentUser: null, currentSelectedGroup: 'A',
             currentTablesView: 'groups', adminConnected: sessionStorage.getItem('p26adm') === '1',
-            faseFinalEnabled: false, gruposLock: false, registrosLock: false,
+            faseFinalEnabled: false, predictionsVisible: true, gruposLock: false, registrosLock: false,
             settings: { predictionsLocked: false },
             tableSource: 'simulated'
         };
@@ -660,7 +617,8 @@
             STATE.officialKnockout = data.official_knockout || {};
             STATE.officialKnockoutMatches = data.official_knockout_matches || {};
             STATE.status = data.status || 'open';
-            STATE.faseFinalEnabled = !!data.fase_final_enabled;
+            STATE.faseFinalEnabled = data.fase_final_enabled !== undefined ? data.fase_final_enabled : false;
+            STATE.predictionsVisible = data.predictions_visible !== undefined ? data.predictions_visible : true;
             STATE.gruposLock = !!data.grupos_lock;
             STATE.registrosLock = !!data.registros_lock;
             STATE.settings.predictionsLocked = !!(data.settings && data.settings.predictionsLocked);
@@ -687,37 +645,35 @@
             const banners = ['closureBannerPredictions', 'closureBannerSpecial', 'closureBannerFaseFinal'];
             banners.forEach(id => { const el = DOM.get(id); if (el) el.style.display = closed ? 'block' : 'none'; });
             if (closed) {
-                document.querySelectorAll('#matchesContainer .score-box').forEach(inp => inp.disabled = true);
+                // Los partidos con resultado oficial ya están bloqueados individualmente,
+                // pero los comodines y fase final se bloquean completamente.
                 document.querySelectorAll('#screenSpecial select, #screenSpecial input').forEach(el => el.disabled = true);
                 document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => { btn.disabled = true; btn.classList.add('disabled'); });
+                // Los botones de registro se ocultan (se controla con registrosLock)
             } else {
-                document.querySelectorAll('#matchesContainer .score-box').forEach(inp => {
-                    const mid = parseInt(inp.dataset.mid);
-                    inp.disabled = mid ? isMatchClosed(mid) : false;
-                });
                 document.querySelectorAll('#screenSpecial select, #screenSpecial input').forEach(el => el.disabled = false);
                 document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => {
                     const isPlaceholder = ['Ganador', 'Mejor', 'Perdedor', 'Por definir'].some(p => btn.dataset.team?.startsWith(p));
                     if (!isPlaceholder) { btn.disabled = false; btn.classList.remove('disabled'); }
                 });
             }
+            // La visibilidad de pestañas se maneja en applyVisibility
         }
 
         function isMatchClosed(matchId) {
-            // El admin siempre puede editar
             if (STATE.adminConnected) return false;
-            // Si la quiniela completa está cerrada, todo bloqueado
-            if (isQuinielaClosed()) return true;
-            // Si se forzó el cierre de grupos desde el panel admin
             if (STATE.gruposLock && matchId <= 72) return true;
-            // Verificar si ya existe resultado oficial para este partido
-            const oficial = STATE.officialResults[matchId];
-            if (oficial && oficial.gl !== undefined && oficial.gv !== undefined
-                && oficial.gl !== null && oficial.gv !== null
-                && oficial.gl !== '' && oficial.gv !== '') {
-                return true;   // tiene resultado oficial → cerrado
+            // Cierre suave: si la quiniela está cerrada, solo se bloquean partidos con resultado oficial
+            if (isQuinielaClosed()) {
+                const oficial = STATE.officialResults[matchId];
+                if (oficial && oficial.gl !== undefined && oficial.gv !== undefined &&
+                    oficial.gl !== null && oficial.gv !== null &&
+                    oficial.gl !== '' && oficial.gv !== '') {
+                    return true;
+                }
+                return false; // partido sin resultado oficial sigue abierto
             }
-            return false;   // sin resultado oficial → abierto para pronosticar
+            return false;
         }
 
         function updateProgress() {
@@ -733,20 +689,9 @@
             if (pBar) pBar.style.width = `${pct}%`;
         }
 
-        // ══════════════════════════════════════════════════════
-        //  NUEVO: Motor de Cálculo de Ranking y Desglose
-        // ══════════════════════════════════════════════════════
-
-        /** Caché de desglose para no pasar JSON gigante como atributo HTML */
         const _desgloseCache = {};
-
-        /** Reglas de puntos para la fase de grupos */
         const REGLAS_POLLA = { PUNTOS_EXACTO: 3, PUNTOS_TENDENCIA: 1, PUNTOS_NADA: 0 };
 
-        /**
-         * Evalúa puntos de un partido.
-         * pred y real en formato { goles_local, goles_visitante }
-         */
         function evaluarPuntosPartido(pred, real) {
             if (!real || real.goles_local === undefined || real.goles_visitante === undefined ||
                 real.goles_local === null || real.goles_visitante === null ||
@@ -774,65 +719,47 @@
             return { puntos: REGLAS_POLLA.PUNTOS_NADA, motivo: 'Pronóstico incorrecto (0 pts)', tipo: 'incorrecto' };
         }
 
-        /**
-         * Calcula el ranking completo con desglose por partido.
-         * Usa STATE.officialResults para los resultados reales y
-         * STATE.users[uid].total_puntos (calculado por calculatePointsEngine) como puntaje final.
-         */
         function calcularRankingGeneral(usuariosArray) {
             if (!usuariosArray || !Array.isArray(usuariosArray)) return [];
-
             const ranking = usuariosArray.map(usuario => {
                 const uid = usuario.id || usuario.uid;
                 const prediccionesUsuario = STATE.predictions[uid] || {};
                 let exactosContador = 0;
                 const desgloseHistorial = [];
-
                 ALL_MATCHES.forEach(partido => {
                     const resultadoOficial = STATE.officialResults[partido.id];
                     const prediccionRaw = prediccionesUsuario[partido.id];
-
-                    // Adaptar formato {gl, gv} → {goles_local, goles_visitante}
                     const predAdapted = (prediccionRaw && prediccionRaw.gl !== undefined)
                         ? { goles_local: prediccionRaw.gl, goles_visitante: prediccionRaw.gv }
                         : null;
                     const realAdapted = (resultadoOficial && resultadoOficial.gl !== undefined)
                         ? { goles_local: resultadoOficial.gl, goles_visitante: resultadoOficial.gv }
                         : null;
-
                     const evaluacion = evaluarPuntosPartido(predAdapted, realAdapted);
                     if (evaluacion.tipo === 'exacto') exactosContador++;
-
-                    // Solo incluir en desglose partidos relevantes (no pendientes sin predicción)
                     if (evaluacion.tipo !== 'pendiente' || predAdapted !== null) {
                         desgloseHistorial.push({
                             partidoId: partido.id,
-                            infoPartido: partido,           // {local, visitante, fechaStr, grupo}
-                            prediccion: predAdapted,         // {goles_local, goles_visitante} o null
-                            resultadoReal: realAdapted,      // {goles_local, goles_visitante} o null
+                            infoPartido: partido,
+                            prediccion: predAdapted,
+                            resultadoReal: realAdapted,
                             evaluacion: evaluacion
                         });
                     }
                 });
-
                 return {
                     id: uid,
                     nombre: usuario.nombre_apodo || 'Usuario Anónimo',
-                    // total_puntos viene de calculatePointsEngine (incluye grupos + especiales + KO)
                     puntos: usuario.total_puntos || 0,
                     exactos: exactosContador,
                     desglose: desgloseHistorial
                 };
             });
-
-            // Ordenación estable: pts desc → exactos desc → alfabético asc
             ranking.sort((a, b) => {
                 if (b.puntos !== a.puntos) return b.puntos - a.puntos;
                 if (b.exactos !== a.exactos) return b.exactos - a.exactos;
                 return a.nombre.localeCompare(b.nombre);
             });
-
-            // Inyectar posición contemplando empates absolutos
             let rangoActual = 1;
             return ranking.map((item, index, arr) => {
                 if (index > 0 && (item.puntos !== arr[index - 1].puntos || item.exactos !== arr[index - 1].exactos)) {
@@ -842,50 +769,34 @@
             });
         }
 
-        /**
-         * Abre el modal de desglose para un usuario.
-         * Recibe el array de desglose directamente (no JSON, evita atributos enormes).
-         */
         function abrirModalDesglose(desglose, nombreParticipante) {
             const cuerpo = DOM.get('modalDesgloseCuerpo');
             const titulo = DOM.get('modalDesgloseTitulo');
             const modal  = DOM.get('modalDesglose');
             if (!cuerpo || !titulo || !modal) return;
-
             titulo.textContent = `Puntos de: ${nombreParticipante}`;
             cuerpo.innerHTML = '';
-
-            const itemsVisibles = desglose.filter(item =>
-                item.evaluacion.tipo !== 'pendiente' || item.prediccion !== null
-            );
-
+            const itemsVisibles = desglose.filter(item => item.evaluacion.tipo !== 'pendiente' || item.prediccion !== null);
             if (itemsVisibles.length === 0) {
-                cuerpo.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:24px;">
-                    Este participante no tiene pronósticos registrados aún.</p>`;
+                cuerpo.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:24px;">Este participante no tiene pronósticos registrados aún.</p>`;
             } else {
-                // Ordenar: primero con resultado, luego pendientes
                 const ordenados = [...itemsVisibles].sort((a, b) => {
                     const tieneResultA = a.resultadoReal ? 0 : 1;
                     const tieneResultB = b.resultadoReal ? 0 : 1;
                     if (tieneResultA !== tieneResultB) return tieneResultA - tieneResultB;
                     return a.partidoId - b.partidoId;
                 });
-
                 ordenados.forEach(item => {
-                    const part  = item.infoPartido;
-                    const pred  = item.prediccion;
-                    const real  = item.resultadoReal;
+                    const part = item.infoPartido;
+                    const pred = item.prediccion;
+                    const real = item.resultadoReal;
                     const eval_ = item.evaluacion;
-
-                    // Color del borde según resultado
-                    const colorBorde = eval_.tipo === 'exacto'     ? 'var(--gold)'
-                                     : eval_.tipo === 'tendencia'  ? 'var(--green)'
+                    const colorBorde = eval_.tipo === 'exacto' ? 'var(--gold)'
+                                     : eval_.tipo === 'tendencia' ? 'var(--green)'
                                      : eval_.tipo === 'incorrecto' ? 'var(--coral)'
                                      : 'var(--border)';
-
                     const predStr = pred ? `${pred.goles_local} - ${pred.goles_visitante}` : '—';
                     const realStr = real ? `${real.goles_local} - ${real.goles_visitante}` : 'Pendiente';
-
                     const div = document.createElement('div');
                     div.className = 'desglose-item';
                     div.style.borderLeft = `4px solid ${colorBorde}`;
@@ -907,7 +818,6 @@
                     cuerpo.appendChild(div);
                 });
             }
-
             modal.style.display = 'flex';
         }
 
@@ -915,17 +825,15 @@
             const modal = DOM.get('modalDesglose');
             if (modal) modal.style.display = 'none';
         }
-
-        // Cerrar modal al hacer clic en el fondo oscuro
         document.getElementById('modalDesglose').addEventListener('click', function(e) {
             if (e.target === this) cerrarModalDesglose();
         });
 
-        // ══════════════════════════════════════════════════════
-        //  FIN Motor de Ranking
-        // ══════════════════════════════════════════════════════
-
         function goToScreen(id) {
+            if (!STATE.adminConnected) {
+                if (id === 'screenPredictions' && !STATE.predictionsVisible) return;
+                if (id === 'screenFaseFinal' && !STATE.faseFinalEnabled) return;
+            }
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             const target = document.getElementById(id); if (target) target.classList.add('active');
             document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => btn.classList.remove('active'));
@@ -942,29 +850,23 @@
                 renderFaseFinal();
                 updateUIForLockState();
             }
-
-            // ── NUEVO: Controlar visibilidad de la barra sticky ──
             const barraSticky = DOM.get('miPosicionSticky');
-            if (barraSticky) {
-                barraSticky.style.display = (id === 'screenRanking' && STATE.myId) ? 'flex' : 'none';
-            }
-
+            if (barraSticky) barraSticky.style.display = (id === 'screenRanking' && STATE.myId) ? 'flex' : 'none';
             const ub = DOM.get('userBadge'); if (ub) ub.textContent = STATE.currentUser ? `👤 ${STATE.currentUser.nombre_apodo}` : '👤 Sin sesión';
             const cw = DOM.get('closureWarning'); if (cw && id === 'screenWelcome') cw.textContent = STATE.status === 'closed' ? '🔒 LA POLLA MUNDIALISTA ESTÁ TOTALMENTE CERRADA' : '';
-            const navPred = DOM.get('navItemPredictions'); if (navPred) navPred.style.display = id === 'screenPredictions' ? 'flex' : 'none';
-            applyFaseFinalVisibility();
+            applyVisibility();
             if (!['screenWelcome','screenLogin','screenRegister'].includes(id) && !STATE.currentUser) goToScreen('screenWelcome');
         }
 
-        function applyFaseFinalVisibility() {
-            const enabled = STATE.faseFinalEnabled;
-            const activeId = document.querySelector('.screen.active')?.id;
-            const btnFF = DOM.get('btnFaseFinalMenu'); if (btnFF) btnFF.style.display = enabled ? 'flex' : 'none';
-            const navFF = DOM.get('navItemFaseFinal'); if (navFF) navFF.style.display = (enabled && activeId === 'screenFaseFinal') ? 'flex' : 'none';
+        function applyVisibility() {
+            const faseEnabled = STATE.faseFinalEnabled;
+            const predVisible = STATE.predictionsVisible;
+            const btnFF = DOM.get('btnFaseFinalMenu'); if (btnFF) btnFF.style.display = faseEnabled ? 'flex' : 'none';
+            const navFF = DOM.get('navItemFaseFinal'); if (navFF) navFF.style.display = faseEnabled ? 'flex' : 'none';
+            const navPred = DOM.get('navItemPredictions'); if (navPred) navPred.style.display = predVisible ? 'flex' : 'none';
             const tabBracket = DOM.get('tabBracketView');
             if (tabBracket) {
-                tabBracket.style.display = enabled ? '' : 'none';
-                if (!enabled && STATE.currentTablesView === 'bracket') {
+                if (!faseEnabled && STATE.currentTablesView === 'bracket') {
                     STATE.currentTablesView = 'groups';
                     DOM.get('tabGroupsView')?.classList.add('active');
                     tabBracket.classList.remove('active');
@@ -973,7 +875,7 @@
                 }
             }
             const btnGoFF = DOM.get('btnGuardarIrFF');
-            if (btnGoFF) btnGoFF.textContent = enabled ? '💾 Guardar e ir a Fase Final' : '💾 Guardar y volver al Menú';
+            if (btnGoFF) btnGoFF.textContent = faseEnabled ? '💾 Guardar e ir a Fase Final' : '💾 Guardar y volver al Menú';
         }
 
         function registerUser() {
@@ -1055,9 +957,7 @@
             DOM.get('tabSourceReal')?.classList.toggle('active', STATE.tableSource === 'real');
             const container = DOM.get('groupTabsContainer');
             if (container) container.innerHTML = Object.keys(GROUPS).map(g => `<button class="group-tab ${STATE.currentSelectedGroup === g ? 'active' : ''}" onclick="APP.setTableGroupActive('${g}')">Grupo ${g}</button>`).join('');
-            let sourceData;
-            if (STATE.tableSource === 'real') { sourceData = STATE.officialResults || {}; }
-            else { sourceData = STATE.predictions[STATE.myId] || {}; }
+            let sourceData = STATE.tableSource === 'real' ? (STATE.officialResults || {}) : (STATE.predictions[STATE.myId] || {});
             const standings = DOM.get('liveGroupStandings');
             if (standings) standings.innerHTML = buildGroupStandings(STATE.currentSelectedGroup, sourceData);
             if (isBracket) renderTablesBracket();
@@ -1085,9 +985,7 @@
             let html = `<div class="standings-container"><table class="standings">
                 <tr><th style="text-align:left;">Equipo</th><th>PTS</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th></tr>`;
             sorted.forEach((t, index) => {
-                let rowClass = '';
-                if (index === 0 || index === 1) rowClass = 'row-qualified';
-                else if (index === 2) rowClass = 'row-best-third';
+                let rowClass = index === 0 || index === 1 ? 'row-qualified' : (index === 2 ? 'row-best-third' : '');
                 html += `<tr class="${rowClass}">
                     <td class="st-team"><span class="flag">${t.flag}</span> <span>${t.name}</span></td>
                     <td style="color:var(--gold); font-weight:bold; font-size:0.9rem;">${t.pts}</td>
@@ -1099,46 +997,24 @@
             return html + '</table></div>';
         }
 
-        // ══════════════════════════════════════════════════════
-        //  NUEVO: renderRanking — con modal de desglose y barra sticky
-        // ══════════════════════════════════════════════════════
         function renderRanking() {
             const rankingProcesado = calcularRankingGeneral(Object.values(STATE.users));
             const contenedor = DOM.get('rankingContent');
             if (!contenedor) return;
-
             if (rankingProcesado.length === 0) {
                 contenedor.innerHTML = `<p style="text-align:center; padding:24px; color:var(--text-muted);">Aún no hay participantes registrados.</p>`;
                 return;
             }
-
-            // Guardar en caché para que el modal los recupere sin atributos inline gigantes
             rankingProcesado.forEach(u => { _desgloseCache[u.id] = u.desglose; });
-
             let html = '';
             rankingProcesado.forEach(usuario => {
                 const esMiFila = usuario.id === STATE.myId;
-
-                // Icono de posición
-                let posIcon;
-                if (usuario.posicion === 1) posIcon = '🥇';
-                else if (usuario.posicion === 2) posIcon = '🥈';
-                else if (usuario.posicion === 3) posIcon = '🥉';
-                else posIcon = `<span style="font-size:0.9rem; color:var(--text-muted);">#${usuario.posicion}</span>`;
-
-                // Escapar nombre para atributo
+                let posIcon = usuario.posicion === 1 ? '🥇' : usuario.posicion === 2 ? '🥈' : usuario.posicion === 3 ? '🥉' : `<span style="font-size:0.9rem; color:var(--text-muted);">#${usuario.posicion}</span>`;
                 const nombreSafe = usuario.nombre.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-
-                html += `<div
-                    class="ranking-row${esMiFila ? ' mi-fila' : ''}"
-                    onclick="APP.mostrarDesglose('${usuario.id}', '${nombreSafe}')"
-                    role="button" tabindex="0"
-                    aria-label="Ver desglose de ${usuario.nombre}">
+                html += `<div class="ranking-row${esMiFila ? ' mi-fila' : ''}" onclick="APP.mostrarDesglose('${usuario.id}', '${nombreSafe}')" role="button" tabindex="0" aria-label="Ver desglose de ${usuario.nombre}">
                     <div style="display:flex; align-items:center; gap:10px;">
                         <span style="font-size:1.1rem; width:32px; text-align:center;">${posIcon}</span>
-                        <span style="color:${esMiFila ? 'var(--green)' : 'var(--text-main)'}; font-weight:${esMiFila ? '800' : '600'};">
-                            ${usuario.nombre}${esMiFila ? ' ⭐' : ''}
-                        </span>
+                        <span style="color:${esMiFila ? 'var(--green)' : 'var(--text-main)'}; font-weight:${esMiFila ? '800' : '600'};">${usuario.nombre}${esMiFila ? ' ⭐' : ''}</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <span style="font-size:0.78rem; color:var(--text-muted); background:var(--bg-card-soft); padding:2px 7px; border-radius:4px;" title="Marcadores exactos">🎯 ${usuario.exactos}</span>
@@ -1147,15 +1023,12 @@
                     </div>
                 </div>`;
             });
-
             contenedor.innerHTML = html;
-
-            // ── Barra Sticky "Mi Posición" ──
             const barraSticky = DOM.get('miPosicionSticky');
             if (barraSticky && STATE.myId) {
                 const miData = rankingProcesado.find(u => u.id === STATE.myId);
                 if (miData) {
-                    DOM.get('stickyMiRango').textContent  = `#${miData.posicion}`;
+                    DOM.get('stickyMiRango').textContent = `#${miData.posicion}`;
                     DOM.get('stickyMiPuntos').textContent = `${miData.puntos} pts`;
                     barraSticky.style.display = 'flex';
                 } else {
@@ -1164,7 +1037,6 @@
             }
         }
 
-        // NUEVO: Modal de reglas del ranking
         function showRankingRulesModal() {
             const container = DOM.get('dynamicModalContainer');
             if (!container) return;
@@ -1475,8 +1347,7 @@
             let html = '';
             ALL_MATCHES.forEach(m => {
                 const r = STATE.officialResults[m.id] || { gl: '', gv: '' };
-                html += `
-                <div class="match-row" style="background:var(--bg-input); margin-bottom:8px;">
+                html += `<div class="match-row" style="background:var(--bg-input); margin-bottom:8px;">
                     <div class="match-date">📅 Encuentro N°${m.id} — ${m.fechaStr} (Grupo ${m.grupo})</div>
                     <div class="match-teams">
                         <div class="team" style="font-size:0.85rem;">${m.local}</div>
@@ -1495,8 +1366,7 @@
             KNOCKOUT_DEFS.forEach(d => {
                 const defOfficialMatch = (STATE.officialKnockoutMatches && STATE.officialKnockoutMatches[d.id]) ? STATE.officialKnockoutMatches[d.id] : null;
                 const local = defOfficialMatch ? defOfficialMatch.local : d.local; const visitor = defOfficialMatch ? defOfficialMatch.visitor : d.visitor;
-                htmlK += `
-                <div class="match-row" style="background:var(--bg-input); margin-bottom:8px;">
+                htmlK += `<div class="match-row" style="background:var(--bg-input); margin-bottom:8px;">
                     <div class="match-date">📅 Partido N°${d.id} — ${d.round}</div>
                     <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:6px;">${local}  vs  ${visitor}</div>
                     <div style="display:flex; gap:8px;">
@@ -1601,23 +1471,25 @@
             }
         }
 
-        function toggleFaseFinal(enable) {
-            STATE.faseFinalEnabled = !!enable; applyFaseFinalVisibility();
+        // Funciones para los nuevos botones
+        function toggleFaseFinalVisibility(enable) {
+            STATE.faseFinalEnabled = !!enable;
+            applyVisibility();
             const activeId = document.querySelector('.screen.active')?.id;
             if (!enable && activeId === 'screenFaseFinal') goToScreen('screenMenu');
-            db.ref('fase_final_enabled').set(!!enable).then(() => { triggerToast(enable ? '✅ Fase Final habilitada' : '🔒 Fase Final deshabilitada'); });
+            db.ref('fase_final_enabled').set(!!enable).then(() => {
+                triggerToast(enable ? 'Fase Final visible' : 'Fase Final oculta');
+            });
         }
 
-        function toggleGruposLock(lock) {
-            STATE.gruposLock = !!lock;
-            if (STATE.adminConnected) adminLoadResults();
-            db.ref('grupos_lock').set(!!lock).then(() => { triggerToast(lock ? '🔒 Pronósticos de grupos cerrados' : '🔓 Pronósticos de grupos abiertos'); });
-        }
-
-        function toggleRegistros(lock) {
-            STATE.registrosLock = !!lock;
-            const btn = DOM.get('btnCrearUsuario'); if (btn) btn.style.display = lock ? 'none' : '';
-            db.ref('registros_lock').set(!!lock).then(() => { triggerToast(lock ? '🔒 Registros cerrados' : '🔓 Registros abiertos'); });
+        function togglePredictionsVisibility(visible) {
+            STATE.predictionsVisible = !!visible;
+            applyVisibility();
+            const activeId = document.querySelector('.screen.active')?.id;
+            if (!visible && activeId === 'screenPredictions') goToScreen('screenMenu');
+            db.ref('predictions_visible').set(!!visible).then(() => {
+                triggerToast(visible ? 'Pronósticos visibles' : 'Pronósticos ocultos');
+            });
         }
 
         function saveOfficialKnockoutBatch(map) {
@@ -1629,7 +1501,6 @@
             if (data) { STATE.officialSpecials = data; populateAdminSpecialsOptions(); triggerToast('Especiales cargados'); }
         }
 
-        // ==================== API PÚBLICA (APP) ====================
         window.APP = {
             goToScreen, registerUser, loginExistingUser, logout, saveScoreCloud, setTableGroupActive,
             saveSpecial: function(field, val) {
@@ -1638,7 +1509,6 @@
             },
             saveKo, saveAllKoDrafts, setTablesView, setTableSource,
             showRankingRulesModal,
-            // ── NUEVO: Método público para abrir el desglose desde la tabla ──
             mostrarDesglose: function(uid, nombre) {
                 const desglose = _desgloseCache[uid];
                 if (!desglose) { triggerToast('Sin datos de desglose disponibles'); return; }
@@ -1653,9 +1523,22 @@
             },
             adminSetStatus: function(st) {
                 const promises = [db.ref('status').set(st)];
-                if (st === 'closed') { promises.push(db.ref('settings/predictionsLocked').set(true)); STATE.settings.predictionsLocked = true; }
-                else { promises.push(db.ref('settings/predictionsLocked').set(false)); STATE.settings.predictionsLocked = false; }
-                Promise.all(promises).then(() => { triggerToast('Status actualizado'); updateUIForLockState(); });
+                if (st === 'closed') {
+                    promises.push(db.ref('settings/predictionsLocked').set(true));
+                    STATE.settings.predictionsLocked = true;
+                    // Cerrar también registros
+                    promises.push(db.ref('registros_lock').set(true));
+                    STATE.registrosLock = true;
+                } else {
+                    promises.push(db.ref('settings/predictionsLocked').set(false));
+                    STATE.settings.predictionsLocked = false;
+                    promises.push(db.ref('registros_lock').set(false));
+                    STATE.registrosLock = false;
+                }
+                Promise.all(promises).then(() => {
+                    triggerToast('Pronósticos ' + (st === 'closed' ? 'cerrados' : 'abiertos'));
+                    updateUIForLockState();
+                });
             },
             adminResetMundial: function() {
                 if (confirm('🚨 ATENCIÓN: Se de-vincularán los resultados familiares ingresados.')) {
@@ -1676,7 +1559,8 @@
                 const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `Polla_Familiar_2026_Master_${new Date().toISOString().slice(0,10)}.csv`; link.click();
             },
             adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials,
-            toggleFaseFinal, toggleGruposLock, toggleRegistros, adminDeleteUser, adminResetUser,
+            toggleFaseFinalVisibility, togglePredictionsVisibility,
+            adminDeleteUser, adminResetUser,
             saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch,
             saveAndGoFaseFinal: function() {
                 if (isQuinielaClosed()) { triggerToast('🔒 La quiniela está cerrada'); return; }
@@ -1711,10 +1595,8 @@
 
         function refreshUIAfterData() {
             const ub = DOM.get('userBadge'); if (ub) ub.textContent = STATE.currentUser ? `👤 ${STATE.currentUser.nombre_apodo}` : '👤 Sin sesión';
-            const activeScreen = document.querySelector('.screen.active');
-            const navPred2 = DOM.get('navItemPredictions'); if (navPred2) navPred2.style.display = (activeScreen && activeScreen.id === 'screenPredictions') ? 'flex' : 'none';
             const btnCrear = DOM.get('btnCrearUsuario'); if (btnCrear) btnCrear.style.display = STATE.registrosLock ? 'none' : '';
-            applyFaseFinalVisibility();
+            applyVisibility();
             if (STATE.adminConnected) renderAdminUsers();
             updateUIForLockState();
         }
