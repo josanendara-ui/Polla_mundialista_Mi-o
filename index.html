@@ -1168,10 +1168,69 @@
                         const def = KNOCKOUT_DEFS.find(d => d.id === parseInt(mid)); if (def) pts += (KO_POINTS[def.round] || 0);
                     }
                 });
+                pts += calcularPuntosClasificacion(uid);
                 STATE.users[uid].total_puntos = pts; STATE.users[uid].exacts = exacts;
             });
         }
 
+        function calcularPuntosClasificacion(uid) {
+            let pts = 0;
+            const userPreds = STATE.predictions[uid] || {};
+        
+            // Calcular standings reales (oficiales)
+            const realGrouped = computeStandingsFromResults(STATE.officialResults);
+            
+            // Calcular standings simulados del usuario
+            const userResults = {};
+            ALL_MATCHES.forEach(m => {
+                const p = userPreds[m.id];
+                if (p && p.gl !== '' && p.gv !== '' && p.gl !== undefined && p.gv !== undefined && !isNaN(p.gl) && !isNaN(p.gv)) {
+                    userResults[m.id] = { gl: parseInt(p.gl), gv: parseInt(p.gv) };
+                }
+            });
+            const userGrouped = computeStandingsFromResults(userResults);
+        
+            // Verificar si todos los grupos tienen resultados completos (3 partidos por equipo)
+            const gruposCompletos = Object.keys(GROUPS).every(g => {
+                const arr = realGrouped[g] || [];
+                return arr.length === 4 && arr.every(t => t.pj === 3);
+            });
+            if (!gruposCompletos) return 0;
+        
+            // Puntuar 1° y 2° de cada grupo
+            Object.keys(GROUPS).forEach(g => {
+                const real = realGrouped[g] || [];
+                const user = userGrouped[g] || [];
+                if (real[0] && user[0] && real[0].team === user[0].team) pts += 2; // 1°
+                if (real[1] && user[1] && real[1].team === user[1].team) pts += 2; // 2°
+            });
+        
+            // Calcular los 8 mejores terceros reales
+            const realThirds = [];
+            Object.keys(GROUPS).forEach(g => {
+                const arr = realGrouped[g] || [];
+                if (arr[2]) realThirds.push({ team: arr[2].team, pts: arr[2].pts, dg: arr[2].dg, gf: arr[2].gf });
+            });
+            realThirds.sort((a, b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
+            const top8Thirds = realThirds.slice(0, 8).map(x => x.team);
+        
+            // Calcular los 8 mejores terceros del usuario
+            const userThirds = [];
+            Object.keys(GROUPS).forEach(g => {
+                const arr = userGrouped[g] || [];
+                if (arr[2]) userThirds.push({ team: arr[2].team, pts: arr[2].pts, dg: arr[2].dg, gf: arr[2].gf });
+            });
+            userThirds.sort((a, b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
+            const userTop8Thirds = userThirds.slice(0, 8).map(x => x.team);
+        
+            // +1 por cada mejor tercero que acertó entre los 8 clasificados
+            userTop8Thirds.forEach(team => {
+                if (top8Thirds.includes(team)) pts += 1;
+            });
+        
+            return pts;
+        }
+        
         function computeStandingsFromResults(resultsMap) {
             const standings = {};
             Object.keys(GROUPS).forEach(g => { GROUPS[g].forEach(t => { standings[t] = { team: t, group: g, pj:0, pts:0, gf:0, gc:0, dg:0, pg:0, pe:0, pp:0 }; }); });
@@ -1467,11 +1526,29 @@
 
         function saveAdmMatchesCloud() {
             const matrix = {};
-            DOM.qAll('.adm-gl').forEach(el => { if(!matrix[el.dataset.mid]) matrix[el.dataset.mid]={}; matrix[el.dataset.mid].gl = el.value === '' ? null : parseInt(el.value); });
-            DOM.qAll('.adm-gv').forEach(el => { if(!matrix[el.dataset.mid]) matrix[el.dataset.mid]={}; matrix[el.dataset.mid].gv = el.value === '' ? null : parseInt(el.value); });
+            DOM.qAll('.adm-gl').forEach(el => { 
+                if(!matrix[el.dataset.mid]) matrix[el.dataset.mid]={}; 
+                matrix[el.dataset.mid].gl = el.value === '' ? null : parseInt(el.value); 
+            });
+            DOM.qAll('.adm-gv').forEach(el => { 
+                if(!matrix[el.dataset.mid]) matrix[el.dataset.mid]={}; 
+                matrix[el.dataset.mid].gv = el.value === '' ? null : parseInt(el.value); 
+            });
             db.ref('official_results').set(matrix).then(() => {
-                alert('Resultados actualizados. Puntos recalculados en red familiar.');
-                generateOfficialBracketAndSave(); triggerToast('Resultados guardados');
+                STATE.officialResults = matrix;
+                calculatePointsEngine(); // Recalcula todo incluyendo clasificaciones
+                
+                // Guardar puntos actualizados en Firebase
+                const updates = {};
+                Object.keys(STATE.users).forEach(uid => {
+                    updates[`users/${uid}/total_puntos`] = STATE.users[uid].total_puntos;
+                    updates[`users/${uid}/exacts`] = STATE.users[uid].exacts;
+                });
+                db.ref('/').update(updates).then(() => {
+                    alert('Resultados actualizados. Puntos recalculados incluyendo clasificaciones de grupo.');
+                    generateOfficialBracketAndSave();
+                    triggerToast('Resultados y puntos guardados');
+                });
             }).catch(err => { console.error(err); alert('Error al guardar'); });
         }
 
