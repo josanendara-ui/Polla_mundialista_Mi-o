@@ -1726,7 +1726,13 @@
             }
             tick(); setInterval(tick, 1000);
         }
-        
+        // Actualizar visualmente los candados cada minuto
+        setInterval(() => {
+            const activeScreen = document.querySelector('.screen.active');
+            if (activeScreen && activeScreen.id === 'screenPredictions' && !STATE.adminConnected) {
+                renderPredictions();
+            }
+        }, 60000);
         // Habilitamos la cuenta regresiva que tenías comentada
         startCountdown();
 
