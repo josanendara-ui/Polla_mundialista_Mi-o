@@ -355,18 +355,18 @@
                 <button class="btn" onclick="APP.adminLogin()">Ingresar</button>
             </div>
             <div id="adminPanel" style="display:none;">
-                <!-- NUEVOS BOTONES SIMPLIFICADOS -->
+                <!-- NUEVOS BOTONES CON IDS PARA CONTROL VISUAL -->
                 <div style="display:flex; gap:10px; margin-bottom:16px;">
-                    <button class="btn secondary" style="flex:1;" onclick="APP.adminSetStatus('open')">🔓 Pronósticos abiertos</button>
-                    <button class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.adminSetStatus('closed')">🔒 Pronósticos cerrados</button>
+                    <button id="btnAdminStatusOpen" class="btn secondary" style="flex:1;" onclick="APP.adminSetStatus('open')">🔓 Pronósticos abiertos</button>
+                    <button id="btnAdminStatusClosed" class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.adminSetStatus('closed')">🔒 Pronósticos cerrados</button>
                 </div>
                 <div style="display:flex; gap:10px; margin-bottom:12px;">
-                    <button class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinalVisibility(true)">👁️ Fase final visible</button>
-                    <button class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinalVisibility(false)">🙈 Fase final oculta</button>
+                    <button id="btnAdminFFVisible" class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinalVisibility(true)">👁️ Fase final visible</button>
+                    <button id="btnAdminFFHidden" class="btn secondary" style="flex:1;" onclick="APP.toggleFaseFinalVisibility(false)">🙈 Fase final oculta</button>
                 </div>
                 <div style="display:flex; gap:10px; margin-bottom:20px;">
-                    <button class="btn secondary" style="flex:1;" onclick="APP.togglePredictionsVisibility(true)">📋 Pronósticos visibles</button>
-                    <button class="btn secondary" style="flex:1;" onclick="APP.togglePredictionsVisibility(false)">🚫 Pronósticos ocultos</button>
+                    <button id="btnAdminPredsVisible" class="btn secondary" style="flex:1;" onclick="APP.togglePredictionsVisibility(true)">📋 Pronósticos visibles</button>
+                    <button id="btnAdminPredsHidden" class="btn secondary" style="flex:1;" onclick="APP.togglePredictionsVisibility(false)">🚫 Pronósticos ocultos</button>
                 </div>
                 <button class="btn gold" style="margin-bottom:20px;" onclick="APP.adminExportCSV()">📥 Exportar datos a Excel (CSV)</button>
                 <button class="btn danger" style="width:100%; margin-bottom: 20px;" onclick="APP.adminResetMundial()">♻️ Reiniciar Resultados Oficiales</button>
@@ -602,6 +602,48 @@
         let toastTimeout;
         const DOM = { get: id => document.getElementById(id), q: sel => document.querySelector(sel), qAll: sel => document.querySelectorAll(sel) };
 
+        // ========== NUEVA FUNCIÓN DE ACTUALIZACIÓN VISUAL DE BOTONES ADMIN ==========
+        function updateAdminButtonsUI() {
+            if (!STATE.adminConnected) return;
+            
+            // 1. Estado de la quiniela (Abierto / Cerrado)
+            const btnOpen = DOM.get('btnAdminStatusOpen');
+            const btnClosed = DOM.get('btnAdminStatusClosed');
+            if (btnOpen && btnClosed) {
+                if (STATE.status === 'open') {
+                    btnOpen.style.background = 'var(--green)';
+                    btnOpen.style.color = '#06201C';
+                    btnClosed.style.background = 'transparent';
+                    btnClosed.style.color = '#EF4444';
+                } else {
+                    btnOpen.style.background = 'transparent';
+                    btnOpen.style.color = 'var(--text-muted)';
+                    btnClosed.style.background = '#EF4444';
+                    btnClosed.style.color = '#fff';
+                }
+            }
+            
+            // 2. Visibilidad de la Fase Final
+            const btnFFVis = DOM.get('btnAdminFFVisible');
+            const btnFFHid = DOM.get('btnAdminFFHidden');
+            if (btnFFVis && btnFFHid) {
+                btnFFVis.style.background = STATE.faseFinalEnabled ? 'var(--green)' : 'transparent';
+                btnFFVis.style.color = STATE.faseFinalEnabled ? '#06201C' : 'var(--text-muted)';
+                btnFFHid.style.background = !STATE.faseFinalEnabled ? 'var(--green)' : 'transparent';
+                btnFFHid.style.color = !STATE.faseFinalEnabled ? '#06201C' : 'var(--text-muted)';
+            }
+            
+            // 3. Visibilidad de Pronósticos de Grupos
+            const btnPredVis = DOM.get('btnAdminPredsVisible');
+            const btnPredHid = DOM.get('btnAdminPredsHidden');
+            if (btnPredVis && btnPredHid) {
+                btnPredVis.style.background = STATE.predictionsVisible ? 'var(--green)' : 'transparent';
+                btnPredVis.style.color = STATE.predictionsVisible ? '#06201C' : 'var(--text-muted)';
+                btnPredHid.style.background = !STATE.predictionsVisible ? 'var(--green)' : 'transparent';
+                btnPredHid.style.color = !STATE.predictionsVisible ? '#06201C' : 'var(--text-muted)';
+            }
+        }
+
         function isQuinielaClosed() {
             return STATE.settings.predictionsLocked || STATE.status === 'closed';
         }
@@ -645,11 +687,8 @@
             const banners = ['closureBannerPredictions', 'closureBannerSpecial', 'closureBannerFaseFinal'];
             banners.forEach(id => { const el = DOM.get(id); if (el) el.style.display = closed ? 'block' : 'none'; });
             if (closed) {
-                // Los partidos con resultado oficial ya están bloqueados individualmente,
-                // pero los comodines y fase final se bloquean completamente.
                 document.querySelectorAll('#screenSpecial select, #screenSpecial input').forEach(el => el.disabled = true);
                 document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => { btn.disabled = true; btn.classList.add('disabled'); });
-                // Los botones de registro se ocultan (se controla con registrosLock)
             } else {
                 document.querySelectorAll('#screenSpecial select, #screenSpecial input').forEach(el => el.disabled = false);
                 document.querySelectorAll('#screenFaseFinal .ko-team-btn').forEach(btn => {
@@ -657,32 +696,18 @@
                     if (!isPlaceholder) { btn.disabled = false; btn.classList.remove('disabled'); }
                 });
             }
-            // La visibilidad de pestañas se maneja en applyVisibility
         }
 
         function isMatchClosed(matchId) {
-            // 1. El administrador siempre puede editar todo
             if (STATE.adminConnected) return false;
-            
-            // 2. Bloqueo manual forzado de toda la fase de grupos (si se activa en la base de datos)
             if (STATE.gruposLock && matchId <= 72) return true;
-
-            // 3. Bloqueo automático 15 minutos ANTES de la hora de inicio (kickoff)
             const match = ALL_MATCHES.find(m => m.id === matchId);
             if (match && match.kickoff) {
                 const kickoffTime = new Date(match.kickoff).getTime();
-                
-                // Restamos 15 minutos en milisegundos (15 * 60 * 1000 = 900000)
                 const closingTime = kickoffTime - 900000; 
-                
                 const now = new Date().getTime();
-                
-                // Si la hora actual ya alcanzó esos 15 minutos previos, se bloquea
-                if (now >= closingTime) {
-                    return true;
-                }
+                if (now >= closingTime) return true;
             }
-            
             return false;
         }
         
@@ -863,7 +888,11 @@
             const barraSticky = DOM.get('miPosicionSticky');
             if (barraSticky) barraSticky.style.display = (id === 'screenRanking' && STATE.myId) ? 'flex' : 'none';
             const ub = DOM.get('userBadge'); if (ub) ub.textContent = STATE.currentUser ? `👤 ${STATE.currentUser.nombre_apodo}` : '👤 Sin sesión';
-            const cw = DOM.get('closureWarning'); if (cw && id === 'screenWelcome') cw.textContent = STATE.status === 'closed' ? '🔒 LA POLLA MUNDIALISTA ESTÁ TOTALMENTE CERRADA' : '';
+            // MODIFICACIÓN DEL BANNER DE BIENVENIDA
+            const cw = DOM.get('closureWarning'); 
+            if (cw && id === 'screenWelcome') {
+                cw.textContent = STATE.status === 'closed' ? '⚽ ¡El mundial ya comenzó! Los partidos se bloquean individualmente según su horario de juego.' : '';
+            }
             applyVisibility();
             if (!['screenWelcome','screenLogin','screenRegister'].includes(id) && !STATE.currentUser) goToScreen('screenWelcome');
         }
@@ -947,20 +976,15 @@
         function saveScoreCloud(mid, side, val) {
             if (isMatchClosed(mid)) { triggerToast('🔒 La quiniela está cerrada'); return; }
             if (val.length > 2) val = val.slice(0, 2);
-            const v = val === '' ? null : parseInt(val); 
-            if (v !== null && v < 0) return; 
-        
+            const v = val === '' ? '' : parseInt(val); if (v < 0) return;
             db.ref(`predictions/${STATE.myId}/${mid}/${side}`).set(v).then(() => {
                 if (!STATE.predictions[STATE.myId]) STATE.predictions[STATE.myId] = {};
                 if (!STATE.predictions[STATE.myId][mid]) STATE.predictions[STATE.myId][mid] = {};
                 STATE.predictions[STATE.myId][mid][side] = v;
-                updateProgress(); 
-                triggerToast('✅ Guardado');
-            }).catch(err => { 
-                console.error(err); 
-                triggerToast('❌ Error'); 
-            });
+                updateProgress(); triggerToast('✅ Guardado');
+            }).catch(err => { console.error(err); triggerToast('❌ Error'); });
         }
+
         function renderTables() {
             const isBracket = STATE.currentTablesView === 'bracket';
             DOM.get('tabGroupsView')?.classList.toggle('active', !isBracket);
@@ -1397,6 +1421,7 @@
             htmlK += `<button class="btn secondary" onclick="APP.generateOfficialBracket()">Generar Bracket Oficial desde resultados de grupos</button>`;
             DOM.get('adminKnockoutContent').innerHTML = htmlK;
             renderAdminUsers(); populateAdminSpecialsOptions();
+            updateAdminButtonsUI(); // <--- NUEVO: Actualiza los colores de los botones al cargar admin
         }
 
         function saveAdmMatchesCloud() {
@@ -1486,7 +1511,7 @@
             }
         }
 
-        // Funciones para los nuevos botones
+        // Funciones mejoradas de administración
         function toggleFaseFinalVisibility(enable) {
             STATE.faseFinalEnabled = !!enable;
             applyVisibility();
@@ -1494,6 +1519,7 @@
             if (!enable && activeId === 'screenFaseFinal') goToScreen('screenMenu');
             db.ref('fase_final_enabled').set(!!enable).then(() => {
                 triggerToast(enable ? 'Fase Final visible' : 'Fase Final oculta');
+                updateAdminButtonsUI(); // Actualiza los colores de los botones
             });
         }
 
@@ -1504,6 +1530,7 @@
             if (!visible && activeId === 'screenPredictions') goToScreen('screenMenu');
             db.ref('predictions_visible').set(!!visible).then(() => {
                 triggerToast(visible ? 'Pronósticos visibles' : 'Pronósticos ocultos');
+                updateAdminButtonsUI(); // Actualiza los colores de los botones
             });
         }
 
@@ -1537,13 +1564,12 @@
                 } else alert('PIN de seguridad inválido.');
             },
             adminSetStatus: function(st) {
-                STATE.status = st;  // ← Forzar actualización local inmediata
+                STATE.status = st;
                 const promises = [db.ref('status').set(st)];
                 if (st === 'closed') {
                     promises.push(db.ref('settings/predictionsLocked').set(true));
                     STATE.settings.predictionsLocked = true;
-                    promises.push(db.ref('registros_lock').set(true));
-                    STATE.registrosLock = true;
+                    // Los registros se mantienen abiertos siempre
                 } else {
                     promises.push(db.ref('settings/predictionsLocked').set(false));
                     STATE.settings.predictionsLocked = false;
@@ -1553,7 +1579,7 @@
                 Promise.all(promises).then(() => {
                     triggerToast('Pronósticos ' + (st === 'closed' ? 'cerrados' : 'abiertos'));
                     updateUIForLockState();
-                    // Refrescar inputs de partidos si estamos en la pantalla de predicciones
+                    updateAdminButtonsUI(); // Actualiza los colores de los botones
                     if (document.querySelector('.screen.active')?.id === 'screenPredictions') {
                         renderPredictions();
                     }
@@ -1618,23 +1644,13 @@
             applyVisibility();
             if (STATE.adminConnected) renderAdminUsers();
             updateUIForLockState();
+            updateAdminButtonsUI(); // Asegurar visual correcto de botones admin
         }
-        Object.assign(window.APP, {
-            renderFaseFinal,
-            generateOfficialBracket: generateOfficialBracketAndSave,
-            saveAllKoDrafts,
-            triggerToast,
-            populateAdminSpecialsOptions,
-            saveOfficialSpecials,
-            loadOfficialSpecials
-        });
-        
-        if (STATE.myId) {
-            goToScreen('screenMenu'); 
-        } else {
-            goToScreen('screenWelcome');
-        }
-       
+
+        if (STATE.myId) goToScreen('screenMenu'); else goToScreen('screenWelcome');
+        window.renderFaseFinal = renderFaseFinal; window.generateOfficialBracket = generateOfficialBracketAndSave;
+        window.saveAllKoDrafts = saveAllKoDrafts; window.triggerToast = triggerToast;
+        window.populateAdminSpecialsOptions = populateAdminSpecialsOptions; window.saveOfficialSpecials = saveOfficialSpecials; window.loadOfficialSpecials = loadOfficialSpecials;
     })();
     </script>
 </body>
