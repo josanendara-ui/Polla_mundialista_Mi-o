@@ -947,15 +947,20 @@
         function saveScoreCloud(mid, side, val) {
             if (isMatchClosed(mid)) { triggerToast('🔒 La quiniela está cerrada'); return; }
             if (val.length > 2) val = val.slice(0, 2);
-            const v = val === '' ? '' : parseInt(val); if (v < 0) return;
+            const v = val === '' ? null : parseInt(val); 
+            if (v !== null && v < 0) return; 
+        
             db.ref(`predictions/${STATE.myId}/${mid}/${side}`).set(v).then(() => {
                 if (!STATE.predictions[STATE.myId]) STATE.predictions[STATE.myId] = {};
                 if (!STATE.predictions[STATE.myId][mid]) STATE.predictions[STATE.myId][mid] = {};
                 STATE.predictions[STATE.myId][mid][side] = v;
-                updateProgress(); triggerToast('✅ Guardado');
-            }).catch(err => { console.error(err); triggerToast('❌ Error'); });
+                updateProgress(); 
+                triggerToast('✅ Guardado');
+            }).catch(err => { 
+                console.error(err); 
+                triggerToast('❌ Error'); 
+            });
         }
-
         function renderTables() {
             const isBracket = STATE.currentTablesView === 'bracket';
             DOM.get('tabGroupsView')?.classList.toggle('active', !isBracket);
@@ -1614,11 +1619,22 @@
             if (STATE.adminConnected) renderAdminUsers();
             updateUIForLockState();
         }
-
-        if (STATE.myId) goToScreen('screenMenu'); else goToScreen('screenWelcome');
-        window.renderFaseFinal = renderFaseFinal; window.generateOfficialBracket = generateOfficialBracketAndSave;
-        window.saveAllKoDrafts = saveAllKoDrafts; window.triggerToast = triggerToast;
-        window.populateAdminSpecialsOptions = populateAdminSpecialsOptions; window.saveOfficialSpecials = saveOfficialSpecials; window.loadOfficialSpecials = loadOfficialSpecials;
+        Object.assign(window.APP, {
+            renderFaseFinal,
+            generateOfficialBracket: generateOfficialBracketAndSave,
+            saveAllKoDrafts,
+            triggerToast,
+            populateAdminSpecialsOptions,
+            saveOfficialSpecials,
+            loadOfficialSpecials
+        });
+        
+        if (STATE.myId) {
+            goToScreen('screenMenu'); 
+        } else {
+            goToScreen('screenWelcome');
+        }
+       
     })();
     </script>
 </body>
