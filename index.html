@@ -1460,34 +1460,69 @@
             const mySpec = STATE.specials[STATE.myId] || {};
             const flagOpts = ALL_TEAMS.map(t => `<option value="${t}">${(FLAGS[t] || '🏳️')} ${t}</option>`).join('');
             const base = '<option value="">Selecciona selección...</option>' + flagOpts;
-            const elRev = DOM.get('selRevelacion'); const elDec = DOM.get('selDecepcion'); const elCam = DOM.get('selCampeon');
+            
+            const elRev = DOM.get('selRevelacion'); 
+            const elDec = DOM.get('selDecepcion'); 
+            const elCam = DOM.get('selCampeon');
+            const elGol = DOM.get('txtGoleador'); 
+            const elEcu = DOM.get('selEcuadorPos');
+
             if (elRev) { elRev.innerHTML = base; elRev.value = mySpec.seleccion_revelacion || ''; }
             if (elDec) { elDec.innerHTML = base; elDec.value = mySpec.seleccion_decepcion || ''; }
             if (elCam) { elCam.innerHTML = base; elCam.value = mySpec.campeon_mundial || ''; }
-            const elGol = DOM.get('txtGoleador'); if (elGol) elGol.value = mySpec.goleador_mundial || '';
-            const elEcu = DOM.get('selEcuadorPos'); if (elEcu) elEcu.value = mySpec.posicion_ecuador || '';
-            const locked =
-                STATE.settings &&
-                STATE.settings.specialsOpen === false;
+            if (elGol) elGol.value = mySpec.goleador_mundial || '';
+            if (elEcu) elEcu.value = mySpec.posicion_ecuador || '';
+
+            // 1. Condición global del administrador
+            const globalLocked = STATE.settings && STATE.settings.specialsOpen === false;
             
-            [
-                elRev,
-                elDec,
-                elCam,
-                elGol,
-                elEcu
-            ].forEach(el => {
-                if(el) el.disabled = locked;
+            // 2. NUEVA LÓGICA: Bloqueo por usuario (si ya tiene datos guardados en la nube)
+            // Evaluamos si el objeto 'mySpec' ya contiene las propiedades llenas.
+            const userAlreadyFilled = !!(
+                mySpec.seleccion_revelacion || 
+                mySpec.seleccion_decepcion || 
+                mySpec.posicion_ecuador || 
+                mySpec.campeon_mundial || 
+                mySpec.goleador_mundial
+            );
+
+            // Determinamos si se debe congelar la pantalla. El administrador siempre mantiene acceso de edición.
+            const shouldDisable = (globalLocked || userAlreadyFilled) && !STATE.adminConnected;
+            
+            [elRev, elDec, elCam, elGol, elEcu].forEach(el => {
+                if(el) el.disabled = shouldDisable;
             });
             
+            // Alternar el banner visual de advertencia
             const banner = DOM.get('closureBannerSpecial');
-            
             if(banner){
-                banner.style.display =
-                    locked ? 'block' : 'none';
+                if (shouldDisable) {
+                    banner.style.display = 'block';
+                    banner.textContent = userAlreadyFilled ? '🔒 Ya has registrado tus comodines (Sección Bloqueada)' : '🔒 Los comodines están cerrados';
+                } else {
+                    banner.style.display = 'none';
+                }
+            }
+
+            // Opcional: Ocultar o desactivar el botón de guardar si ya está lleno
+            const btnGuardar = DOM.get('btnGuardarIrFF');
+            if (btnGuardar && !STATE.adminConnected) {
+                btnGuardar.disabled = shouldDisable;
+                if (userAlreadyFilled) {
+                    btnGuardar.textContent = 'Fase de Comodines Completada ✓';
+                    btnGuardar.style.background = 'rgba(255,255,255,0.05)';
+                    btnGuardar.style.color = 'var(--text-muted)';
+                    // Nos aseguramos que al menos puedan avanzar dándole clic al botón alternativo o saliendo al menú.
+                    btnGuardar.onclick = () => goToScreen('screenMenu');
+                } else {
+                    btnGuardar.textContent = STATE.faseFinalEnabled ? '💾 Guardar e ir a Fase Final' : '💾 Guardar y volver al Menú';
+                    btnGuardar.style.background = '';
+                    btnGuardar.style.color = '';
+                    btnGuardar.onclick = () => APP.saveAndGoFaseFinal();
+                }
             }
         }
-
+            
         function populateAdminSpecialsOptions() {
             const selOpts = ALL_TEAMS.map(t => `<option value="${t}">${(FLAGS[t] || '🏳️')} ${t}</option>`).join('');
             const elRev = DOM.get('officialRevelacion'); if (elRev) elRev.innerHTML = '<option value="">--</option>' + selOpts;
@@ -1528,7 +1563,16 @@
             goToScreen, registerUser, loginExistingUser, logout, saveScoreCloud, setTableGroupActive, saveKo, saveAllKoDrafts, setTablesView, setTableSource, showRankingRulesModal, cerrarDesglose: cerrarModalDesglose, adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials, toggleFaseFinalVisibility, togglePredictionsVisibility, adminDeleteUser, adminResetUser, saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch,
             
             saveSpecial: function(field, val) {
-                if (isQuinielaClosed()) { triggerToast('🔒 La quiniela está cerrada'); populateSpecials(); return; }
+                if (isQuinielaClosed() && !STATE.adminConnected) { triggerToast('🔒 La quiniela está cerrada'); return; }
+                
+                // Bloqueo de seguridad preventivo si ya existía valor previo en la base de datos local
+                const mySpec = STATE.specials[STATE.myId] || {};
+                if (mySpec[field] && !STATE.adminConnected) {
+                    triggerToast('🔒 Este comodín ya fue guardado previamente');
+                    populateSpecials();
+                    return;
+                }
+
                 db.ref(`specials/${STATE.myId}/${field}`).set(val).then(() => triggerToast('✅ Guardado')).catch(err => { console.error(err); triggerToast('❌ Error'); });
             },
             
