@@ -29,7 +29,7 @@
         body { 
             background: radial-gradient(circle at top left, rgba(45, 212, 191, 0.16), transparent 34%), radial-gradient(circle at 85% 0%, rgba(247, 201, 72, 0.12), transparent 28%), var(--bg-body); 
             color: var(--text-main); 
-            min-height: 100dvh; /* Adaptación para móviles modernos */
+            min-height: 100dvh;
             display: flex; 
             justify-content: center; 
             -webkit-tap-highlight-color: transparent; 
@@ -42,7 +42,7 @@
             box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 28px 80px rgba(0,0,0,0.34); 
             display: flex; 
             flex-direction: column; 
-            height: 100dvh; /* Corrección de 100vh a 100dvh para evitar recortes en celulares */
+            height: 100dvh;
             position: relative; 
         }
         
@@ -413,18 +413,8 @@
                     <button id="btnAdminPredsHidden" class="btn secondary" style="flex:1;" onclick="APP.togglePredictionsVisibility(false)">🚫 Pronósticos ocultos</button>
                 </div>
                 <div style="display:flex; gap:10px; margin-bottom:16px;">
-                    <button id="btnAdminSpecialsOpen"
-                            class="btn secondary"
-                            style="flex:1;"
-                            onclick="APP.setSpecialsStatus(true)">
-                        🌟 Comodines Abiertos
-                    </button>
-                    <button id="btnAdminSpecialsClosed"
-                            class="btn secondary"
-                            style="flex:1; border-color:#EF4444; color:#EF4444;"
-                            onclick="APP.setSpecialsStatus(false)">
-                        🔒 Comodines Cerrados
-                    </button>
+                    <button id="btnAdminStatusOpen" class="btn secondary" style="flex:1;" onclick="APP.setSpecialsStatus(true)">🌟 Comodines Abiertos</button>
+                    <button id="btnAdminStatusClosed" class="btn secondary" style="flex:1; border-color:#EF4444; color:#EF4444;" onclick="APP.setSpecialsStatus(false)">🔒 Comodines Cerrados</button>
                 </div>
                 <button class="btn gold" style="margin-bottom:20px;" onclick="APP.adminExportCSV()">📥 Exportar datos a Excel (CSV)</button>
                 <button class="btn danger" style="width:100%; margin-bottom: 20px;" onclick="APP.adminResetMundial()">♻️ Reiniciar Resultados Oficiales</button>
@@ -669,7 +659,7 @@
             const btnOpen = DOM.get('btnAdminStatusOpen');
             const btnClosed = DOM.get('btnAdminStatusClosed');
             if (btnOpen && btnClosed) {
-                if (STATE.status === 'open') {
+                if (STATE.settings.specialsOpen !== false) {
                     btnOpen.style.background = 'var(--green)'; btnOpen.style.color = '#06201C';
                     btnClosed.style.background = 'transparent'; btnClosed.style.color = '#EF4444';
                 } else {
@@ -695,7 +685,6 @@
             }
         }
 
-        // Se eliminó la duplicación de la función isQuinielaClosed
         function isQuinielaClosed() {
             return STATE.settings.predictionsLocked || STATE.status === 'closed';
         }
@@ -736,7 +725,7 @@
             toastTimeout = setTimeout(() => t.classList.remove('show'), 1500);
         }
 
-       function updateUIForLockState() {
+        function updateUIForLockState() {
             const closed = isQuinielaClosed(); // Para la fase final y grupos
             
             // --- LÓGICA DE COMODINES CORREGIDA ---
@@ -789,6 +778,7 @@
                 });
             }
         }
+        
         function updateProgress() {
             if (!STATE.myId) return;
             const userPreds = STATE.predictions[STATE.myId] || {}; let count = 0;
@@ -1592,129 +1582,6 @@
             if (data) { STATE.officialSpecials = data; populateAdminSpecialsOptions(); triggerToast('Especiales cargados'); }
         }
 
-        // UNIFICACIÓN CORRECTA DEL OBJETO GLOBAL WINDOW.APP
-        window.APP = {
-            goToScreen, registerUser, loginExistingUser, logout, saveScoreCloud, setTableGroupActive, saveKo, saveAllKoDrafts, setTablesView, setTableSource, showRankingRulesModal, cerrarDesglose: cerrarModalDesglose, adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials, toggleFaseFinalVisibility, togglePredictionsVisibility, adminDeleteUser, adminResetUser, saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch,
-            saveSpecial: function(field, val) {
-                const mySpec = STATE.specials[STATE.myId] || {};
-                const comodinesGlobalCerrados = STATE.settings && STATE.settings.specialsOpen === false;
-                
-                // Si están cerrados globalmente o el usuario ya selló, bloquea el autosave
-                if ((comodinesGlobalCerrados || mySpec.is_locked) && !STATE.adminConnected) { 
-                    triggerToast('🔒 Tus comodines ya están sellados'); 
-                    populateSpecials(); // Regresa el select a su valor visual anterior
-                    return; 
-                }
-                
-                db.ref(`specials/${STATE.myId}/${field}`).set(val)
-                  .then(() => triggerToast('✅ Guardado'))
-                  .catch(err => { console.error(err); triggerToast('❌ Error'); });
-            },
-            
-            saveAndGoFaseFinal: function() {
-                const comodinesGlobalCerrados = STATE.settings && STATE.settings.specialsOpen === false;
-                if (comodinesGlobalCerrados && !STATE.adminConnected) { 
-                    triggerToast('🔒 Los comodines están cerrados'); 
-                    return; 
-                }
-
-                const fields = [
-                    { id: 'selRevelacion', key: 'seleccion_revelacion' }, 
-                    { id: 'selDecepcion', key: 'seleccion_decepcion' },
-                    { id: 'selEcuadorPos', key: 'posicion_ecuador' }, 
-                    { id: 'selCampeon', key: 'campeon_mundial' }, 
-                    { id: 'txtGoleador', key: 'goleador_mundial' }
-                ];
-                
-                const promises = fields.map(f => {
-                    const el = DOM.get(f.id); 
-                    if (!el || !el.value.trim()) return Promise.resolve();
-                    return db.ref(`specials/${STATE.myId}/${f.key}`).set(el.value.trim());
-                });
-
-                // Se activa el candado is_locked solo al darle al botón final
-                promises.push(db.ref(`specials/${STATE.myId}/is_locked`).set(true));
-
-                Promise.all(promises).then(() => { 
-                    triggerToast('✅ Comodines Sellados'); 
-                    if (STATE.faseFinalEnabled) {
-                        goToScreen('screenFaseFinal');
-                    } else {
-                        goToScreen('screenMenu');
-                    }
-                }).catch(err => { 
-                    console.error(err); 
-                    triggerToast('❌ Error'); 
-                });
-            }
-            
-            mostrarDesglose: function(uid, nombre) {
-                const desglose = _desgloseCache[uid];
-                if (!desglose) { triggerToast('Sin datos de desglose disponibles'); return; }
-                abrirModalDesglose(desglose, nombre);
-            },
-            
-            adminLogin: function() {
-                if (DOM.get('adminPassword').value === 'admin2026') {
-                    STATE.adminConnected = true; sessionStorage.setItem('p26adm','1');
-                    DOM.get('adminLoginForm').style.display = 'none'; DOM.get('adminPanel').style.display = 'block'; adminLoadResults();
-                } else alert('PIN de seguridad inválido.');
-            },
-            
-            adminResetMundial: function() {
-                if (confirm('🚨 ATENCIÓN: Se borrarán los resultados oficiales cargados.')) {
-                    db.ref('official_results').remove(); db.ref('official_specials').remove(); db.ref('official_knockout').remove(); db.ref('official_knockout_matches').remove(); triggerToast('Reiniciado');
-                }
-            },
-
-           setSpecialsStatus: function(isOpen) {
-
-                STATE.settings.specialsOpen = isOpen;
-            
-                db.ref('settings/specialsOpen')
-                  .set(isOpen)
-                  .then(() => {
-            
-                    triggerToast(
-                        isOpen
-                        ? '🌟 Comodines abiertos'
-                        : '🔒 Comodines cerrados'
-                    );
-            
-                    updateUIForLockState();
-            
-                  });
-            
-            },
-            
-            adminExportCSV: function() {
-                let csv = 'Usuario,Puntos,Exactos,Comodine_Revelacion,Comodine_Decepcion,Ecuador_Etapa,Campeon_Mundial,Goleador_Mundial,';
-                for(let i=1;i<=72;i++) csv += `P${i}_Local,P${i}_Visitante,`;
-                csv += '\n';
-                Object.values(STATE.users).forEach(u => {
-                    const p = STATE.predictions[u.id] || {}; const s = STATE.specials[u.id] || {};
-                    csv += `"${u.nombre_apodo}",${u.total_puntos || 0},${u.exacts || 0},"${s.seleccion_revelacion || ''}","${s.seleccion_decepcion || ''}","${s.posicion_ecuador || ''}","${s.campeon_mundial || ''}","${s.goleador_mundial || ''}",`;
-                    for(let i=1;i<=72;i++) csv += `${p[i] !== undefined && p[i].gl !== undefined && p[i].gl !== null ? p[i].gl : ''},${p[i] !== undefined && p[i].gv !== undefined && p[i].gv !== null ? p[i].gv : ''},`;
-                    csv += '\n';
-                });
-                const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `Polla_Familiar_2026_Master_${new Date().toISOString().slice(0,10)}.csv`; link.click();
-            },
-            
-            saveAndGoFaseFinal: function() {
-                if (isQuinielaClosed()) { triggerToast('🔒 La quiniela está cerrada'); return; }
-                const fields = [
-                    { id: 'selRevelacion', key: 'seleccion_revelacion' }, { id: 'selDecepcion', key: 'seleccion_decepcion' },
-                    { id: 'selEcuadorPos', key: 'posicion_ecuador' }, { id: 'selCampeon', key: 'campeon_mundial' }, { id: 'txtGoleador', key: 'goleador_mundial' },
-                ];
-                const promises = fields.map(f => {
-                    const el = DOM.get(f.id); if (!el || !el.value.trim()) return Promise.resolve();
-                    return db.ref(`specials/${STATE.myId}/${f.key}`).set(el.value.trim());
-                });
-                Promise.all(promises).then(() => { triggerToast('Comodines guardados'); goToScreen('screenMenu'); }).catch(err => { console.error(err); triggerToast('❌ Error'); });
-            }
-        };
-
         function startCountdown() {
             const deadline = new Date('2026-06-10T23:59:59-05:00');
             function tick() {
@@ -1727,7 +1594,6 @@
             tick(); setInterval(tick, 1000);
         }
         
-        // Habilitamos la cuenta regresiva que tenías comentada
         startCountdown();
 
         function refreshUIAfterData() {
@@ -1739,7 +1605,123 @@
         }
 
         if (STATE.myId) goToScreen('screenMenu'); else goToScreen('screenWelcome');
-        
+
+        // ========== DEFINICIÓN FINAL DE APP ==========
+        window.APP = {
+            goToScreen: goToScreen,
+            registerUser: registerUser,
+            loginExistingUser: loginExistingUser,
+            logout: logout,
+            saveScoreCloud: saveScoreCloud,
+            setTableGroupActive: setTableGroupActive,
+            setTablesView: setTablesView,
+            setTableSource: setTableSource,
+            showRankingRulesModal: showRankingRulesModal,
+            cerrarDesglose: cerrarModalDesglose,
+            adminLoadResults: adminLoadResults,
+            generateOfficialBracket: generateOfficialBracket,
+            saveOfficialSpecials: saveOfficialSpecials,
+            loadOfficialSpecials: loadOfficialSpecials,
+            toggleFaseFinalVisibility: toggleFaseFinalVisibility,
+            togglePredictionsVisibility: togglePredictionsVisibility,
+            adminDeleteUser: adminDeleteUser,
+            adminResetUser: adminResetUser,
+            saveAdmMatchesCloud: saveAdmMatchesCloud,
+            saveOfficialKoFromInput: saveOfficialKoFromInput,
+            saveOfficialKnockoutBatch: saveOfficialKnockoutBatch,
+            mostrarDesglose: function(uid, nombre) {
+                const desglose = _desgloseCache[uid];
+                if (!desglose) { triggerToast('Sin datos de desglose disponibles'); return; }
+                abrirModalDesglose(desglose, nombre);
+            },
+            saveSpecial: function(field, val) {
+                const mySpec = STATE.specials[STATE.myId] || {};
+                const comodinesGlobalCerrados = STATE.settings && STATE.settings.specialsOpen === false;
+                if ((comodinesGlobalCerrados || mySpec.is_locked) && !STATE.adminConnected) { 
+                    triggerToast('🔒 Tus comodines ya están sellados'); 
+                    populateSpecials();
+                    return; 
+                }
+                db.ref(`specials/${STATE.myId}/${field}`).set(val)
+                  .then(() => triggerToast('✅ Guardado'))
+                  .catch(err => { console.error(err); triggerToast('❌ Error'); });
+            },
+            saveAndGoFaseFinal: function() {
+                const comodinesGlobalCerrados = STATE.settings && STATE.settings.specialsOpen === false;
+                if (comodinesGlobalCerrados && !STATE.adminConnected) { 
+                    triggerToast('🔒 Los comodines están cerrados'); 
+                    return; 
+                }
+                const fields = [
+                    { id: 'selRevelacion', key: 'seleccion_revelacion' }, 
+                    { id: 'selDecepcion', key: 'seleccion_decepcion' },
+                    { id: 'selEcuadorPos', key: 'posicion_ecuador' }, 
+                    { id: 'selCampeon', key: 'campeon_mundial' }, 
+                    { id: 'txtGoleador', key: 'goleador_mundial' }
+                ];
+                const promises = fields.map(f => {
+                    const el = DOM.get(f.id); 
+                    if (!el || !el.value.trim()) return Promise.resolve();
+                    return db.ref(`specials/${STATE.myId}/${f.key}`).set(el.value.trim());
+                });
+                promises.push(db.ref(`specials/${STATE.myId}/is_locked`).set(true));
+                Promise.all(promises).then(() => { 
+                    triggerToast('✅ Comodines Sellados'); 
+                    if (STATE.faseFinalEnabled) {
+                        goToScreen('screenFaseFinal');
+                    } else {
+                        goToScreen('screenMenu');
+                    }
+                }).catch(err => { console.error(err); triggerToast('❌ Error'); });
+            },
+            saveKo: saveKo,
+            saveAllKoDrafts: saveAllKoDrafts,
+            adminLogin: function() {
+                const pwd = document.getElementById('adminPassword');
+                if (pwd && pwd.value === 'admin2026') {
+                    STATE.adminConnected = true;
+                    sessionStorage.setItem('p26adm', '1');
+                    const loginForm = document.getElementById('adminLoginForm');
+                    const panel = document.getElementById('adminPanel');
+                    if (loginForm) loginForm.style.display = 'none';
+                    if (panel) panel.style.display = 'block';
+                    adminLoadResults();
+                } else alert('PIN de seguridad inválido.');
+            },
+            adminResetMundial: function() {
+                if (confirm('🚨 ATENCIÓN: Se borrarán los resultados oficiales cargados.')) {
+                    db.ref('official_results').remove();
+                    db.ref('official_specials').remove();
+                    db.ref('official_knockout').remove();
+                    db.ref('official_knockout_matches').remove();
+                    triggerToast('Reiniciado');
+                }
+            },
+            setSpecialsStatus: function(isOpen) {
+                STATE.settings.specialsOpen = isOpen;
+                db.ref('settings/specialsOpen').set(isOpen)
+                  .then(() => {
+                      triggerToast(isOpen ? '🌟 Comodines abiertos' : '🔒 Comodines cerrados');
+                      updateUIForLockState();
+                  });
+            },
+            adminExportCSV: function() {
+                let csv = 'Usuario,Puntos,Exactos,Comodine_Revelacion,Comodine_Decepcion,Ecuador_Etapa,Campeon_Mundial,Goleador_Mundial,';
+                for(let i=1;i<=72;i++) csv += `P${i}_Local,P${i}_Visitante,`;
+                csv += '\n';
+                Object.values(STATE.users).forEach(u => {
+                    const p = STATE.predictions[u.id] || {}; const s = STATE.specials[u.id] || {};
+                    csv += `"${u.nombre_apodo}",${u.total_puntos || 0},${u.exacts || 0},"${s.seleccion_revelacion || ''}","${s.seleccion_decepcion || ''}","${s.posicion_ecuador || ''}","${s.campeon_mundial || ''}","${s.goleador_mundial || ''}",`;
+                    for(let i=1;i<=72;i++) csv += `${p[i] !== undefined && p[i].gl !== undefined && p[i].gl !== null ? p[i].gl : ''},${p[i] !== undefined && p[i].gv !== undefined && p[i].gv !== null ? p[i].gv : ''},`;
+                    csv += '\n';
+                });
+                const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `Polla_Familiar_2026_Master_${new Date().toISOString().slice(0,10)}.csv`;
+                link.click();
+            }
+        };
     })();
     </script>
 </body>
