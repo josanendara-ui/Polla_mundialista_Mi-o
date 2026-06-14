@@ -180,12 +180,12 @@
                         <span style="font-size:1.3rem; line-height:1;">⚠️</span>
                         <span>La polla cierra el <strong style="color:var(--gold);">10 de junio</strong> — ¡No dejes tus pronósticos para último momento!</span>
                     </p>
-                    <div id="countdownDisplay" style="display:flex; gap:8px; justify-content:center;">
-                        <div style="background:rgba(0,0,0,0.3); border-radius:10px; padding:8px 12px; text-align:center; min-width:56px;">
-                            <div id="cdDays" style="font-size:1.5rem; font-weight:900; color:var(--gold); line-height:1;">—</div>
-                            <div style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-top:2px;">días</div>
-                        </div>
-                        <div style="background:rgba(0,0,0,0.3); border-radius:10px; padding:8px 12px; text-align:center; min-width:56px;">
+                   <div style="background:rgba(45,212,191,0.08); border:1px solid rgba(45,212,191,0.3); border-radius:12px; padding:14px 16px; text-align:center;">
+                        <div style="font-size:1.8rem; margin-bottom:6px;">⚽</div>
+                        <p style="font-weight:900; color:var(--green); font-size:1rem; margin-bottom:4px;">¡El Mundial ya comenzó!</p>
+                        <p style="font-size:0.82rem; color:var(--text-muted); line-height:1.5;">Puedes registrarte y hacer tus pronósticos, pero los partidos que ya comenzaron están bloqueados automáticamente.</p>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.3); border-radius:10px; padding:8px 12px; text-align:center; min-width:56px;">
                             <div id="cdHours" style="font-size:1.5rem; font-weight:900; color:var(--gold); line-height:1;">—</div>
                             <div style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-top:2px;">horas</div>
                         </div>
@@ -474,112 +474,112 @@
         };
         const ALL_TEAMS = Object.values(GROUPS).flat();
         const ALL_MATCHES = [
-            { id: 1, grupo: "A", local: "México", visitante: "Sudáfrica", kickoff: "2026-06-11T15:00:00-04:00", fechaStr: "Jue 11 Jun 15:00" },
-            { id: 2, grupo: "A", local: "Corea del Sur", visitante: "Chequia", kickoff: "2026-06-11T22:00:00-04:00", fechaStr: "Jue 11 Jun 22:00" },
-            { id: 3, grupo: "B", local: "Canadá", visitante: "Bosnia y Herzegovina", kickoff: "2026-06-12T15:00:00-04:00", fechaStr: "Vie 12 Jun 15:00" },
-            { id: 4, grupo: "D", local: "Estados Unidos", visitante: "Paraguay", kickoff: "2026-06-12T21:00:00-04:00", fechaStr: "Vie 12 Jun 21:00" },
-            { id: 5, grupo: "B", local: "Catar", visitante: "Suiza", kickoff: "2026-06-13T15:00:00-04:00", fechaStr: "Sáb 13 Jun 15:00" },
-            { id: 6, grupo: "C", local: "Brasil", visitante: "Marruecos", kickoff: "2026-06-13T18:00:00-04:00", fechaStr: "Sáb 13 Jun 18:00" },
-            { id: 7, grupo: "C", local: "Haití", visitante: "Escocia", kickoff: "2026-06-13T21:00:00-04:00", fechaStr: "Sáb 13 Jun 21:00" },
-            { id: 8, grupo: "D", local: "Australia", visitante: "Turquía", kickoff: "2026-06-14T00:00:00-04:00", fechaStr: "Sáb 13 Jun 00:00*" },
-            { id: 9, grupo: "E", local: "Alemania", visitante: "Curazao", kickoff: "2026-06-14T13:00:00-04:00", fechaStr: "Dom 14 Jun 13:00" },
-            { id: 10, grupo: "F", local: "Países Bajos", visitante: "Japón", kickoff: "2026-06-14T16:00:00-04:00", fechaStr: "Dom 14 Jun 16:00" },
-            { id: 11, grupo: "E", local: "Costa de Marfil", visitante: "Ecuador", kickoff: "2026-06-14T19:00:00-04:00", fechaStr: "Dom 14 Jun 19:00" },
-            { id: 12, grupo: "F", local: "Suecia", visitante: "Túnez", kickoff: "2026-06-14T22:00:00-04:00", fechaStr: "Dom 14 Jun 22:00" },
-            { id: 13, grupo: "H", local: "España", visitante: "Cabo Verde", kickoff: "2026-06-15T12:00:00-04:00", fechaStr: "Lun 15 Jun 12:00" },
-            { id: 14, grupo: "G", local: "Bélgica", visitante: "Egipto", kickoff: "2026-06-15T15:00:00-04:00", fechaStr: "Lun 15 Jun 15:00" },
-            { id: 15, grupo: "H", local: "Arabia Saudita", visitante: "Uruguay", kickoff: "2026-06-15T18:00:00-04:00", fechaStr: "Lun 15 Jun 18:00" },
-            { id: 16, grupo: "G", local: "Irán", visitante: "Nueva Zelanda", kickoff: "2026-06-15T21:00:00-04:00", fechaStr: "Lun 15 Jun 21:00" },
-            { id: 17, grupo: "I", local: "Francia", visitante: "Senegal", kickoff: "2026-06-16T15:00:00-04:00", fechaStr: "Mar 16 Jun 15:00" },
-            { id: 18, grupo: "I", local: "Irak", visitante: "Noruega", kickoff: "2026-06-16T18:00:00-04:00", fechaStr: "Mar 16 Jun 18:00" },
-            { id: 19, grupo: "J", local: "Argentina", visitante: "Argelia", kickoff: "2026-06-16T21:00:00-04:00", fechaStr: "Mar 16 Jun 21:00" },
-            { id: 20, grupo: "J", local: "Austria", visitante: "Jordania", kickoff: "2026-06-17T00:00:00-04:00", fechaStr: "Mar 16 Jun 00:00*" },
-            { id: 21, grupo: "K", local: "Portugal", visitante: "República Democrática del Congo", kickoff: "2026-06-17T13:00:00-04:00", fechaStr: "Mié 17 Jun 13:00" },
-            { id: 22, grupo: "L", local: "Inglaterra", visitante: "Croacia", kickoff: "2026-06-17T16:00:00-04:00", fechaStr: "Mié 17 Jun 16:00" },
-            { id: 23, grupo: "L", local: "Ghana", visitante: "Panamá", kickoff: "2026-06-17T19:00:00-04:00", fechaStr: "Mié 17 Jun 19:00" },
-            { id: 24, grupo: "K", local: "Uzbekistán", visitante: "Colombia", kickoff: "2026-06-17T22:00:00-04:00", fechaStr: "Mié 17 Jun 22:00" },
-            { id: 25, grupo: "A", local: "Chequia", visitante: "Sudáfrica", kickoff: "2026-06-18T12:00:00-04:00", fechaStr: "Jue 18 Jun 12:00" },
-            { id: 26, grupo: "B", local: "Suiza", visitante: "Bosnia y Herzegovina", kickoff: "2026-06-18T15:00:00-04:00", fechaStr: "Jue 18 Jun 15:00" },
-            { id: 27, grupo: "B", local: "Canadá", visitante: "Catar", kickoff: "2026-06-18T18:00:00-04:00", fechaStr: "Jue 18 Jun 18:00" },
-            { id: 28, grupo: "A", local: "México", visitante: "Corea del Sur", kickoff: "2026-06-18T21:00:00-04:00", fechaStr: "Jue 18 Jun 21:00" },
-            { id: 29, grupo: "D", local: "Estados Unidos", visitante: "Australia", kickoff: "2026-06-19T15:00:00-04:00", fechaStr: "Vie 19 Jun 15:00" },
-            { id: 30, grupo: "C", local: "Escocia", visitante: "Marruecos", kickoff: "2026-06-19T18:00:00-04:00", fechaStr: "Vie 19 Jun 18:00" },
-            { id: 31, grupo: "C", local: "Brasil", visitante: "Haití", kickoff: "2026-06-19T21:00:00-04:00", fechaStr: "Vie 19 Jun 21:00" },
-            { id: 32, grupo: "D", local: "Turquía", visitante: "Paraguay", kickoff: "2026-06-20T00:00:00-04:00", fechaStr: "Vie 19 Jun 00:00*" },
-            { id: 33, grupo: "F", local: "Países Bajos", visitante: "Suecia", kickoff: "2026-06-20T13:00:00-04:00", fechaStr: "Sáb 20 Jun 13:00" },
-            { id: 34, grupo: "E", local: "Alemania", visitante: "Costa de Marfil", kickoff: "2026-06-20T16:00:00-04:00", fechaStr: "Sáb 20 Jun 16:00" },
-            { id: 35, grupo: "E", local: "Ecuador", visitante: "Curazao", kickoff: "2026-06-20T22:00:00-04:00", fechaStr: "Sáb 20 Jun 22:00" },
-            { id: 36, grupo: "F", local: "Túnez", visitante: "Japón", kickoff: "2026-06-21T00:00:00-04:00", fechaStr: "Sáb 20 Jun 00:00*" },
-            { id: 37, grupo: "H", local: "España", visitante: "Arabia Saudita", kickoff: "2026-06-21T12:00:00-04:00", fechaStr: "Dom 21 Jun 12:00" },
-            { id: 38, grupo: "G", local: "Bélgica", visitante: "Irán", kickoff: "2026-06-21T15:00:00-04:00", fechaStr: "Dom 21 Jun 15:00" },
-            { id: 39, grupo: "H", local: "Uruguay", visitante: "Cabo Verde", kickoff: "2026-06-21T18:00:00-04:00", fechaStr: "Dom 21 Jun 18:00" },
-            { id: 40, grupo: "G", local: "Nueva Zelanda", visitante: "Egipto", kickoff: "2026-06-21T21:00:00-04:00", fechaStr: "Dom 21 Jun 21:00" },
-            { id: 41, grupo: "J", local: "Argentina", visitante: "Austria", kickoff: "2026-06-22T13:00:00-04:00", fechaStr: "Lun 22 Jun 13:00" },
-            { id: 42, grupo: "I", local: "Francia", visitante: "Irak", kickoff: "2026-06-22T17:00:00-04:00", fechaStr: "Lun 22 Jun 17:00" },
-            { id: 43, grupo: "I", local: "Noruega", visitante: "Senegal", kickoff: "2026-06-22T20:00:00-04:00", fechaStr: "Lun 22 Jun 20:00" },
-            { id: 44, grupo: "J", local: "Jordania", visitante: "Argelia", kickoff: "2026-06-22T23:00:00-04:00", fechaStr: "Lun 22 Jun 23:00" },
-            { id: 45, grupo: "K", local: "Portugal", visitante: "Uzbekistán", kickoff: "2026-06-23T13:00:00-04:00", fechaStr: "Mar 23 Jun 13:00" },
-            { id: 46, grupo: "L", local: "Inglaterra", visitante: "Ghana", kickoff: "2026-06-23T16:00:00-04:00", fechaStr: "Mar 23 Jun 16:00" },
-            { id: 47, grupo: "L", local: "Panamá", visitante: "Croacia", kickoff: "2026-06-23T19:00:00-04:00", fechaStr: "Mar 23 Jun 19:00" },
-            { id: 48, grupo: "K", local: "Colombia", visitante: "República Democrática del Congo", kickoff: "2026-06-23T22:00:00-04:00", fechaStr: "Mar 23 Jun 22:00" },
-            { id: 49, grupo: "B", local: "Suiza", visitante: "Canadá", kickoff: "2026-06-24T15:00:00-04:00", fechaStr: "Mié 24 Jun 15:00" },
-            { id: 50, grupo: "B", local: "Bosnia y Herzegovina", visitante: "Catar", kickoff: "2026-06-24T15:00:00-04:00", fechaStr: "Mié 24 Jun 15:00" },
-            { id: 51, grupo: "C", local: "Escocia", visitante: "Brasil", kickoff: "2026-06-24T18:00:00-04:00", fechaStr: "Mié 24 Jun 18:00" },
-            { id: 52, grupo: "C", local: "Marruecos", visitante: "Haití", kickoff: "2026-06-24T18:00:00-04:00", fechaStr: "Mié 24 Jun 18:00" },
-            { id: 53, grupo: "A", local: "Chequia", visitante: "México", kickoff: "2026-06-24T21:00:00-04:00", fechaStr: "Mié 24 Jun 21:00" },
-            { id: 54, grupo: "A", local: "Sudáfrica", visitante: "Corea del Sur", kickoff: "2026-06-24T21:00:00-04:00", fechaStr: "Mié 24 Jun 21:00" },
-            { id: 55, grupo: "E", local: "Curazao", visitante: "Costa de Marfil", kickoff: "2026-06-25T16:00:00-04:00", fechaStr: "Jue 25 Jun 16:00" },
-            { id: 56, grupo: "E", local: "Ecuador", visitante: "Alemania", kickoff: "2026-06-25T16:00:00-04:00", fechaStr: "Jue 25 Jun 16:00" },
-            { id: 57, grupo: "F", local: "Japón", visitante: "Suecia", kickoff: "2026-06-25T19:00:00-04:00", fechaStr: "Jue 25 Jun 19:00" },
-            { id: 58, grupo: "F", local: "Túnez", visitante: "Países Bajos", kickoff: "2026-06-25T19:00:00-04:00", fechaStr: "Jue 25 Jun 19:00" },
-            { id: 59, grupo: "D", local: "Turquía", visitante: "Estados Unidos", kickoff: "2026-06-25T22:00:00-04:00", fechaStr: "Jue 25 Jun 22:00" },
-            { id: 60, grupo: "D", local: "Paraguay", visitante: "Australia", kickoff: "2026-06-25T22:00:00-04:00", fechaStr: "Jue 25 Jun 22:00" },
-            { id: 61, grupo: "I", local: "Noruega", visitante: "Francia", kickoff: "2026-06-26T15:00:00-04:00", fechaStr: "Vie 26 Jun 15:00" },
-            { id: 62, grupo: "I", local: "Senegal", visitante: "Irak", kickoff: "2026-06-26T15:00:00-04:00", fechaStr: "Vie 26 Jun 15:00" },
-            { id: 63, grupo: "H", local: "Cabo Verde", visitante: "Arabia Saudita", kickoff: "2026-06-26T20:00:00-04:00", fechaStr: "Vie 26 Jun 20:00" },
-            { id: 64, grupo: "H", local: "Uruguay", visitante: "España", kickoff: "2026-06-26T20:00:00-04:00", fechaStr: "Vie 26 Jun 20:00" },
-            { id: 65, grupo: "G", local: "Egipto", visitante: "Irán", kickoff: "2026-06-26T23:00:00-04:00", fechaStr: "Vie 26 Jun 23:00" },
-            { id: 66, grupo: "G", local: "Nueva Zelanda", visitante: "Bélgica", kickoff: "2026-06-26T23:00:00-04:00", fechaStr: "Vie 26 Jun 23:00" },
-            { id: 67, grupo: "L", local: "Panamá", visitante: "Inglaterra", kickoff: "2026-06-27T17:00:00-04:00", fechaStr: "Sáb 27 Jun 17:00" },
-            { id: 68, grupo: "L", local: "Croacia", visitante: "Ghana", kickoff: "2026-06-27T17:00:00-04:00", fechaStr: "Sáb 27 Jun 17:00" },
-            { id: 69, grupo: "K", local: "Colombia", visitante: "Portugal", kickoff: "2026-06-27T19:30:00-04:00", fechaStr: "Sáb 27 Jun 19:30" },
-            { id: 70, grupo: "K", local: "República Democrática del Congo", visitante: "Uzbekistán", kickoff: "2026-06-27T19:30:00-04:00", fechaStr: "Sáb 27 Jun 19:30" },
-            { id: 71, grupo: "J", local: "Argelia", visitante: "Austria", kickoff: "2026-06-27T22:00:00-04:00", fechaStr: "Sáb 27 Jun 22:00" },
-            { id: 72, grupo: "J", local: "Jordania", visitante: "Argentina", kickoff: "2026-06-27T22:00:00-04:00", fechaStr: "Sáb 27 Jun 22:00" }
+            { id: 1,  grupo: "A", local: "México",              visitante: "Sudáfrica",                       kickoff: "2026-06-11T14:00:00-05:00", fechaStr: "Jue 11 Jun 14:00" },
+            { id: 2,  grupo: "A", local: "Corea del Sur",       visitante: "Chequia",                         kickoff: "2026-06-11T21:00:00-05:00", fechaStr: "Jue 11 Jun 21:00" },
+            { id: 3,  grupo: "B", local: "Canadá",              visitante: "Bosnia y Herzegovina",            kickoff: "2026-06-12T14:00:00-05:00", fechaStr: "Vie 12 Jun 14:00" },
+            { id: 4,  grupo: "D", local: "Estados Unidos",      visitante: "Paraguay",                        kickoff: "2026-06-12T20:00:00-05:00", fechaStr: "Vie 12 Jun 20:00" },
+            { id: 5,  grupo: "B", local: "Catar",               visitante: "Suiza",                           kickoff: "2026-06-13T14:00:00-05:00", fechaStr: "Sáb 13 Jun 14:00" },
+            { id: 6,  grupo: "C", local: "Brasil",              visitante: "Marruecos",                       kickoff: "2026-06-13T17:00:00-05:00", fechaStr: "Sáb 13 Jun 17:00" },
+            { id: 7,  grupo: "C", local: "Haití",               visitante: "Escocia",                         kickoff: "2026-06-13T20:00:00-05:00", fechaStr: "Sáb 13 Jun 20:00" },
+            { id: 8,  grupo: "D", local: "Australia",           visitante: "Turquía",                         kickoff: "2026-06-13T23:00:00-05:00", fechaStr: "Sáb 13 Jun 23:00" },
+            { id: 9,  grupo: "E", local: "Alemania",            visitante: "Curazao",                         kickoff: "2026-06-14T12:00:00-05:00", fechaStr: "Dom 14 Jun 12:00" },
+            { id: 10, grupo: "F", local: "Países Bajos",        visitante: "Japón",                           kickoff: "2026-06-14T15:00:00-05:00", fechaStr: "Dom 14 Jun 15:00" },
+            { id: 11, grupo: "E", local: "Costa de Marfil",     visitante: "Ecuador",                         kickoff: "2026-06-14T18:00:00-05:00", fechaStr: "Dom 14 Jun 18:00" },
+            { id: 12, grupo: "F", local: "Suecia",              visitante: "Túnez",                           kickoff: "2026-06-14T21:00:00-05:00", fechaStr: "Dom 14 Jun 21:00" },
+            { id: 13, grupo: "H", local: "España",              visitante: "Cabo Verde",                      kickoff: "2026-06-15T11:00:00-05:00", fechaStr: "Lun 15 Jun 11:00" },
+            { id: 14, grupo: "G", local: "Bélgica",             visitante: "Egipto",                          kickoff: "2026-06-15T14:00:00-05:00", fechaStr: "Lun 15 Jun 14:00" },
+            { id: 15, grupo: "H", local: "Arabia Saudita",      visitante: "Uruguay",                         kickoff: "2026-06-15T17:00:00-05:00", fechaStr: "Lun 15 Jun 17:00" },
+            { id: 16, grupo: "G", local: "Irán",                visitante: "Nueva Zelanda",                   kickoff: "2026-06-15T20:00:00-05:00", fechaStr: "Lun 15 Jun 20:00" },
+            { id: 17, grupo: "I", local: "Francia",             visitante: "Senegal",                         kickoff: "2026-06-16T14:00:00-05:00", fechaStr: "Mar 16 Jun 14:00" },
+            { id: 18, grupo: "I", local: "Irak",                visitante: "Noruega",                         kickoff: "2026-06-16T17:00:00-05:00", fechaStr: "Mar 16 Jun 17:00" },
+            { id: 19, grupo: "J", local: "Argentina",           visitante: "Argelia",                         kickoff: "2026-06-16T20:00:00-05:00", fechaStr: "Mar 16 Jun 20:00" },
+            { id: 20, grupo: "J", local: "Austria",             visitante: "Jordania",                        kickoff: "2026-06-16T23:00:00-05:00", fechaStr: "Mar 16 Jun 23:00" },
+            { id: 21, grupo: "K", local: "Portugal",            visitante: "República Democrática del Congo", kickoff: "2026-06-17T12:00:00-05:00", fechaStr: "Mié 17 Jun 12:00" },
+            { id: 22, grupo: "L", local: "Inglaterra",          visitante: "Croacia",                         kickoff: "2026-06-17T15:00:00-05:00", fechaStr: "Mié 17 Jun 15:00" },
+            { id: 23, grupo: "L", local: "Ghana",               visitante: "Panamá",                          kickoff: "2026-06-17T18:00:00-05:00", fechaStr: "Mié 17 Jun 18:00" },
+            { id: 24, grupo: "K", local: "Uzbekistán",          visitante: "Colombia",                        kickoff: "2026-06-17T21:00:00-05:00", fechaStr: "Mié 17 Jun 21:00" },
+            { id: 25, grupo: "A", local: "Chequia",             visitante: "Sudáfrica",                       kickoff: "2026-06-18T11:00:00-05:00", fechaStr: "Jue 18 Jun 11:00" },
+            { id: 26, grupo: "B", local: "Suiza",               visitante: "Bosnia y Herzegovina",            kickoff: "2026-06-18T14:00:00-05:00", fechaStr: "Jue 18 Jun 14:00" },
+            { id: 27, grupo: "B", local: "Canadá",              visitante: "Catar",                           kickoff: "2026-06-18T17:00:00-05:00", fechaStr: "Jue 18 Jun 17:00" },
+            { id: 28, grupo: "A", local: "México",              visitante: "Corea del Sur",                   kickoff: "2026-06-18T20:00:00-05:00", fechaStr: "Jue 18 Jun 20:00" },
+            { id: 29, grupo: "D", local: "Estados Unidos",      visitante: "Australia",                       kickoff: "2026-06-19T14:00:00-05:00", fechaStr: "Vie 19 Jun 14:00" },
+            { id: 30, grupo: "C", local: "Escocia",             visitante: "Marruecos",                       kickoff: "2026-06-19T17:00:00-05:00", fechaStr: "Vie 19 Jun 17:00" },
+            { id: 31, grupo: "C", local: "Brasil",              visitante: "Haití",                           kickoff: "2026-06-19T19:30:00-05:00", fechaStr: "Vie 19 Jun 19:30" },
+            { id: 32, grupo: "D", local: "Turquía",             visitante: "Paraguay",                        kickoff: "2026-06-19T23:00:00-05:00", fechaStr: "Vie 19 Jun 23:00" },
+            { id: 33, grupo: "F", local: "Países Bajos",        visitante: "Suecia",                          kickoff: "2026-06-20T12:00:00-05:00", fechaStr: "Sáb 20 Jun 12:00" },
+            { id: 34, grupo: "E", local: "Alemania",            visitante: "Costa de Marfil",                 kickoff: "2026-06-20T15:00:00-05:00", fechaStr: "Sáb 20 Jun 15:00" },
+            { id: 35, grupo: "E", local: "Ecuador",             visitante: "Curazao",                         kickoff: "2026-06-20T19:00:00-05:00", fechaStr: "Sáb 20 Jun 19:00" },
+            { id: 36, grupo: "F", local: "Túnez",               visitante: "Japón",                           kickoff: "2026-06-20T23:00:00-05:00", fechaStr: "Sáb 20 Jun 23:00" },
+            { id: 37, grupo: "H", local: "España",              visitante: "Arabia Saudita",                  kickoff: "2026-06-21T11:00:00-05:00", fechaStr: "Dom 21 Jun 11:00" },
+            { id: 38, grupo: "G", local: "Bélgica",             visitante: "Irán",                            kickoff: "2026-06-21T14:00:00-05:00", fechaStr: "Dom 21 Jun 14:00" },
+            { id: 39, grupo: "H", local: "Uruguay",             visitante: "Cabo Verde",                      kickoff: "2026-06-21T17:00:00-05:00", fechaStr: "Dom 21 Jun 17:00" },
+            { id: 40, grupo: "G", local: "Nueva Zelanda",       visitante: "Egipto",                          kickoff: "2026-06-21T20:00:00-05:00", fechaStr: "Dom 21 Jun 20:00" },
+            { id: 41, grupo: "J", local: "Argentina",           visitante: "Austria",                         kickoff: "2026-06-22T12:00:00-05:00", fechaStr: "Lun 22 Jun 12:00" },
+            { id: 42, grupo: "I", local: "Francia",             visitante: "Irak",                            kickoff: "2026-06-22T16:00:00-05:00", fechaStr: "Lun 22 Jun 16:00" },
+            { id: 43, grupo: "I", local: "Noruega",             visitante: "Senegal",                         kickoff: "2026-06-22T19:00:00-05:00", fechaStr: "Lun 22 Jun 19:00" },
+            { id: 44, grupo: "J", local: "Jordania",            visitante: "Argelia",                         kickoff: "2026-06-22T22:00:00-05:00", fechaStr: "Lun 22 Jun 22:00" },
+            { id: 45, grupo: "K", local: "Portugal",            visitante: "Uzbekistán",                      kickoff: "2026-06-23T12:00:00-05:00", fechaStr: "Mar 23 Jun 12:00" },
+            { id: 46, grupo: "L", local: "Inglaterra",          visitante: "Ghana",                           kickoff: "2026-06-23T15:00:00-05:00", fechaStr: "Mar 23 Jun 15:00" },
+            { id: 47, grupo: "L", local: "Panamá",              visitante: "Croacia",                         kickoff: "2026-06-23T18:00:00-05:00", fechaStr: "Mar 23 Jun 18:00" },
+            { id: 48, grupo: "K", local: "Colombia",            visitante: "República Democrática del Congo", kickoff: "2026-06-23T21:00:00-05:00", fechaStr: "Mar 23 Jun 21:00" },
+            { id: 49, grupo: "B", local: "Suiza",               visitante: "Canadá",                          kickoff: "2026-06-24T14:00:00-05:00", fechaStr: "Mié 24 Jun 14:00" },
+            { id: 50, grupo: "B", local: "Bosnia y Herzegovina",visitante: "Catar",                           kickoff: "2026-06-24T14:00:00-05:00", fechaStr: "Mié 24 Jun 14:00" },
+            { id: 51, grupo: "C", local: "Escocia",             visitante: "Brasil",                          kickoff: "2026-06-24T17:00:00-05:00", fechaStr: "Mié 24 Jun 17:00" },
+            { id: 52, grupo: "C", local: "Marruecos",           visitante: "Haití",                           kickoff: "2026-06-24T17:00:00-05:00", fechaStr: "Mié 24 Jun 17:00" },
+            { id: 53, grupo: "A", local: "Chequia",             visitante: "México",                          kickoff: "2026-06-24T20:00:00-05:00", fechaStr: "Mié 24 Jun 20:00" },
+            { id: 54, grupo: "A", local: "Sudáfrica",           visitante: "Corea del Sur",                   kickoff: "2026-06-24T20:00:00-05:00", fechaStr: "Mié 24 Jun 20:00" },
+            { id: 55, grupo: "E", local: "Curazao",             visitante: "Costa de Marfil",                 kickoff: "2026-06-25T15:00:00-05:00", fechaStr: "Jue 25 Jun 15:00" },
+            { id: 56, grupo: "E", local: "Ecuador",             visitante: "Alemania",                        kickoff: "2026-06-25T15:00:00-05:00", fechaStr: "Jue 25 Jun 15:00" },
+            { id: 57, grupo: "F", local: "Japón",               visitante: "Suecia",                          kickoff: "2026-06-25T18:00:00-05:00", fechaStr: "Jue 25 Jun 18:00" },
+            { id: 58, grupo: "F", local: "Túnez",               visitante: "Países Bajos",                    kickoff: "2026-06-25T18:00:00-05:00", fechaStr: "Jue 25 Jun 18:00" },
+            { id: 59, grupo: "D", local: "Turquía",             visitante: "Estados Unidos",                  kickoff: "2026-06-25T21:00:00-05:00", fechaStr: "Jue 25 Jun 21:00" },
+            { id: 60, grupo: "D", local: "Paraguay",            visitante: "Australia",                       kickoff: "2026-06-25T21:00:00-05:00", fechaStr: "Jue 25 Jun 21:00" },
+            { id: 61, grupo: "I", local: "Noruega",             visitante: "Francia",                         kickoff: "2026-06-26T14:00:00-05:00", fechaStr: "Vie 26 Jun 14:00" },
+            { id: 62, grupo: "I", local: "Senegal",             visitante: "Irak",                            kickoff: "2026-06-26T14:00:00-05:00", fechaStr: "Vie 26 Jun 14:00" },
+            { id: 63, grupo: "H", local: "Cabo Verde",          visitante: "Arabia Saudita",                  kickoff: "2026-06-26T19:00:00-05:00", fechaStr: "Vie 26 Jun 19:00" },
+            { id: 64, grupo: "H", local: "Uruguay",             visitante: "España",                          kickoff: "2026-06-26T19:00:00-05:00", fechaStr: "Vie 26 Jun 19:00" },
+            { id: 65, grupo: "G", local: "Egipto",              visitante: "Irán",                            kickoff: "2026-06-26T22:00:00-05:00", fechaStr: "Vie 26 Jun 22:00" },
+            { id: 66, grupo: "G", local: "Nueva Zelanda",       visitante: "Bélgica",                         kickoff: "2026-06-26T22:00:00-05:00", fechaStr: "Vie 26 Jun 22:00" },
+            { id: 67, grupo: "L", local: "Panamá",              visitante: "Inglaterra",                      kickoff: "2026-06-27T16:00:00-05:00", fechaStr: "Sáb 27 Jun 16:00" },
+            { id: 68, grupo: "L", local: "Croacia",             visitante: "Ghana",                           kickoff: "2026-06-27T16:00:00-05:00", fechaStr: "Sáb 27 Jun 16:00" },
+            { id: 69, grupo: "K", local: "Colombia",            visitante: "Portugal",                        kickoff: "2026-06-27T18:30:00-05:00", fechaStr: "Sáb 27 Jun 18:30" },
+            { id: 70, grupo: "K", local: "República Democrática del Congo", visitante: "Uzbekistán",          kickoff: "2026-06-27T18:30:00-05:00", fechaStr: "Sáb 27 Jun 18:30" },
+            { id: 71, grupo: "J", local: "Argelia",             visitante: "Austria",                         kickoff: "2026-06-27T21:00:00-05:00", fechaStr: "Sáb 27 Jun 21:00" },
+            { id: 72, grupo: "J", local: "Jordania",            visitante: "Argentina",                       kickoff: "2026-06-27T21:00:00-05:00", fechaStr: "Sáb 27 Jun 21:00" }
         ];
         const KNOCKOUT_DEFS = [
-            { id: 73, round: 'dieciseisavos', local: '2A', visitor: '2B' },
-            { id: 74, round: 'dieciseisavos', local: '1E', visitor: 'Best3' },
-            { id: 75, round: 'dieciseisavos', local: '1F', visitor: '2C' },
-            { id: 76, round: 'dieciseisavos', local: '1C', visitor: '2F' },
-            { id: 77, round: 'dieciseisavos', local: '1I', visitor: 'Best3' },
-            { id: 78, round: 'dieciseisavos', local: '2E', visitor: '2I' },
-            { id: 79, round: 'dieciseisavos', local: '1A', visitor: 'Best3' },
-            { id: 80, round: 'dieciseisavos', local: '1L', visitor: 'Best3' },
-            { id: 81, round: 'dieciseisavos', local: '1D', visitor: 'Best3' },
-            { id: 82, round: 'dieciseisavos', local: '1G', visitor: 'Best3' },
-            { id: 83, round: 'dieciseisavos', local: '2K', visitor: '2L' },
-            { id: 84, round: 'dieciseisavos', local: '1H', visitor: '2J' },
-            { id: 85, round: 'dieciseisavos', local: '1B', visitor: 'Best3' },
-            { id: 86, round: 'dieciseisavos', local: '1J', visitor: '2H' },
-            { id: 87, round: 'dieciseisavos', local: '1K', visitor: 'Best3' },
-            { id: 88, round: 'dieciseisavos', local: '2D', visitor: '2G' },
-            { id: 89, round: 'octavos', local: 'Winner74', visitor: 'Winner77' },
-            { id: 90, round: 'octavos', local: 'Winner73', visitor: 'Winner75' },
-            { id: 91, round: 'octavos', local: 'Winner76', visitor: 'Winner78' },
-            { id: 92, round: 'octavos', local: 'Winner79', visitor: 'Winner80' },
-            { id: 93, round: 'octavos', local: 'Winner83', visitor: 'Winner84' },
-            { id: 94, round: 'octavos', local: 'Winner81', visitor: 'Winner82' },
-            { id: 95, round: 'octavos', local: 'Winner86', visitor: 'Winner88' },
-            { id: 96, round: 'octavos', local: 'Winner85', visitor: 'Winner87' },
-            { id: 97, round: 'cuartos', local: 'Winner89', visitor: 'Winner90' },
-            { id: 98, round: 'cuartos', local: 'Winner93', visitor: 'Winner94' },
-            { id: 99, round: 'cuartos', local: 'Winner91', visitor: 'Winner92' },
-            { id: 100, round: 'cuartos', local: 'Winner95', visitor: 'Winner96' },
-            { id: 101, round: 'semis', local: 'Winner97', visitor: 'Winner98' },
-            { id: 102, round: 'semis', local: 'Winner99', visitor: 'Winner100' },
-            { id: 103, round: 'tercero', local: 'Losers101', visitor: 'Losers102' },
-            { id: 104, round: 'final', local: 'Winner101', visitor: 'Winner102' }
+            { id: 73,  round: 'dieciseisavos', local: '2A',        visitor: '2B',        kickoff: "2026-06-28T14:00:00-05:00", fechaStr: "Dom 28 Jun 14:00" },
+            { id: 74,  round: 'dieciseisavos', local: '1E',        visitor: 'Best3',     kickoff: "2026-06-29T15:30:00-05:00", fechaStr: "Lun 29 Jun 15:30" },
+            { id: 75,  round: 'dieciseisavos', local: '1F',        visitor: '2C',        kickoff: "2026-06-29T20:00:00-05:00", fechaStr: "Lun 29 Jun 20:00" },
+            { id: 76,  round: 'dieciseisavos', local: '1C',        visitor: '2F',        kickoff: "2026-06-29T12:00:00-05:00", fechaStr: "Lun 29 Jun 12:00" },
+            { id: 77,  round: 'dieciseisavos', local: '1I',        visitor: 'Best3',     kickoff: "2026-06-30T16:00:00-05:00", fechaStr: "Mar 30 Jun 16:00" },
+            { id: 78,  round: 'dieciseisavos', local: '2E',        visitor: '2I',        kickoff: "2026-06-30T12:00:00-05:00", fechaStr: "Mar 30 Jun 12:00" },
+            { id: 79,  round: 'dieciseisavos', local: '1A',        visitor: 'Best3',     kickoff: "2026-06-30T20:00:00-05:00", fechaStr: "Mar 30 Jun 20:00" },
+            { id: 80,  round: 'dieciseisavos', local: '1L',        visitor: 'Best3',     kickoff: "2026-07-01T11:00:00-05:00", fechaStr: "Mié 01 Jul 11:00" },
+            { id: 81,  round: 'dieciseisavos', local: '1D',        visitor: 'Best3',     kickoff: "2026-07-01T19:00:00-05:00", fechaStr: "Mié 01 Jul 19:00" },
+            { id: 82,  round: 'dieciseisavos', local: '1G',        visitor: 'Best3',     kickoff: "2026-07-01T15:00:00-05:00", fechaStr: "Mié 01 Jul 15:00" },
+            { id: 83,  round: 'dieciseisavos', local: '2K',        visitor: '2L',        kickoff: "2026-07-02T18:00:00-05:00", fechaStr: "Jue 02 Jul 18:00" },
+            { id: 84,  round: 'dieciseisavos', local: '1H',        visitor: '2J',        kickoff: "2026-07-02T14:00:00-05:00", fechaStr: "Jue 02 Jul 14:00" },
+            { id: 85,  round: 'dieciseisavos', local: '1B',        visitor: 'Best3',     kickoff: "2026-07-02T20:00:00-05:00", fechaStr: "Jue 02 Jul 20:00" },
+            { id: 86,  round: 'dieciseisavos', local: '1J',        visitor: '2H',        kickoff: "2026-07-03T15:00:00-05:00", fechaStr: "Vie 03 Jul 15:00" },
+            { id: 87,  round: 'dieciseisavos', local: '1K',        visitor: 'Best3',     kickoff: "2026-07-03T20:30:00-05:00", fechaStr: "Vie 03 Jul 20:30" },
+            { id: 88,  round: 'dieciseisavos', local: '2D',        visitor: '2G',        kickoff: "2026-07-03T13:00:00-05:00", fechaStr: "Vie 03 Jul 13:00" },
+            { id: 89,  round: 'octavos',       local: 'Winner74',  visitor: 'Winner77',  kickoff: "2026-07-04T16:00:00-05:00", fechaStr: "Sáb 04 Jul 16:00" },
+            { id: 90,  round: 'octavos',       local: 'Winner73',  visitor: 'Winner75',  kickoff: "2026-07-04T12:00:00-05:00", fechaStr: "Sáb 04 Jul 12:00" },
+            { id: 91,  round: 'octavos',       local: 'Winner76',  visitor: 'Winner78',  kickoff: "2026-07-05T15:00:00-05:00", fechaStr: "Dom 05 Jul 15:00" },
+            { id: 92,  round: 'octavos',       local: 'Winner79',  visitor: 'Winner80',  kickoff: "2026-07-05T19:00:00-05:00", fechaStr: "Dom 05 Jul 19:00" },
+            { id: 93,  round: 'octavos',       local: 'Winner83',  visitor: 'Winner84',  kickoff: "2026-07-06T14:00:00-05:00", fechaStr: "Lun 06 Jul 14:00" },
+            { id: 94,  round: 'octavos',       local: 'Winner81',  visitor: 'Winner82',  kickoff: "2026-07-06T19:00:00-05:00", fechaStr: "Lun 06 Jul 19:00" },
+            { id: 95,  round: 'octavos',       local: 'Winner86',  visitor: 'Winner88',  kickoff: "2026-07-07T11:00:00-05:00", fechaStr: "Mar 07 Jul 11:00" },
+            { id: 96,  round: 'octavos',       local: 'Winner85',  visitor: 'Winner87',  kickoff: "2026-07-07T15:00:00-05:00", fechaStr: "Mar 07 Jul 15:00" },
+            { id: 97,  round: 'cuartos',       local: 'Winner89',  visitor: 'Winner90',  kickoff: "2026-07-09T15:00:00-05:00", fechaStr: "Jue 09 Jul 15:00" },
+            { id: 98,  round: 'cuartos',       local: 'Winner93',  visitor: 'Winner94',  kickoff: "2026-07-10T14:00:00-05:00", fechaStr: "Vie 10 Jul 14:00" },
+            { id: 99,  round: 'cuartos',       local: 'Winner91',  visitor: 'Winner92',  kickoff: "2026-07-11T16:00:00-05:00", fechaStr: "Sáb 11 Jul 16:00" },
+            { id: 100, round: 'cuartos',       local: 'Winner95',  visitor: 'Winner96',  kickoff: "2026-07-11T20:00:00-05:00", fechaStr: "Sáb 11 Jul 20:00" },
+            { id: 101, round: 'semis',         local: 'Winner97',  visitor: 'Winner98',  kickoff: "2026-07-14T14:00:00-05:00", fechaStr: "Mar 14 Jul 14:00" },
+            { id: 102, round: 'semis',         local: 'Winner99',  visitor: 'Winner100', kickoff: "2026-07-15T14:00:00-05:00", fechaStr: "Mié 15 Jul 14:00" },
+            { id: 103, round: 'tercero',       local: 'Losers101', visitor: 'Losers102', kickoff: "2026-07-18T16:00:00-05:00", fechaStr: "Sáb 18 Jul 16:00" },
+            { id: 104, round: 'final',         local: 'Winner101', visitor: 'Winner102', kickoff: "2026-07-19T14:00:00-05:00", fechaStr: "Dom 19 Jul 14:00" }
         ];
         const BRACKET_LAYOUT = [
             { round: 'dieciseisavos', title: 'Dieciseisavos', matches: [74, 77, 73, 75, 83, 84, 81, 82, 76, 78, 79, 80, 86, 88, 85, 87] },
@@ -650,14 +650,14 @@
         // AGREGAR ESTA FUNCIÓN NUEVA:
         function isMatchClosed(matchId) {
             if (STATE.adminConnected) return false;
-            if (isQuinielaClosed()) return true;
-            const match = ALL_MATCHES.find(m => m.id === matchId);
-            if (!match) return false;
-            const kickoff = new Date(match.kickoff);
-            const cutoff = new Date(kickoff.getTime() - 15 * 60 * 1000); // 15 min antes
+            // Buscar en partidos de grupos
+            let match = ALL_MATCHES.find(m => m.id === matchId);
+            // Si no está en grupos, buscar en fase final
+            if (!match) match = KNOCKOUT_DEFS.find(m => m.id === matchId);
+            if (!match || !match.kickoff) return false;
+            const cutoff = new Date(new Date(match.kickoff).getTime() - 15 * 60 * 1000);
             return new Date() >= cutoff;
         }
-        
         function isQuinielaClosed() {
             return STATE.settings.predictionsLocked || STATE.status === 'closed';
         }
@@ -1754,7 +1754,7 @@
             }
             tick(); setInterval(tick, 1000);
         }
-        startCountdown();
+        //startCountdown();
 
         function refreshUIAfterData() {
             const ub = DOM.get('userBadge'); if (ub) ub.textContent = STATE.currentUser ? `👤 ${STATE.currentUser.nombre_apodo}` : '👤 Sin sesión';
