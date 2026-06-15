@@ -428,6 +428,10 @@
                         🔒 Comodines Cerrados
                     </button>
                 </div>
+                <div style="display:flex; gap:10px; margin-bottom:16px;">
+                    <button id="btnAdminRegOpen" class="btn secondary" style="flex:1;" onclick="APP.toggleRegistrosStatus(false)">🔓 Registros Abiertos</button>
+                    <button id="btnAdminRegClosed" class="btn secondary" style="flex:1;" onclick="APP.toggleRegistrosStatus(true)">🔒 Registros Cerrados</button>
+                </div>
                 <button class="btn gold" style="margin-bottom:20px;" onclick="APP.adminExportCSV()">📥 Exportar datos a Excel (CSV)</button>
                 <button class="btn danger" style="width:100%; margin-bottom: 20px;" onclick="APP.adminResetMundial()">♻️ Reiniciar Resultados Oficiales</button>
                 
@@ -697,6 +701,17 @@
                 btnPredHid.style.background = !STATE.predictionsVisible ? 'var(--green)' : 'transparent';
                 btnPredHid.style.color = !STATE.predictionsVisible ? '#06201C' : 'var(--text-muted)';
             }
+            // Control visual del botón de registros
+            const btnRegOpen = DOM.get('btnAdminRegOpen');
+            const btnRegClosed = DOM.get('btnAdminRegClosed');
+            if (btnRegOpen && btnRegClosed) {
+                btnRegOpen.style.background = !STATE.registrosLock ? 'var(--green)' : 'transparent';
+                btnRegOpen.style.color = !STATE.registrosLock ? '#06201C' : 'var(--text-muted)';
+                btnRegClosed.style.background = STATE.registrosLock ? '#EF4444' : 'transparent';
+                btnRegClosed.style.color = STATE.registrosLock ? '#fff' : 'var(--text-muted)';
+                if (STATE.registrosLock) { btnRegClosed.style.borderColor = '#EF4444'; } 
+                else { btnRegClosed.style.borderColor = 'var(--border)'; }
+            }
         }
 
         // Se eliminó la duplicación de la función isQuinielaClosed
@@ -945,20 +960,46 @@
         }
 
         function applyVisibility() {
-            const faseEnabled = STATE.faseFinalEnabled; const predVisible = STATE.predictionsVisible;
+            const faseEnabled = STATE.faseFinalEnabled; 
+            const predVisible = STATE.predictionsVisible;
+            
+            // Ocultar/Mostrar botones de menú principal y navegación
             const btnFF = DOM.get('btnFaseFinalMenu'); if (btnFF) btnFF.style.display = faseEnabled ? 'flex' : 'none';
             const navFF = DOM.get('navItemFaseFinal'); if (navFF) navFF.style.display = faseEnabled ? 'flex' : 'none';
             const navPred = DOM.get('navItemPredictions'); if (navPred) navPred.style.display = predVisible ? 'flex' : 'none';
             const btnPredMenu = DOM.get('btnPredMenu'); if (btnPredMenu) btnPredMenu.style.display = predVisible ? 'flex' : 'none';
+            
+            // --- NUEVA LÓGICA PARA LA PANTALLA DE TABLAS ---
+            const tabGroups = DOM.get('tabGroupsView');
             const tabBracket = DOM.get('tabBracketView');
-            if (tabBracket) {
-                if (!faseEnabled && STATE.currentTablesView === 'bracket') {
-                    STATE.currentTablesView = 'groups';
-                    DOM.get('tabGroupsView')?.classList.add('active'); tabBracket.classList.remove('active');
-                    const gb = DOM.get('tablesGroupsBlock'); const bb = DOM.get('tablesBracketBlock');
-                    if (gb) gb.style.display = 'block'; if (bb) bb.style.display = 'none';
-                }
+            const tablesSwitch = document.querySelector('.tables-switch');
+            
+            if (tabBracket) tabBracket.style.display = faseEnabled ? '' : 'none';
+            if (tabGroups) tabGroups.style.display = predVisible ? '' : 'none';
+            
+            // Ocultar todo el selector (el contenedor gris) si falta alguna de las dos opciones
+            if (tablesSwitch) {
+                tablesSwitch.style.display = (faseEnabled && predVisible) ? 'flex' : 'none';
             }
+
+            // Cambiar automáticamente la vista si el administrador oculta la tabla que estoy viendo
+            if (!faseEnabled && STATE.currentTablesView === 'bracket') {
+                STATE.currentTablesView = 'groups';
+                if (tabGroups) tabGroups.classList.add('active'); 
+                if (tabBracket) tabBracket.classList.remove('active');
+            }
+            if (!predVisible && STATE.currentTablesView === 'groups' && faseEnabled) {
+                STATE.currentTablesView = 'bracket';
+                if (tabBracket) tabBracket.classList.add('active'); 
+                if (tabGroups) tabGroups.classList.remove('active');
+            }
+            
+            // Aplicar la visualización de los bloques de tablas inmediatamente
+            const gb = DOM.get('tablesGroupsBlock'); const bb = DOM.get('tablesBracketBlock');
+            if (gb) gb.style.display = STATE.currentTablesView === 'groups' && predVisible ? 'block' : 'none';
+            if (bb) bb.style.display = STATE.currentTablesView === 'bracket' && faseEnabled ? 'block' : 'none';
+
+            // Botón de comodines
             const btnGoFF = DOM.get('btnGuardarIrFF');
             if (btnGoFF) btnGoFF.textContent = faseEnabled ? '💾 Guardar e ir a Fase Final' : '💾 Guardar y volver al Menú';
         }
@@ -1618,10 +1659,17 @@
             const snap = await db.ref('official_specials').get(); const data = snap.val() || {};
             if (data) { STATE.officialSpecials = data; populateAdminSpecialsOptions(); triggerToast('Especiales cargados'); }
         }
-
+        function toggleRegistrosStatus(isLocked) {
+            STATE.registrosLock = !!isLocked;
+            refreshUIAfterData();
+            db.ref('registros_lock').set(!!isLocked).then(() => {
+                triggerToast(isLocked ? 'Registros de usuarios cerrados' : 'Registros de usuarios abiertos');
+                updateAdminButtonsUI();
+            });
+        }
         // UNIFICACIÓN CORRECTA DEL OBJETO GLOBAL WINDOW.APP
         window.APP = {
-            goToScreen, registerUser, loginExistingUser, logout, saveScoreCloud, setTableGroupActive, saveKo, saveAllKoDrafts, setTablesView, setTableSource, showRankingRulesModal, cerrarDesglose: cerrarModalDesglose, adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials, toggleFaseFinalVisibility, togglePredictionsVisibility, adminDeleteUser, adminResetUser, saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch,
+            goToScreen, registerUser, loginExistingUser, logout, saveScoreCloud, setTableGroupActive, saveKo, saveAllKoDrafts, setTablesView, setTableSource, showRankingRulesModal, cerrarDesglose: cerrarModalDesglose, adminLoadResults, generateOfficialBracket, saveOfficialSpecials, loadOfficialSpecials, toggleFaseFinalVisibility, togglePredictionsVisibility, adminDeleteUser, adminResetUser, saveAdmMatchesCloud, saveOfficialKoFromInput, saveOfficialKnockoutBatch,toggleRegistrosStatus,
             saveSpecial: function(field, val) {
                 const mySpec = STATE.specials[STATE.myId] || {};
                 const comodinesGlobalCerrados = STATE.settings && STATE.settings.specialsOpen === false;
