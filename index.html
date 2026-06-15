@@ -1538,10 +1538,10 @@
             // 2. NUEVA LÓGICA: Bloqueo por usuario (si ya tiene datos guardados en la nube)
             // Evaluamos si el objeto 'mySpec' ya contiene las propiedades llenas.
             const userAlreadyFilled = !!(
-                mySpec.seleccion_revelacion || 
-                mySpec.seleccion_decepcion || 
-                mySpec.posicion_ecuador || 
-                mySpec.campeon_mundial || 
+                mySpec.seleccion_revelacion && 
+                mySpec.seleccion_decepcion && 
+                mySpec.posicion_ecuador && 
+                mySpec.campeon_mundial && 
                 mySpec.goleador_mundial
             );
 
@@ -1557,7 +1557,7 @@
             if(banner){
                 if (shouldDisable) {
                     banner.style.display = 'block';
-                    banner.textContent = userAlreadyFilled ? '🔒 Ya has registrado tus comodines (Sección Bloqueada)' : '🔒 Los comodines están cerrados';
+                    banner.textContent = userAlreadyFilled ? '🔒 Ya completaste y sellaste tus comodines' : '🔒 Los comodines están cerrados';
                 } else {
                     banner.style.display = 'none';
                 }
@@ -1625,11 +1625,11 @@
                 const comodinesGlobalCerrados = STATE.settings && STATE.settings.specialsOpen === false;
                 
                 // Verificar si el usuario ya tiene TODOS los campos llenos (misma lógica que populateSpecials)
-                const userAlreadyFilled = !!(
-                    mySpec.seleccion_revelacion || 
-                    mySpec.seleccion_decepcion || 
-                    mySpec.posicion_ecuador || 
-                    mySpec.campeon_mundial || 
+               const userAlreadyFilled = !!(
+                    mySpec.seleccion_revelacion && 
+                    mySpec.seleccion_decepcion && 
+                    mySpec.posicion_ecuador && 
+                    mySpec.campeon_mundial && 
                     mySpec.goleador_mundial
                 );
                 
