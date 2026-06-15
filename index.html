@@ -499,18 +499,20 @@
     (function() {
         'use strict';
         
-        // Inicialización de Firebase
-        firebase.initializeApp({
-            apiKey: "AIzaSyAnX5bcwjQCzXLfchLtmI5aUh52_qr1Dew",
-            authDomain: "polla-mundialista-pruebas.firebaseapp.com",
-            databaseURL: "https://polla-mundialista-pruebas-default-rtdb.firebaseio.com",
-            projectId: "polla-mundialista-pruebas",
-            storageBucket: "polla-mundialista-pruebas.firebasestorage.app",
-            messagingSenderId: "207407192052",
-            appId: "1:207407192052:web:bedce053d3099ba81d8ba1"
-        });
+// Inicialización segura de Firebase (AMBIENTE DE PRUEBAS)
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                apiKey: "AIzaSyAnX5bcwjQCzXLfchLtmI5aUh52_qr1Dew",
+                authDomain: "polla-mundialista-pruebas.firebaseapp.com",
+                databaseURL: "https://polla-mundialista-pruebas-default-rtdb.firebaseio.com",
+                projectId: "polla-mundialista-pruebas",
+                storageBucket: "polla-mundialista-pruebas.firebasestorage.app",
+                messagingSenderId: "207407192052",
+                appId: "1:207407192052:web:bedce053d3099ba81d8ba1"
+            });
+        }
         const db = firebase.database();
-
+        
         // Constantes del Torneo
         const GROUPS = {
             A: ['México', 'Sudáfrica', 'Corea del Sur', 'Chequia'], B: ['Canadá', 'Bosnia y Herzegovina', 'Catar', 'Suiza'],
