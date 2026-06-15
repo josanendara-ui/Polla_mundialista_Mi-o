@@ -1319,6 +1319,24 @@
             const grouped = computeStandingsFromResults(userResults); const best3 = computeBestThirds(grouped);
             return { grouped, best3, matches: buildKnockoutFromStandings(grouped, best3) };
         }
+       
+        function getOfficialKnockoutBase() {
+            // Usa SIEMPRE los resultados oficiales para armar la base de la Fase Final real
+            const grouped = computeStandingsFromResults(STATE.officialResults || {}); 
+            const best3 = computeBestThirds(grouped);
+            const matches = buildKnockoutFromStandings(grouped, best3);
+            
+            // Si el admin forzó cruces oficiales desde el panel, los sobreponemos
+            if (STATE.officialKnockoutMatches && Object.keys(STATE.officialKnockoutMatches).length > 0) {
+                matches.forEach(m => {
+                    if (STATE.officialKnockoutMatches[m.id]) {
+                        m.local = STATE.officialKnockoutMatches[m.id].local;
+                        m.visitor = STATE.officialKnockoutMatches[m.id].visitor;
+                    }
+                });
+            }
+            return { grouped, best3, matches };
+        }
 
         function resolveBracketTokenGeneral(token, matches, myKo, grouped, best3Queue) {
             if (!token) return ''; if (token === 'Best3') return best3Queue.length ? best3Queue.shift() : 'Mejor 3°';
@@ -1390,19 +1408,22 @@
 
         function renderFaseFinal() {
             const root = DOM.get('bracketRoot'); if (!root) return;
-            const userResults = {}; const userPreds = STATE.predictions[STATE.myId] || {}; let filledCount = 0;
-            ALL_MATCHES.forEach(m => { const p = userPreds[m.id]; if (p && p.gl !== '' && p.gv !== '' && !isNaN(p.gl) && !isNaN(p.gv)) { userResults[m.id] = { gl: parseInt(p.gl), gv: parseInt(p.gv) }; filledCount++; } });
-            if (filledCount === 0) {
+            
+            // Usamos la base OFICIAL siempre (la realidad)
+            const data = getOfficialKnockoutBase();
+            
+            // Si tú como admin no has llenado resultados oficiales, bloqueamos la vista
+            if (Object.keys(STATE.officialResults || {}).length === 0 && !STATE.adminConnected) {
                 root.innerHTML = `<div style="text-align:center; padding:32px 16px; color:var(--text-muted); width:100%; grid-column:1/-1;">
-                    <div style="font-size:3rem; margin-bottom:12px;">⚽</div>
-                    <p style="font-weight:700; color:var(--text-main); margin-bottom:8px;">El bracket aún no tiene equipos</p>
-                    <p style="font-size:0.85rem;">Completa los pronósticos de la <strong style="color:var(--gold);">Fase de Grupos</strong> primero.</p>
-                    <button class="btn secondary" style="margin-top:16px; max-width:220px; margin-left:auto; margin-right:auto;" onclick="APP.goToScreen('screenPredictions')">Ir a Pronósticos ⚽</button>
+                    <div style="font-size:3rem; margin-bottom:12px;">⏳</div>
+                    <p style="font-weight:700; color:var(--text-main); margin-bottom:8px;">Llave en espera</p>
+                    <p style="font-size:0.85rem;">La Fase Final se habilitará cuando el administrador registre los primeros resultados oficiales de los grupos.</p>
                 </div>`;
                 root.onclick = null; return;
             }
-            const data = getUserGeneratedKnockoutMatches();
+            
             renderBracketInto(root, data.matches, data.grouped, data.best3, STATE.knockoutPreds[STATE.myId] || {}, true);
+            
             root.onclick = function(e) { const btn = e.target.closest('.ko-team-btn'); if (!btn || btn.disabled) return; APP.saveKo(parseInt(btn.dataset.matchId, 10), btn.dataset.team); };
             root.onkeydown = function(e) {
                 if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -1428,21 +1449,28 @@
             try {
                 if (!STATE.knockoutPreds[STATE.myId]) STATE.knockoutPreds[STATE.myId] = {};
                 STATE.knockoutPreds[STATE.myId][mid] = team;
-                const data = getUserGeneratedKnockoutMatches(); const myKo = STATE.knockoutPreds[STATE.myId];
+                
+                // CAMBIO CLAVE: Usamos la base oficial para calcular la cascada de partidos
+                const data = getOfficialKnockoutBase(); 
+                const myKo = STATE.knockoutPreds[STATE.myId];
                 const resolvedNames = {}; const best3NumQueue = [...data.best3];
+                
                 const sortedMatches = [...data.matches].sort((a,b) => a.id - b.id);
                 sortedMatches.forEach(m => { resolvedNames[m.id] = { local: resolveBracketTokenGeneral(m.local, data.matches, myKo, data.grouped, best3NumQueue), visitor: resolveBracketTokenGeneral(m.visitor, data.matches, myKo, data.grouped, best3NumQueue) }; });
+                
+                // Limpiar selecciones futuras si el usuario cambia de opinión en una ronda anterior
                 const orderOfMatches = KNOCKOUT_DEFS.map(d => d.id).sort((a,b) => a - b);
                 orderOfMatches.forEach(id => {
                     const currentPick = myKo[id]; if (!currentPick) return;
                     if (currentPick !== resolvedNames[id].local && currentPick !== resolvedNames[id].visitor) delete myKo[id];
                 });
+                
                 await db.ref(`knockout_preds/${STATE.myId}`).set(myKo); STATE.knockoutPreds[STATE.myId] = myKo;
                 renderFaseFinal();
+                
                 if (mid === 104) showChampionCelebration(team); else triggerToast('✅ Guardado');
             } catch (e) { console.error(e); triggerToast('❌ Error'); }
         }
-
         function showChampionCelebration(team) {
             const flag = FLAGS[team] || '🏆';
             for (let i = 0; i < 40; i++) {
